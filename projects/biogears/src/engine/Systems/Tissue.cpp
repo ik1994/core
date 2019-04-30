@@ -74,6 +74,8 @@ Tissue::Tissue(BioGears& bg)
   , m_data(bg)
 {
   Clear();
+  tisWatch.reset();
+  satTime = 0.0;
 }
 
 Tissue::~Tissue()
@@ -393,7 +395,7 @@ void Tissue::SetUp()
 //#define logMeal
 void Tissue::AtSteadyState()
 {
-
+  satTime = 0.0;
   if (m_data.GetState() == EngineState::AtInitialStableState) {
     // Apply our conditions
     if (m_data.GetConditions().HasStarvation())
@@ -521,8 +523,12 @@ void Tissue::Process()
   m_data.GetDiffusionCalculator().CalculateInstantAndSimpleDiffusion();
   OtherDiffusion();
   //////
+  tisWatch.lap();
   ManageSubstancesAndSaturation();
+  satTime += tisWatch.lap();
   CalculateVitals();
+
+  m_data.GetDataTrack().Probe("CV_SaturationTime(ms)", satTime / 1e6);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -22,6 +22,8 @@ specific language governing permissions and limitations under the License.
 #include <biogears/schema/biogears/BioGearsPhysiology.hxx>
 #include <biogears/cdm/scenario/SEPatientActionCollection.h>
 
+#include <biogears/chrono/stop_watch.tci.h>
+
 namespace biogears {
 class SELiquidCompartmentGraph;
 class SEFluidCircuitCalculator;
@@ -51,9 +53,12 @@ protected:
   Cardiovascular(BioGears& bg);
   BioGears& m_data;
 
+  biogears::StopWatch<std::chrono::nanoseconds> cvWatch;
+  double circuitTime;
+  double graphTime;
 
 public:
-  virtual ~Cardiovascular() override;;
+  virtual ~Cardiovascular() override;
 
   static size_t TypeHash() { return reinterpret_cast<size_t>(&TypeHash); }  //! Hopefully this returns a unique ID for every type
   static constexpr char const * const  TypeTag() { return "Cardiovascular"; }

@@ -20,6 +20,8 @@ specific language governing permissions and limitations under the License.
 #include <biogears/engine/Controller/BioGearsSystem.h>
 #include <biogears/schema/biogears/BioGearsPhysiology.hxx>
 
+#include <biogears/chrono/stop_watch.tci.h>
+
 namespace biogears {
 class SESubstance;
 class SEGasCompartment;
@@ -45,11 +47,14 @@ protected:
   Tissue(BioGears& bg);
   BioGears& m_data;
 
+  biogears::StopWatch<std::chrono::nanoseconds> tisWatch;
+  double satTime;
+
 public:
   virtual ~Tissue() override;
 
-  static size_t TypeHash() { return reinterpret_cast<size_t>(&TypeHash); }  //! Hopefully this returns a unique ID for every type
-  static constexpr char const * const  TypeTag() { return "Tissue"; }
+  static size_t TypeHash() { return reinterpret_cast<size_t>(&TypeHash); } //! Hopefully this returns a unique ID for every type
+  static constexpr char const* const TypeTag() { return "Tissue"; }
   const char* classname() const override { return TypeTag(); }
   size_t hash_code() const override { return TypeHash(); }
 
@@ -87,7 +92,6 @@ protected:
   void CalculateVitals();
   void CheckGlycogenLevels();
   void ManageSubstancesAndSaturation();
-
 
   // Postprocess Methods
 
@@ -197,6 +201,5 @@ protected:
   std::map<SELiquidCompartment*, SEFluidCircuitPath*> m_LymphPaths;
   std::vector<SETissueCompartment*> m_ConsumptionProdutionTissues;
   std::string m_AnaerobicTissues;
-
 };
 }
