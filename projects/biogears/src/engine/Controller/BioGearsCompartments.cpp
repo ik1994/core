@@ -222,11 +222,16 @@ void BioGearsCompartments::StateChange()
       m_IntracellularFluid[t] = cmpt;
     }
   }
+
   if (m_data.GetConfiguration().IsRenalEnabled()) {
     SORT_CMPTS_LITE(Urine, Liquid);
   }
 
-  SORT_CMPTS_LITE(Vascular, Liquid);
+  if (!m_data.GetConfiguration().IsBioGearsLiteEnabled()) {
+    SORT_CMPTS(Vascular, Liquid);
+  } else {
+    SORT_CMPTS_LITE(Vascular, Liquid);
+  }
   for (const std::string& name : BGE::VascularLiteCompartment::GetValues()) {
     SELiquidCompartment* cmpt = GetLiquidCompartment(name);
     if (cmpt == nullptr) {

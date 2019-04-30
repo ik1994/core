@@ -59,7 +59,7 @@ Cardiovascular::Cardiovascular(BioGears& bg)
   , m_transporter(VolumePerTimeUnit::mL_Per_s, VolumeUnit::mL, MassUnit::ug, MassPerVolumeUnit::ug_Per_mL, bg.GetLogger())
 {
   Clear();
-  m_TuningFile = "";
+  m_TuningFile = "CVLiteCircuit.csv";
   cvWatch.reset();
   circuitTime = 0.0;
   graphTime = 0.0;
@@ -409,10 +409,19 @@ void Cardiovascular::SetUp()
   SEFluidCircuitPath* p = m_CirculatoryCircuit->GetPath(BGE::CardiovascularPath::PortalVeinToLiver1);
   if (!Contains(m_systemicResistancePaths, (*p)))
     m_systemicResistancePaths.push_back(p);
+
+  if (!m_data.GetConfiguration().IsBioGearsLiteEnabled()) {
     m_AortaCompliance = m_CirculatoryCircuit->GetPath(BGE::CardiovascularPath::Aorta1ToGround);
     m_AortaResistance = m_CirculatoryCircuit->GetPath(BGE::CardiovascularPath::Aorta3ToAorta1);
     m_VenaCavaCompliance = m_CirculatoryCircuit->GetPath(BGE::CardiovascularPath::VenaCavaToGround);
     m_RightHeartResistance = m_CirculatoryCircuit->GetPath(BGE::CardiovascularPath::VenaCavaToRightHeart2);
+  } else {
+    m_AortaCompliance = m_CirculatoryCircuit->GetPath(BGE::CardiovascularLitePath::Aorta1ToGround);
+    m_AortaResistance = m_CirculatoryCircuit->GetPath(BGE::CardiovascularLitePath::Aorta3ToAorta1);
+    m_VenaCavaCompliance = m_CirculatoryCircuit->GetPath(BGE::CardiovascularLitePath::VenaCavaToGround);
+    m_RightHeartResistance = m_CirculatoryCircuit->GetPath(BGE::CardiovascularLitePath::VenaCavaToRightHeart2);
+  }
+
 
   if(m_data.GetConfiguration().IsTissueEnabled()){
     m_tissueResistancePaths.push_back(m_CirculatoryCircuit->GetPath(BGE::TissueLitePath::GutE1ToGutE2));
