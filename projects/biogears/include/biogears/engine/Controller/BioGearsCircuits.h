@@ -463,18 +463,11 @@ namespace tatrc {
         DEFINE_STATIC_STRING(RightHeart3);
 
         DEFINE_STATIC_STRING(MainPulmonaryArteries);
-        DEFINE_STATIC_STRING(LeftIntermediatePulmonaryArteries);
-        DEFINE_STATIC_STRING(LeftPulmonaryArteries);
-        DEFINE_STATIC_STRING(RightIntermediatePulmonaryArteries);
-        DEFINE_STATIC_STRING(RightPulmonaryArteries);
+        DEFINE_STATIC_STRING(PulmonaryArteries);
 
-        DEFINE_STATIC_STRING(LeftPulmonaryCapillaries);
-        DEFINE_STATIC_STRING(RightPulmonaryCapillaries);
+        DEFINE_STATIC_STRING(PulmonaryCapillaries);
 
-        DEFINE_STATIC_STRING(LeftIntermediatePulmonaryVeins);
-        DEFINE_STATIC_STRING(LeftPulmonaryVeins);
-        DEFINE_STATIC_STRING(RightIntermediatePulmonaryVeins);
-        DEFINE_STATIC_STRING(RightPulmonaryVeins);
+        DEFINE_STATIC_STRING(PulmonaryVeins);
 
         DEFINE_STATIC_STRING(LeftHeart1);
         DEFINE_STATIC_STRING(LeftHeart2);
@@ -683,26 +676,14 @@ namespace tatrc {
         DEFINE_STATIC_STRING(RightHeart1ToRightHeart3);
         DEFINE_STATIC_STRING(RightHeart3ToGround);
         DEFINE_STATIC_STRING(RightHeart1ToMainPulmonaryArteries);
-        DEFINE_STATIC_STRING(MainPulmonaryArteriesToRightIntermediatePulmonaryArteries);
-        DEFINE_STATIC_STRING(RightIntermediatePulmonaryArteriesToRightPulmonaryArteries);
-        DEFINE_STATIC_STRING(RightPulmonaryArteriesToRightPulmonaryVeins);
-        DEFINE_STATIC_STRING(RightPulmonaryArteriesToRightPulmonaryCapillaries);
-        DEFINE_STATIC_STRING(RightPulmonaryArteriesToGround);
-        DEFINE_STATIC_STRING(RightPulmonaryCapillariesToRightPulmonaryVeins);
-        DEFINE_STATIC_STRING(RightPulmonaryCapillariesToGround);
-        DEFINE_STATIC_STRING(RightPulmonaryVeinsToRightIntermediatePulmonaryVeins);
-        DEFINE_STATIC_STRING(RightPulmonaryVeinsToGround);
-        DEFINE_STATIC_STRING(RightIntermediatePulmonaryVeinsToLeftHeart2);
-        DEFINE_STATIC_STRING(MainPulmonaryArteriesToLeftIntermediatePulmonaryArteries);
-        DEFINE_STATIC_STRING(LeftIntermediatePulmonaryArteriesToLeftPulmonaryArteries);
-        DEFINE_STATIC_STRING(LeftPulmonaryArteriesToLeftPulmonaryVeins);
-        DEFINE_STATIC_STRING(LeftPulmonaryArteriesToLeftPulmonaryCapillaries);
-        DEFINE_STATIC_STRING(LeftPulmonaryArteriesToGround);
-        DEFINE_STATIC_STRING(LeftPulmonaryCapillariesToGround);
-        DEFINE_STATIC_STRING(LeftPulmonaryCapillariesToLeftPulmonaryVeins);
-        DEFINE_STATIC_STRING(LeftPulmonaryVeinsToLeftIntermediatePulmonaryVeins);
-        DEFINE_STATIC_STRING(LeftPulmonaryVeinsToGround);
-        DEFINE_STATIC_STRING(LeftIntermediatePulmonaryVeinsToLeftHeart2)
+        DEFINE_STATIC_STRING(MainPulmonaryArteriesToPulmonaryArteries);
+        DEFINE_STATIC_STRING(PulmonaryArteriesToPulmonaryVeins);
+        DEFINE_STATIC_STRING(PulmonaryArteriesToPulmonaryCapillaries);
+        DEFINE_STATIC_STRING(PulmonaryArteriesToGround);
+        DEFINE_STATIC_STRING(PulmonaryCapillariesToPulmonaryVeins);
+        DEFINE_STATIC_STRING(PulmonaryCapillariesToGround);
+        DEFINE_STATIC_STRING(PulmonaryVeinsToGround);
+        DEFINE_STATIC_STRING(PulmonaryVeinsToLeftHeart2);
         DEFINE_STATIC_STRING(LeftHeart2ToLeftHeart1);
         DEFINE_STATIC_STRING(LeftHeart1ToLeftHeart3);
         DEFINE_STATIC_STRING(LeftHeart3ToGround);
@@ -886,6 +867,8 @@ namespace tatrc {
         DEFINE_STATIC_STRING(LiverE3ToLiverL);
         DEFINE_STATIC_STRING(LiverLToLymph);
 
+        //LungVtoLungE1 will replace LeftLungVToLungE1 and RightLungVtoLungE1 when CardioLite finished
+        DEFINE_STATIC_STRING(LungVToLungE1);
         DEFINE_STATIC_STRING(LeftLungVToLungE1);
         DEFINE_STATIC_STRING(RightLungVToLungE1);
         DEFINE_STATIC_STRING(LungE1ToLungE2);
