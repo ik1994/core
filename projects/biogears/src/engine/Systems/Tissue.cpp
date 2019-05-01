@@ -253,17 +253,33 @@ void Tissue::SetUp()
   m_FatInsulin = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Fat)->GetSubstanceQuantity(*m_Insulin);
   m_FatGlucagon = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Fat)->GetSubstanceQuantity(*m_Glucagon);
   m_FatTAG = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Fat)->GetSubstanceQuantity(*m_Triacylglycerol);
+  m_MuscleVascular = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Muscle);
+  m_FatVascular = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Fat);
+  m_FatVascularLipid = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Fat)->GetSubstanceQuantity(*m_Triacylglycerol);
+  m_LiverVascularGlucose = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Liver)->GetSubstanceQuantity(*m_Glucose);
+  m_MuscleVascularGlucose = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Muscle)->GetSubstanceQuantity(*m_Glucose);
+  m_LeftPulmonaryCapillaries = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::LeftPulmonaryCapillaries);
+  m_RightPulmonaryCapillaries = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::RightPulmonaryCapillaries);
+
+  if (m_data.GetConfiguration().IsBioGearsLiteEnabled()) {
+    m_MuscleInsulin = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Muscle)->GetSubstanceQuantity(*m_Insulin);
+    m_MuscleGlucagon = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Muscle)->GetSubstanceQuantity(*m_Glucagon);
+    m_MuscleAA = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Muscle)->GetSubstanceQuantity(*m_AminoAcids);
+    m_FatInsulin = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Fat)->GetSubstanceQuantity(*m_Insulin);
+    m_FatGlucagon = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Fat)->GetSubstanceQuantity(*m_Glucagon);
+    m_FatTAG = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Fat)->GetSubstanceQuantity(*m_Triacylglycerol);
+    m_MuscleVascular = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Muscle);
+    m_FatVascular = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Fat);
+    m_FatVascularLipid = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Fat)->GetSubstanceQuantity(*m_Triacylglycerol);
+    m_LiverVascularGlucose = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Liver)->GetSubstanceQuantity(*m_Glucose);
+    m_MuscleVascularGlucose = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Muscle)->GetSubstanceQuantity(*m_Glucose);
+    m_LeftPulmonaryCapillaries = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::LeftPulmonaryCapillaries);
+    m_RightPulmonaryCapillaries = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::RightPulmonaryCapillaries);
+  }
 
   //These were m_GutE1 and m_GutE1ToE3, respectively.  These were compliance elements in old tissue circuits so I have changed them to their new names
   m_GutE3 = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetNode(BGE::TissueLiteNode::GutE3);
   m_GutE3ToGround = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::GutE3ToGround);
-
-  m_MuscleVascular = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Muscle);
-  m_FatVascular = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Fat);
-
-  m_FatVascularLipid = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Fat)->GetSubstanceQuantity(*m_Triacylglycerol);
-  m_LiverVascularGlucose = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Liver)->GetSubstanceQuantity(*m_Glucose);
-  m_MuscleVascularGlucose = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Muscle)->GetSubstanceQuantity(*m_Glucose);
 
   m_LungTissue = m_data.GetCompartments().GetTissueCompartment(BGE::TissueLiteCompartment::Lung);
   m_LiverTissue = m_data.GetCompartments().GetTissueCompartment(BGE::TissueLiteCompartment::Liver);
@@ -297,8 +313,7 @@ void Tissue::SetUp()
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Fat)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::FatVToFatE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Bone)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::BoneVToBoneE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Brain)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::BrainVToBrainE1);
-  m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::LargeIntestine)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::LargeIntestineVToGutE1);
-  m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::SmallIntestine)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::SmallIntestineVToGutE1);
+  m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Gut)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::GutVToGutE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Splanchnic)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::SplanchnicVToGutE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Kidney)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::KidneyVToKidneyE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Liver)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::LiverVToLiverE1);
@@ -307,7 +322,6 @@ void Tissue::SetUp()
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Muscle)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::MuscleVToMuscleE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Myocardium)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::MyocardiumVToMyocardiumE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Skin)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::SkinVToSkinE1);
-  m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Spleen)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::SpleenVToGutE1);
 
   //Store paths from second extracellular node to third extracellular node (i.e. interstitial oncotic pressure source)
   m_InterstitialCopPaths.clear();
@@ -2232,6 +2246,7 @@ void Tissue::CalculateOncoticPressure()
     vascularOncoticPressure_mmHg = 2.1 * totalProteinVascular_g_Per_dL + 0.16 * std::pow(totalProteinVascular_g_Per_dL, 2) + 0.009 * std::pow(totalProteinVascular_g_Per_dL, 3);
     interstitialOncoticPressure_mmHg = 2.1 * totalProteinInterstitial_g_Per_dL + 0.16 * std::pow(totalProteinInterstitial_g_Per_dL, 2) + 0.009 * std::pow(totalProteinInterstitial_g_Per_dL, 3);
 
+
     if (vascular->GetName() == BGE::VascularCompartment::Gut || vascular->GetName() == BGE::VascularCompartment::Lungs) {
       for (auto c : vascular->GetChildren()) {
         try {
@@ -2244,12 +2259,21 @@ void Tissue::CalculateOncoticPressure()
         }
       }
     } else {
-      vascularCOP = m_VascularCopPaths[vascular];
-      vascularCOP->GetNextPressureSource().SetValue(-vascularOncoticPressure_mmHg, PressureUnit::mmHg);
+      if (vascular->GetName() == BGE::VascularCompartment::Lungs || vascular->GetName() == BGE::VascularCompartment::Kidneys) {
+        for (auto c : vascular->GetChildren()) {
+          vascularCOP = m_VascularCopPaths[c];
+          vascularCOP->GetNextPressureSource().SetValue(-vascularOncoticPressure_mmHg, PressureUnit::mmHg);
+        }
+      } else {
+        vascularCOP = m_VascularCopPaths[vascular];
+        vascularCOP->GetNextPressureSource().SetValue(-vascularOncoticPressure_mmHg, PressureUnit::mmHg);
+      }
     }
+    
     interstitialCOP = m_InterstitialCopPaths[tissue];
     interstitialCOP->GetNextPressureSource().SetValue(interstitialOncoticPressure_mmHg, PressureUnit::mmHg);
-   }
+  
+  }
   
 }
 

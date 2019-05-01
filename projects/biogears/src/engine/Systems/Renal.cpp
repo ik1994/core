@@ -261,6 +261,7 @@ void Renal::SetUp()
   m_Bowmans = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::BowmansCapsules);
   m_Tubules = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Tubules);
 
+
   m_bladder = m_data.GetCompartments().GetLiquidCompartment(BGE::UrineLiteCompartment::Bladder);
   m_Ureter = m_data.GetCompartments().GetLiquidCompartment(BGE::UrineLiteCompartment::Ureter);
 

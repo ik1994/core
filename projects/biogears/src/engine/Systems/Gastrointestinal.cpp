@@ -132,6 +132,9 @@ void Gastrointestinal::SetUp()
   m_dT_s = m_data.GetTimeStep().GetValue(TimeUnit::s);
 
   m_vSmallIntestine = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::SmallIntestine);
+  if (m_data.GetConfiguration().IsBioGearsLiteEnabled()) {
+    m_vSmallIntestine = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Gut);
+  }
   m_SmallIntestineChyme = m_data.GetCompartments().GetLiquidCompartment(BGE::ChymeCompartment::SmallIntestine);
   m_Lymph = m_data.GetCompartments().GetLiquidCompartment(BGE::LymphCompartment::Lymph);
 

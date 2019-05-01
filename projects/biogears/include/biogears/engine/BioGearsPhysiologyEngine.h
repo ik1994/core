@@ -342,11 +342,7 @@ namespace tatrc {
         DEFINE_STATIC_STRING_EX(Brain, BrainVasculature);
         DEFINE_STATIC_STRING_EX(Fat, FatVasculature);
         DEFINE_STATIC_STRING_EX(Gut, GutVasculature);
-        DEFINE_STATIC_STRING_EX(Splanchnic, SplanchnicVasculature);
-        DEFINE_STATIC_STRING_EX(SmallIntestine, SmallIntestineVasculature);
-        DEFINE_STATIC_STRING_EX(LargeIntestine, LargeIntestineVasculature);
         DEFINE_STATIC_STRING_EX(Liver, LiverVasculature);
-        DEFINE_STATIC_STRING_EX(Spleen, SpleenVasculature);
         DEFINE_STATIC_STRING_EX(Skin, SkinVasculature);
         DEFINE_STATIC_STRING_EX(Muscle, MuscleVasculature);
         DEFINE_STATIC_STRING_EX(Arms, ArmsVasculature);
@@ -361,7 +357,7 @@ namespace tatrc {
             PulmonaryVeins, Lungs, LeftLung, LeftPulmonaryArteries, LeftPulmonaryCapillaries, LeftPulmonaryVeins, RightLung, 
             RightPulmonaryArteries, RightPulmonaryCapillaries, RightPulmonaryVeins, Kidney, RenalArtery, Nephron, 
             AfferentArteriole, GlomerularCapillaries, EfferentArteriole, PeritubularCapillaries, BowmansCapsules, Tubules, RenalVein, 
-            Bone, Brain, Fat, Gut, Splanchnic, SmallIntestine, LargeIntestine, Liver, Spleen, Skin, Muscle, Arms, Legs
+            Bone, Brain, Fat, Gut, Liver, Spleen, Skin, Muscle, Arms, Legs
           };
           return _values;
         }
@@ -546,12 +542,12 @@ namespace tatrc {
         // Fat
         DEFINE_STATIC_STRING(AortaToFat);
         DEFINE_STATIC_STRING(FatToVenaCava);
-        // Large Intestine
-        DEFINE_STATIC_STRING(AortaToLargeIntestine);
-        DEFINE_STATIC_STRING(LargeIntestineToLiver);
         //  Kidney
         DEFINE_STATIC_STRING(AortaToKidney);
         DEFINE_STATIC_STRING(KidneyToVenaCava);
+        // Gut
+        DEFINE_STATIC_STRING(AortaToGut);
+        DEFINE_STATIC_STRING(GutToLiver);
         // Leg
         DEFINE_STATIC_STRING(AortaToLegs);
         DEFINE_STATIC_STRING(LegsToVenaCava);
@@ -567,15 +563,6 @@ namespace tatrc {
         // Skin
         DEFINE_STATIC_STRING(AortaToSkin);
         DEFINE_STATIC_STRING(SkinToVenaCava);
-        // Small Intestine
-        DEFINE_STATIC_STRING(AortaToSmallIntestine);
-        DEFINE_STATIC_STRING(SmallIntestineToLiver);
-        // Splanchnic
-        DEFINE_STATIC_STRING(AortaToSplanchnic);
-        DEFINE_STATIC_STRING(SplanchnicToLiver);
-        // Spleen
-        DEFINE_STATIC_STRING(AortaToSpleen);
-        DEFINE_STATIC_STRING(SpleenToLiver);
 
         // Hemorrhage and IV
         DEFINE_STATIC_STRING(VenaCavaIV);
@@ -615,13 +602,11 @@ namespace tatrc {
         static const std::vector<std::string>& GetValues()
         {
           static std::vector<std::string> _values = {
-            VenaCavaToRightHeart, RightHeartToLeftPulmonaryArteries, LeftPulmonaryArteriesToCapillaries, LeftPulmonaryArteriesToVeins, LeftPulmonaryCapillariesToVeins, LeftPulmonaryVeinsToLeftHeart, RightHeartToRightPulmonaryArteries, RightPulmonaryArteriesToCapillaries, RightPulmonaryArteriesToVeins, RightPulmonaryCapillariesToVeins, RightPulmonaryVeinsToLeftHeart, LeftHeartToAorta, AortaToBone, BoneToVenaCava, AortaToBrain, BrainToVenaCava, AortaToFat, FatToVenaCava, AortaToLargeIntestine, LargeIntestineToLiver, AortaToArms, ArmsToVenaCava, AortaToKidney, KidneyToVenaCava, AortaToLegs, LegsToVenaCava, AortaToLiver, LiverToVenaCava, AortaToMuscle, MuscleToVenaCava, AortaToMyocardium, MyocardiumToVenaCava, AortaToRightArm, RightArmToVenaCava,  AortaToRightLeg, RightLegToVenaCava, AortaToSkin, SkinToVenaCava, AortaToSmallIntestine, SmallIntestineToLiver, AortaToSplanchnic, SplanchnicToLiver, AortaToSpleen, SpleenToLiver
-
+            VenaCavaToRightHeart, RightHeartToLeftPulmonaryArteries, LeftPulmonaryArteriesToCapillaries, LeftPulmonaryArteriesToVeins, LeftPulmonaryCapillariesToVeins, LeftPulmonaryVeinsToLeftHeart, RightHeartToRightPulmonaryArteries, RightPulmonaryArteriesToCapillaries, RightPulmonaryArteriesToVeins, RightPulmonaryCapillariesToVeins, RightPulmonaryVeinsToLeftHeart, LeftHeartToAorta, AortaToBone, BoneToVenaCava, AortaToBrain, BrainToVenaCava, AortaToFat, FatToVenaCava, AortaToGut, GutToLiver,  AortaToArms, ArmsToVenaCava, AortaToKidney, KidneyToVenaCava, AortaToLegs, LegsToVenaCava, AortaToLiver, LiverToVenaCava, AortaToMuscle, MuscleToVenaCava, AortaToMyocardium, MyocardiumToVenaCava, AortaToRightArm, RightArmToVenaCava,  AortaToRightLeg, RightLegToVenaCava, AortaToSkin, SkinToVenaCava
             ,
             BoneVascularToTissue, BrainVascularToTissue, FatVascularToTissue, SmallIntestineVascularToTissue, LargeIntestineVascularToTissue, SplanchnicVascularToTissue, KidneyVascularToTissue, LeftLungVascularToTissue, LiverVascularToTissue, MuscleVascularToTissue, MyocardiumVascularToTissue, RightLungVascularToTissue, SkinVascularToTissue, SpleenVascularToTissue
-
             ,
-            RenalArteryToAfferentArteriole, AfferentArterioleToGlomerularCapillaries, GlomerularCapillariesToEfferentArteriole, GlomerularCapillariesToBowmansCapsules, BowmansCapsulesToTubules, TubulesToPeritubularCapillaries, EfferentArterioleToPeritubularCapillaries, PeritubularCapillariesToRenalVein, VenaCavaHemorrhage, ArmsHemorrhage, LegsHemorrhage, GutHemorrhage, AortaHemorrhage
+            VenaCavaHemorrhage, ArmsHemorrhage, LegsHemorrhage, GutHemorrhage, AortaHemorrhage
           };
           return _values;
         }

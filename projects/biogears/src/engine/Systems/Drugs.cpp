@@ -159,6 +159,12 @@ void Drugs::SetUp()
   m_liverVascular = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Liver);
   m_liverTissue = m_data.GetCompartments().GetTissueCompartment(BGE::TissueLiteCompartment::Liver);
   m_IVToVenaCava = m_data.GetCircuits().GetCardiovascularCircuit().GetPath(BGE::CardiovascularPath::IVToVenaCava);
+  if (m_data.GetConfiguration().IsBioGearsLiteEnabled()) {
+    m_aortaVascular = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Aorta);
+    m_venaCavaVascular = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::VenaCava);
+    m_liverVascular = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Liver);
+    m_IVToVenaCava = m_data.GetCircuits().GetCardiovascularCircuit().GetPath(BGE::CardiovascularLitePath::IVToVenaCava);
+  }
   //Need to set up pointers for Sarin and Pralidoxime to handle nerve agent events since they use a different method to calculate effects
   m_Sarin = m_data.GetSubstances().GetSubstance("Sarin");
   m_Pralidoxime = m_data.GetSubstances().GetSubstance("Pralidoxime");

@@ -496,7 +496,7 @@ namespace tatrc {
         DEFINE_STATIC_STRING(Fat1);
         DEFINE_STATIC_STRING(Fat2);
 
-        DEFINE_STATIC_STRING(LargeIntestine1);
+        DEFINE_STATIC_STRING(Gut1);
 
         DEFINE_STATIC_STRING(Liver1);
         DEFINE_STATIC_STRING(Liver2);
@@ -521,12 +521,6 @@ namespace tatrc {
 
         DEFINE_STATIC_STRING(Skin1);
         DEFINE_STATIC_STRING(Skin2);
-
-        DEFINE_STATIC_STRING(SmallIntestine1);
-
-        DEFINE_STATIC_STRING(Splanchnic1);
-
-        DEFINE_STATIC_STRING(Spleen1);
 
         DEFINE_STATIC_STRING(VenaCava);
 
@@ -736,10 +730,10 @@ namespace tatrc {
         DEFINE_STATIC_STRING(Fat1ToGround);
         DEFINE_STATIC_STRING(Fat1ToFat2);
         DEFINE_STATIC_STRING(Fat2ToVenaCava);
-        // Large Intestine
-        DEFINE_STATIC_STRING(Aorta1ToLargeIntestine);
-        DEFINE_STATIC_STRING(LargeIntestineToGround);
-        DEFINE_STATIC_STRING(LargeIntestineToPortalVein);
+        // Gut
+        DEFINE_STATIC_STRING(Aorta1ToGut);
+        DEFINE_STATIC_STRING(GutToGround);
+        DEFINE_STATIC_STRING(GutToPortalVein);
         // Left Kidney
         DEFINE_STATIC_STRING(Aorta1ToLeftKidney1);
         DEFINE_STATIC_STRING(LeftKidney1ToGround);
@@ -779,18 +773,6 @@ namespace tatrc {
         DEFINE_STATIC_STRING(Skin1ToGround);
         DEFINE_STATIC_STRING(Skin1ToSkin2);
         DEFINE_STATIC_STRING(Skin2ToVenaCava);
-        // Small Intestine
-        DEFINE_STATIC_STRING(Aorta1ToSmallIntestine);
-        DEFINE_STATIC_STRING(SmallIntestineToGround);
-        DEFINE_STATIC_STRING(SmallIntestineToPortalVein);
-        // Splanchnic
-        DEFINE_STATIC_STRING(Aorta1ToSplanchnic);
-        DEFINE_STATIC_STRING(SplanchnicToGround);
-        DEFINE_STATIC_STRING(SplanchnicToPortalVein);
-        // Spleen
-        DEFINE_STATIC_STRING(Aorta1ToSpleen);
-        DEFINE_STATIC_STRING(SpleenToGround);
-        DEFINE_STATIC_STRING(SpleenToPortalVein);
         // Vena Cava
         DEFINE_STATIC_STRING(VenaCavaToGround);
         DEFINE_STATIC_STRING(IVToVenaCava);
@@ -945,6 +927,8 @@ namespace tatrc {
         DEFINE_STATIC_STRING(SkinLToLymph);
         DEFINE_STATIC_STRING(SkinSweating);
 
+        //GutV will replace small, large, spleen, splanchnic due to CV lite
+        DEFINE_STATIC_STRING(GutVToGutE1);
         DEFINE_STATIC_STRING(SmallIntestineVToGutE1);
         DEFINE_STATIC_STRING(LargeIntestineVToGutE1);
         DEFINE_STATIC_STRING(SpleenVToGutE1);

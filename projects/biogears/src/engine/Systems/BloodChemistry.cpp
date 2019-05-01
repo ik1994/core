@@ -165,14 +165,19 @@ void BloodChemistry::SetUp()
   SESubstance* urea = &m_data.GetSubstances().GetUrea();
 
   m_aorta = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Aorta);
+  m_brainO2 = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Brain)->GetSubstanceQuantity(m_data.GetSubstances().GetO2());
+  m_myocardiumO2 = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Myocardium)->GetSubstanceQuantity(m_data.GetSubstances().GetO2());
+  m_venaCava = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::VenaCava);
+  if (m_data.GetConfiguration().IsBioGearsLiteEnabled()) {
+    m_aorta = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Aorta);
+    m_brainO2 = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Brain)->GetSubstanceQuantity(m_data.GetSubstances().GetO2());
+    m_myocardiumO2 = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Myocardium)->GetSubstanceQuantity(m_data.GetSubstances().GetO2());
+    m_venaCava = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::VenaCava);
+  }
+
   m_aortaO2 = m_aorta->GetSubstanceQuantity(m_data.GetSubstances().GetO2());
   m_aortaCO2 = m_aorta->GetSubstanceQuantity(m_data.GetSubstances().GetCO2());
   m_aortaBicarbonate = m_aorta->GetSubstanceQuantity(m_data.GetSubstances().GetHCO3());
-
-  m_brainO2 = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Brain)->GetSubstanceQuantity(m_data.GetSubstances().GetO2());
-  m_myocardiumO2 = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Myocardium)->GetSubstanceQuantity(m_data.GetSubstances().GetO2());
-
-  m_venaCava = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::VenaCava);
   m_venaCavaO2 = m_venaCava->GetSubstanceQuantity(m_data.GetSubstances().GetO2());
   m_venaCavaCO2 = m_venaCava->GetSubstanceQuantity(m_data.GetSubstances().GetCO2());
   m_venaCavaAlbumin = m_venaCava->GetSubstanceQuantity(*albumin);
@@ -193,10 +198,15 @@ void BloodChemistry::SetUp()
   m_venaCavaUrea = m_venaCava->GetSubstanceQuantity(*urea);
 
   SELiquidCompartment* pulmonaryArteries = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::PulmonaryArteries);
+  SELiquidCompartment* pulmonaryVeins = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::PulmonaryVeins);
+  if (m_data.GetConfiguration().IsBioGearsLiteEnabled()) {
+    pulmonaryArteries = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::PulmonaryArteries);
+    pulmonaryVeins = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::PulmonaryVeins);
+  }
   m_pulmonaryArteriesO2 = pulmonaryArteries->GetSubstanceQuantity(m_data.GetSubstances().GetO2());
   m_pulmonaryArteriesCO2 = pulmonaryArteries->GetSubstanceQuantity(m_data.GetSubstances().GetCO2());
 
-  SELiquidCompartment* pulmonaryVeins = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::PulmonaryVeins);
+
   m_pulmonaryVeinsO2 = pulmonaryVeins->GetSubstanceQuantity(m_data.GetSubstances().GetO2());
   m_pulmonaryVeinsCO2 = pulmonaryVeins->GetSubstanceQuantity(m_data.GetSubstances().GetCO2());
 
