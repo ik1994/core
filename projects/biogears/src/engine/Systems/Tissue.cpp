@@ -2227,10 +2227,16 @@ void Tissue::CalculateOncoticPressure()
     vascularOncoticPressure_mmHg = 2.1 * totalProteinVascular_g_Per_dL + 0.16 * std::pow(totalProteinVascular_g_Per_dL, 2) + 0.009 * std::pow(totalProteinVascular_g_Per_dL, 3);
     interstitialOncoticPressure_mmHg = 2.1 * totalProteinInterstitial_g_Per_dL + 0.16 * std::pow(totalProteinInterstitial_g_Per_dL, 2) + 0.009 * std::pow(totalProteinInterstitial_g_Per_dL, 3);
 
-    if (vascular->GetName() == BGE::VascularCompartment::Gut || vascular->GetName() == BGE::VascularCompartment::Lungs || vascular->GetName() == BGE::VascularCompartment::Kidneys) {
+    if (vascular->GetName() == BGE::VascularCompartment::Gut || vascular->GetName() == BGE::VascularCompartment::Lungs || vascular->GetName() == BGE::VascularLiteCompartment::Kidney) {
       for (auto c : vascular->GetChildren()) {
-        vascularCOP = m_VascularCopPaths[c];
+        try {
+        vascularCOP = m_VascularCopPaths.at(c);
+        assert(vascularCOP);
         vascularCOP->GetNextPressureSource().SetValue(-vascularOncoticPressure_mmHg, PressureUnit::mmHg);
+        } catch ( std::runtime_error e) {
+          Fatal("Were going down");
+          Fatal(e.what());
+        }
       }
     } else {
       vascularCOP = m_VascularCopPaths[vascular];

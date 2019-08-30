@@ -2590,6 +2590,8 @@ void BioGears::SetupRenalLite()
 
   // We have discretized these compartments, so remove them
   SELiquidCompartmentGraph& gCombinedCardiovascular = m_Compartments->GetActiveCardiovascularGraph();
+  vKidney->RemoveChild(BGE::VascularCompartment::LeftKidney);
+  vKidney->RemoveChild(BGE::VascularCompartment::RightKidney);
   gCombinedCardiovascular.RemoveCompartment(*vKidney);
   gCombinedCardiovascular.AddGraph(gRenal);
   gCombinedCardiovascular.StateChange();

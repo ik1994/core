@@ -80,6 +80,8 @@ public:
   virtual bool HasChild(const char* name);
   virtual bool HasChild(const std::string& name);
   virtual void AddChild(SEThermalCompartment& child);
+  virtual void RemoveChild(SEThermalCompartment const& child);
+  virtual void RemoveChild(std::string const& childsName);
 
 protected:
   virtual double CalculateInFlow_W() const;

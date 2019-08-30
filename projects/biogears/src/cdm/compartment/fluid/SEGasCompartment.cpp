@@ -126,7 +126,7 @@ void SEGasCompartment::Balance(BalanceGasBy by)
           GeneralMath::CalculatePartialPressureInGas(subQ->GetVolumeFraction(), GetPressure(), subQ->GetPartialPressure(), m_Logger);
       }
       if (!SEScalar::IsZero(1 - totalFraction, ZERO_APPROX))
-        Fatal(std::string{ GetName() } +" Compartment's volume fractions do not sum up to 1");
+        Fatal(std::string{ GetName() } + " Compartment's volume fractions do not sum up to 1");
     }
     break;
   }
@@ -145,6 +145,22 @@ void SEGasCompartment::AddChild(SEGasCompartment& child)
   m_Children.push_back(&child);
   for (SEGasSubstanceQuantity* subQ : m_SubstanceQuantities)
     subQ->AddChild(child.CreateSubstanceQuantity(subQ->GetSubstance()));
+}
+//-------------------------------------------------------------------------------
+void SEGasCompartment::RemoveChild(SEGasCompartment const& child)
+{
+  std::remove_if(m_Children.begin(), m_Children.end(),
+                 [&](SEGasCompartment* compartment) { return compartment == &child; });
+  std::remove_if(m_Leaves.begin(), m_Leaves.end(),
+                 [&](SEGasCompartment* compartment) { return compartment == &child; });
+}
+//-------------------------------------------------------------------------------
+void SEGasCompartment::RemoveChild(std::string const& childsName)
+{
+  std::remove_if(m_Children.begin(), m_Children.end(),
+                 [&](SEGasCompartment* compartment) { return compartment->GetName() == childsName; });
+  std::remove_if(m_Leaves.begin(), m_Leaves.end(),
+                 [&](SEGasCompartment* compartment) { return compartment->GetName() == childsName; });
 }
 //-------------------------------------------------------------------------------
 SEGasSubstanceQuantity& SEGasCompartment::CreateSubstanceQuantity(SESubstance& substance)
