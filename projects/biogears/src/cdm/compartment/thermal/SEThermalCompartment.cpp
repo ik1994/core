@@ -409,4 +409,9 @@ void SEThermalCompartment::AddChild(SEThermalCompartment& child)
   m_Children.push_back(&child);
 }
 //-----------------------------------------------------------------------------
+void SEThermalCompartment::RemoveCompartment(SEThermalCompartment const& child) {
+    std::remove_if(m_Children.begin(), m_Children.end(), [&](decltype(m_Children)::reference node) {return node == &child; });
+    std::remove_if(m_Leaves.begin(), m_Leaves.end(), [&](decltype(m_Children)::reference node) {return node == &child; });
+}
+//-----------------------------------------------------------------------------
 }

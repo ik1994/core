@@ -2485,7 +2485,7 @@ void BioGears::SetupRenalLite()
 
   ////////////////////////////
   // AortaToRenalArtery //
-  m_Compartments->DeleteLiquidLink(BGE::VascularLiteLink::AortaToKidney); // Replace this link
+  m_Compartments->DeleteLiquidLink(BGE::VascularLink::AortaToRightKidney); // Replace this link
   SELiquidCompartmentLink& vAortaToRenalArtery = m_Compartments->CreateLiquidLink(vAorta, vRenalArtery, BGE::VascularLiteLink::AortaToKidney);
   vAortaToRenalArtery.MapPath(AortaConnectionToRenalArtery);
   ////////////////////////////////////////
@@ -2522,7 +2522,7 @@ void BioGears::SetupRenalLite()
   vPeritubularCapillariesToRenalVein.MapPath(PeritubularCapillariesToRenalVein);
   /////////////////////////////
   // RenalVeinToVenaCava //
-  m_Compartments->DeleteLiquidLink(BGE::VascularLiteLink::KidneyToVenaCava); // Replace this vink
+  m_Compartments->DeleteLiquidLink(BGE::VascularLink::LeftKidneyToVenaCava); // Replace this link
   SELiquidCompartmentLink& vRenalVeinToVenaCava = m_Compartments->CreateLiquidLink(vRenalVein, vVenaCava, BGE::VascularLiteLink::KidneyToVenaCava);
   vRenalVeinToVenaCava.MapPath(RenalVeinToVenaCavaConnection);
   /////////////////////////////
@@ -2590,9 +2590,20 @@ void BioGears::SetupRenalLite()
 
   // We have discretized these compartments, so remove them
   SELiquidCompartmentGraph& gCombinedCardiovascular = m_Compartments->GetActiveCardiovascularGraph();
-  gCombinedCardiovascular.RemoveCompartment(*vKidney);
+  SELiquidCompartment* vLeftKidney = m_Compartments->GetLiquidCompartment(BGE::VascularCompartment::LeftKidney);
+  SELiquidCompartment* vRightKidney = m_Compartments->GetLiquidCompartment(BGE::VascularCompartment::RightKidney);
+  gCombinedCardiovascular.RemoveCompartment(*vLeftKidney);
+  gCombinedCardiovascular.RemoveCompartment(*vRightKidney);
+  //m_Compartments->DeleteLiquidCompartment(BGE::VascularCompartment::LeftKidney);
+  //m_Compartments->DeleteLiquidCompartment(BGE::VascularCompartment::RightKidney);
   gCombinedCardiovascular.AddGraph(gRenal);
   gCombinedCardiovascular.StateChange();
+  //m_Compartments->StateChange();
+  //testing 
+  SELiquidCompartment* kidney = m_Compartments->GetLiquidCompartment(BGE::VascularLiteCompartment::Kidney);
+  auto test = kidney->GetChildren();
+
+
 }
 
 void BioGears::SetupRenal()
@@ -3867,7 +3878,8 @@ void BioGears::SetupTissue()
   KidneyI.GetVolumeBaseline().SetValue(KidneyIWFraction * KidneyTissueVolume * 1000.0, VolumeUnit::mL); //intracellular node
   KidneyL.GetPressure().SetValue(l1NodePressure, PressureUnit::mmHg);
 
-  SEFluidCircuitPath& KidneyVToKidneyE1 = cCombinedCardiovascular.CreatePath(*KidneyV, KidneyE1, BGE::TissueLitePath::LeftKidneyVToKidneyE1);
+  //SEFluidCircuitPath& KidneyVToKidneyE1 = cCombinedCardiovascular.CreatePath(*KidneyV, KidneyE1, BGE::TissueLitePath::LeftKidneyVToKidneyE1);
+  SEFluidCircuitPath& KidneyVToKidneyE1 = cCombinedCardiovascular.CreatePath(*KidneyV, KidneyE1, BGE::TissueLitePath::KidneyVToKidneyE1);
   KidneyVToKidneyE1.GetPressureSourceBaseline().SetValue(-copVascular_mmHg, PressureUnit::mmHg);
   SEFluidCircuitPath& KidneyE1ToKidneyE2 = cCombinedCardiovascular.CreatePath(KidneyE1, KidneyE2, BGE::TissueLitePath::KidneyE1ToKidneyE2);
   KidneyE1ToKidneyE2.GetResistanceBaseline().SetValue(capillaryResistance_mmHg_min_Per_mL, FlowResistanceUnit::mmHg_min_Per_mL);

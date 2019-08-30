@@ -283,7 +283,7 @@ void Tissue::SetUp()
   m_TissueToVascular[m_data.GetCompartments().GetTissueCompartment(BGE::TissueLiteCompartment::Bone)] = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Bone);
   m_TissueToVascular[m_data.GetCompartments().GetTissueCompartment(BGE::TissueLiteCompartment::Brain)] = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Brain);
   m_TissueToVascular[m_data.GetCompartments().GetTissueCompartment(BGE::TissueLiteCompartment::Gut)] = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Gut);
-  m_TissueToVascular[m_data.GetCompartments().GetTissueCompartment(BGE::TissueLiteCompartment::Kidney)] = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Kidneys);
+  m_TissueToVascular[m_data.GetCompartments().GetTissueCompartment(BGE::TissueLiteCompartment::Kidney)] = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Kidney);
   m_TissueToVascular[m_data.GetCompartments().GetTissueCompartment(BGE::TissueLiteCompartment::Liver)] = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Liver);
   m_TissueToVascular[m_data.GetCompartments().GetTissueCompartment(BGE::TissueLiteCompartment::Lung)] = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Lungs);
   m_TissueToVascular[m_data.GetCompartments().GetTissueCompartment(BGE::TissueLiteCompartment::Muscle)] = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Muscle);
@@ -298,8 +298,9 @@ void Tissue::SetUp()
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::LargeIntestine)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::LargeIntestineVToGutE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::SmallIntestine)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::SmallIntestineVToGutE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Splanchnic)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::SplanchnicVToGutE1);
-  m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::LeftKidney)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::LeftKidneyVToKidneyE1);
-  m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::RightKidney)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::RightKidneyVToKidneyE1);
+  //m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::LeftKidney)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::LeftKidneyVToKidneyE1);
+  //m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::RightKidney)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::RightKidneyVToKidneyE1);
+  m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Kidney)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::KidneyVToKidneyE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Liver)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::LiverVToLiverE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::LeftLung)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::LeftLungVToLungE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::RightLung)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::RightLungVToLungE1);
@@ -2227,7 +2228,7 @@ void Tissue::CalculateOncoticPressure()
     vascularOncoticPressure_mmHg = 2.1 * totalProteinVascular_g_Per_dL + 0.16 * std::pow(totalProteinVascular_g_Per_dL, 2) + 0.009 * std::pow(totalProteinVascular_g_Per_dL, 3);
     interstitialOncoticPressure_mmHg = 2.1 * totalProteinInterstitial_g_Per_dL + 0.16 * std::pow(totalProteinInterstitial_g_Per_dL, 2) + 0.009 * std::pow(totalProteinInterstitial_g_Per_dL, 3);
 
-    if (vascular->GetName() == BGE::VascularCompartment::Gut || vascular->GetName() == BGE::VascularCompartment::Lungs || vascular->GetName() == BGE::VascularCompartment::Kidneys) {
+    if (vascular->GetName() == BGE::VascularCompartment::Gut || vascular->GetName() == BGE::VascularCompartment::Lungs || vascular->GetName() == BGE::VascularLiteCompartment::Kidney) {
       for (auto c : vascular->GetChildren()) {
         vascularCOP = m_VascularCopPaths[c];
         vascularCOP->GetNextPressureSource().SetValue(-vascularOncoticPressure_mmHg, PressureUnit::mmHg);

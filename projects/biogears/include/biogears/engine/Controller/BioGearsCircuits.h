@@ -692,8 +692,7 @@ namespace tatrc {
         DEFINE_STATIC_STRING(FatE3ToFatL);
         DEFINE_STATIC_STRING(FatLToLymph);
 
-        DEFINE_STATIC_STRING(RightKidneyVToKidneyE1);
-        DEFINE_STATIC_STRING(LeftKidneyVToKidneyE1);
+        DEFINE_STATIC_STRING(KidneyVToKidneyE1);
         DEFINE_STATIC_STRING(KidneyE1ToKidneyE2);
         DEFINE_STATIC_STRING(KidneyE2ToKidneyE3);
         DEFINE_STATIC_STRING(KidneyE3ToKidneyI);

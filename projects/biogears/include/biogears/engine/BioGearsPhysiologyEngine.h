@@ -321,7 +321,7 @@ namespace tatrc {
         DEFINE_STATIC_STRING(PulmonaryCapillaries);
         DEFINE_STATIC_STRING(PulmonaryVeins);
         DEFINE_STATIC_STRING_EX(Lungs, LungVasculature);
-        DEFINE_STATIC_STRING_EX(Lung, LungVasculature);
+        DEFINE_STATIC_STRING_EX(LeftLung, LeftLungVasculature);
         DEFINE_STATIC_STRING(LeftPulmonaryArteries);
         DEFINE_STATIC_STRING(LeftPulmonaryCapillaries);
         DEFINE_STATIC_STRING(LeftPulmonaryVeins);
@@ -365,7 +365,7 @@ namespace tatrc {
         {
           static std::vector<std::string> _values = {
             Aorta, Heart, Myocardium, Heart, RightHeart, Pericardium, VenaCava, PulmonaryArteries, PulmonaryCapillaries, 
-            PulmonaryVeins, Lungs, Lung, PulmonaryArteries, PulmonaryCapillaries, PulmonaryVeins, RightLung, 
+            PulmonaryVeins, Lungs, LeftLung, PulmonaryArteries, PulmonaryCapillaries, PulmonaryVeins, RightLung, 
             RightPulmonaryArteries, RightPulmonaryCapillaries, RightPulmonaryVeins, Kidney, RenalArtery, Nephron, 
             AfferentArteriole, GlomerularCapillaries, EfferentArteriole, PeritubularCapillaries, BowmansCapsules, Tubules, RenalVein, 
             Bone, Brain, Fat, Gut, Splanchnic, SmallIntestine, LargeIntestine, Liver, Spleen, Skin, Muscle, LeftArm, LeftLeg, RightArm, RightLeg
@@ -621,11 +621,10 @@ namespace tatrc {
         DEFINE_STATIC_STRING(LargeIntestineVascularToTissue);
         DEFINE_STATIC_STRING(SplanchnicVascularToTissue);
         DEFINE_STATIC_STRING(KidneyVascularToTissue);
-        DEFINE_STATIC_STRING(LungVascularToTissue);
+        DEFINE_STATIC_STRING(LeftLungVascularToTissue);
         DEFINE_STATIC_STRING(LiverVascularToTissue);
         DEFINE_STATIC_STRING(MuscleVascularToTissue);
         DEFINE_STATIC_STRING(MyocardiumVascularToTissue);
-        DEFINE_STATIC_STRING(RightKidneyVascularToTissue);
         DEFINE_STATIC_STRING(RightLungVascularToTissue);
         DEFINE_STATIC_STRING(SkinVascularToTissue);
         DEFINE_STATIC_STRING(SpleenVascularToTissue);
@@ -647,7 +646,7 @@ namespace tatrc {
             VenaCavaToRightHeart, RightHeartToPulmonaryArteries, PulmonaryArteriesToCapillaries, PulmonaryArteriesToVeins, PulmonaryCapillariesToVeins, PulmonaryVeinsToHeart, RightHeartToRightPulmonaryArteries, RightPulmonaryArteriesToCapillaries, RightPulmonaryArteriesToVeins, RightPulmonaryCapillariesToVeins, RightPulmonaryVeinsToHeart, HeartToAorta, AortaToBone, BoneToVenaCava, AortaToBrain, BrainToVenaCava, AortaToFat, FatToVenaCava, AortaToLargeIntestine, LargeIntestineToLiver, AortaToLeftArm, LeftArmToVenaCava, AortaToKidney, KidneyToVenaCava, AortaToLeftLeg, LeftLegToVenaCava, AortaToLiver, LiverToVenaCava, AortaToMuscle, MuscleToVenaCava, AortaToMyocardium, MyocardiumToVenaCava, AortaToRightArm, RightArmToVenaCava, AortaToRightKidney, RightKidneyToVenaCava, AortaToRightLeg, RightLegToVenaCava, AortaToSkin, SkinToVenaCava, AortaToSmallIntestine, SmallIntestineToLiver, AortaToSplanchnic, SplanchnicToLiver, AortaToSpleen, SpleenToLiver
 
             ,
-            BoneVascularToTissue, BrainVascularToTissue, FatVascularToTissue, SmallIntestineVascularToTissue, LargeIntestineVascularToTissue, SplanchnicVascularToTissue, KidneyVascularToTissue, LungVascularToTissue, LiverVascularToTissue, MuscleVascularToTissue, MyocardiumVascularToTissue, RightKidneyVascularToTissue, RightLungVascularToTissue, SkinVascularToTissue, SpleenVascularToTissue
+            BoneVascularToTissue, BrainVascularToTissue, FatVascularToTissue, SmallIntestineVascularToTissue, LargeIntestineVascularToTissue, SplanchnicVascularToTissue, KidneyVascularToTissue, LeftLungVascularToTissue, LiverVascularToTissue, MuscleVascularToTissue, MyocardiumVascularToTissue, RightLungVascularToTissue, SkinVascularToTissue, SpleenVascularToTissue
 
             ,
             RenalArteryToAfferentArteriole, AfferentArterioleToGlomerularCapillaries, GlomerularCapillariesToEfferentArteriole, GlomerularCapillariesToBowmansCapsules, BowmansCapsulesToTubules, TubulesToPeritubularCapillaries, EfferentArterioleToPeritubularCapillaries, PeritubularCapillariesToRenalVein
@@ -744,7 +743,6 @@ namespace tatrc {
         DEFINE_STATIC_STRING(LiverTissueToLymph);
         DEFINE_STATIC_STRING(MuscleTissueToLymph);
         DEFINE_STATIC_STRING(MyocardiumTissueToLymph);
-        DEFINE_STATIC_STRING(RightKidneyTissueToLymph);
         DEFINE_STATIC_STRING(RightLungTissueToLymph);
         DEFINE_STATIC_STRING(SkinTissueToLymph);
         DEFINE_STATIC_STRING(SpleenTissueToLymph);
@@ -754,7 +752,7 @@ namespace tatrc {
         static const std::vector<std::string>& GetValues()
         {
           static std::vector<std::string> _values = {
-            BoneTissueToLymph, BrainTissueToLymph, FatTissueToLymph, GutTissueToLymph, KidneyTissueToLymph, LungTissueToLymph, LiverTissueToLymph, MuscleTissueToLymph, MyocardiumTissueToLymph, RightKidneyTissueToLymph, RightLungTissueToLymph, SkinTissueToLymph, SpleenTissueToLymph, LymphToVenaCava
+            BoneTissueToLymph, BrainTissueToLymph, FatTissueToLymph, GutTissueToLymph, KidneyTissueToLymph, LungTissueToLymph, LiverTissueToLymph, MuscleTissueToLymph, MyocardiumTissueToLymph, RightLungTissueToLymph, SkinTissueToLymph, SpleenTissueToLymph, LymphToVenaCava
           };
           return _values;
         }

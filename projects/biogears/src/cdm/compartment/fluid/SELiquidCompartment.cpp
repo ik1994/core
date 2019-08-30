@@ -194,6 +194,11 @@ void SELiquidCompartment::AddChild(SELiquidCompartment& child)
     subQ->AddChild(child.CreateSubstanceQuantity(subQ->GetSubstance()));
 }
 //-----------------------------------------------------------------------------
+void SELiquidCompartment::RemoveCompartment(SELiquidCompartment const & child) {
+    std::remove_if(m_Children.begin(), m_Children.end(), [&](decltype(m_Children)::reference node) {return node == &child; });
+    std::remove_if(m_Leaves.begin(), m_Leaves.end(), [&](decltype(m_Children)::reference node) {return node == &child; });
+}
+//-----------------------------------------------------------------------------
 SELiquidSubstanceQuantity& SELiquidCompartment::CreateSubstanceQuantity(SESubstance& substance)
 {
   SELiquidSubstanceQuantity* subQ = GetSubstanceQuantity(substance);
