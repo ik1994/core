@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     ,
     { "THREADS" } //Keywords
     ,
-    { "TEST", "SCENARIO", "VALIDATE" } //MultiWords
+    { "TEST", "CONFIG", "SCENARIO", "VALIDATE" } //MultiWords
   );
   args.parse(argc, argv);
 
@@ -146,12 +146,21 @@ int main(int argc, char** argv)
     const auto runs = biogears::Config("VerificationScenarios.config");
     driver.queue(runs);
   }
-
-  if (args.MultiWordFound("SCENARIO")) {
-    for (auto& arg : args.MultiWord("SCENARIO")) {
+  if (args.MultiWordFound("CONFIG")) {
+    for (auto& arg : args.MultiWord("CONFIG")) {
       auto configs = biogears::Config{ arg };
       driver.queue(configs);
     }
+  }
+
+  if (args.MultiWordFound("SCENARIO")) {
+    auto configs = biogears::Config{ };
+    for (auto& arg : args.MultiWord("SCENARIO")) {
+      auto ex = biogears::Executor{arg, biogears::EDriver::ScenarioTestDriver};
+      ex.Scenario(arg);
+      configs.push_back(ex);
+    }
+    driver.queue(configs);
   }
 
   driver.run();
