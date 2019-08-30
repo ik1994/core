@@ -194,11 +194,26 @@ void SELiquidCompartment::AddChild(SELiquidCompartment& child)
     subQ->AddChild(child.CreateSubstanceQuantity(subQ->GetSubstance()));
 }
 //-----------------------------------------------------------------------------
-void SELiquidCompartment::RemoveCompartment(SELiquidCompartment const & child) {
-    std::remove_if(m_Children.begin(), m_Children.end(), [&](decltype(m_Children)::reference node) {return node == &child; });
-    std::remove_if(m_Leaves.begin(), m_Leaves.end(), [&](decltype(m_Children)::reference node) {return node == &child; });
+void SELiquidCompartment::RemoveChild(SELiquidCompartment const& child)
+{
+  m_Children.erase(std::remove_if(m_Children.begin(), m_Children.end(),
+                                  [&](SELiquidCompartment* compartment) { return compartment == &child; }),
+                   m_Children.end());
+  m_Leaves.erase(std::remove_if(m_Leaves.begin(), m_Leaves.end(),
+                                [&](SELiquidCompartment* compartment) { return compartment == &child; }),
+                 m_Leaves.end());
 }
 //-----------------------------------------------------------------------------
+void SELiquidCompartment::RemoveChild(std::string const& childsName)
+{
+  m_Children.erase(std::remove_if(m_Children.begin(), m_Children.end(),
+                                  [&](SELiquidCompartment* compartment) { return compartment->GetName() == childsName; }),
+                   m_Children.end());
+  m_Leaves.erase(std::remove_if(m_Leaves.begin(), m_Leaves.end(),
+                                [&](SELiquidCompartment* compartment) { return compartment->GetName() == childsName; }),
+                 m_Leaves.end());
+}
+//-------------------------------------------------------------------------------
 SELiquidSubstanceQuantity& SELiquidCompartment::CreateSubstanceQuantity(SESubstance& substance)
 {
   SELiquidSubstanceQuantity* subQ = GetSubstanceQuantity(substance);

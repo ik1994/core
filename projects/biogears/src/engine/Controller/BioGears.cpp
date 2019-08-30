@@ -2596,6 +2596,9 @@ void BioGears::SetupRenalLite()
   gCombinedCardiovascular.RemoveCompartment(*vRightKidney);
   //m_Compartments->DeleteLiquidCompartment(BGE::VascularCompartment::LeftKidney);
   //m_Compartments->DeleteLiquidCompartment(BGE::VascularCompartment::RightKidney);
+  vKidney->RemoveChild(BGE::VascularCompartment::LeftKidney);
+  vKidney->RemoveChild(BGE::VascularCompartment::RightKidney);
+
   gCombinedCardiovascular.AddGraph(gRenal);
   gCombinedCardiovascular.StateChange();
   //m_Compartments->StateChange();

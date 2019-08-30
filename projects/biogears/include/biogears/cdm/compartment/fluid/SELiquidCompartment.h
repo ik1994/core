@@ -61,6 +61,8 @@ public:
   virtual double GetWaterVolumeFraction() const;
 
   virtual void AddChild(SELiquidCompartment& child);
+  virtual void RemoveChild(SELiquidCompartment const& child);
+  virtual void RemoveChild(std::string const& childsName);
   virtual const std::vector<SELiquidCompartment*>& GetChildren() { return m_Children; }
   virtual const std::vector<SELiquidCompartment*>& GetLeaves() { return m_Leaves; }
 

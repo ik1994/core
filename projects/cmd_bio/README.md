@@ -2,8 +2,8 @@
 ```
 cmd_bio [GENDATA] [GENSTATES] [VERIFY]
         [THREADS N]
-        [VALIDATE] [ [drug|patient|system|validation|all ]...]
-        [TEST [cdm bge]...] [SCENARIO [FILE] ]
+        [VALIDATE] [ drug|patient|system|validation|all ...]
+        [TEST cdm|bge ...] [CONFIG <FILE>] [SCENARIO <FILE> ]
 ```
 
 This project is a command line implementation of BioGears for processing Scenario files it also had the ability to run Circuit Test  and control threading
@@ -20,7 +20,9 @@ This project is a command line implementation of BioGears for processing Scenari
 
 **TEST**: Run a series of predetermined Circuit Test.  arguments are cdm or bge
 
-**SCENARIO**: Takes a number of files which will be loaded and run. Global settings in the files will overwrite previous entires.
+**CONFIG**: Takes a number of files which will be loaded and run. Global settings in the files will overwrite previous entires.
+
+**SCENARIO**: Takes a number of simple xml scenario files files which will be loaded and run. Most Scenarios will assume StandardMale
 
 The system will execute as many command line arguments as you give in a predetermined order
 
@@ -29,3 +31,4 @@ The system will execute as many command line arguments as you give in a predeter
 cmd_bio THREADS 1 GENDATA GENSTATES  -- Generate Data and States
 cmd_bio TEST cdm VALIDATE all -- Run CDM Test followed by all validations
 cmd_bio SCENARIO RunBGETest.config -- Readin RunBGETest.config and process it 
+cmd_bio CONFIG InitialPatientState.xml - Readin Scenarios/InitialPatientState.xml and execute that scenario

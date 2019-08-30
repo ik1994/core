@@ -66,7 +66,7 @@ bool SEThermalCompartment::Load(const CDM::ThermalCompartmentData& in, SECircuit
     for (auto name : in.Node()) {
       SEThermalCircuitNode* node = circuits->GetThermalNode(name);
       if (node == nullptr) {
-        Error("Compartment is mapped to circuit node, " + std::string{ name } +", but provided circuit manager did not have that node");
+        Error("Compartment is mapped to circuit node, " + std::string{ name } + ", but provided circuit manager did not have that node");
         return false;
       }
       MapNode(*node);
@@ -409,9 +409,20 @@ void SEThermalCompartment::AddChild(SEThermalCompartment& child)
   m_Children.push_back(&child);
 }
 //-----------------------------------------------------------------------------
-void SEThermalCompartment::RemoveCompartment(SEThermalCompartment const& child) {
-    std::remove_if(m_Children.begin(), m_Children.end(), [&](decltype(m_Children)::reference node) {return node == &child; });
-    std::remove_if(m_Leaves.begin(), m_Leaves.end(), [&](decltype(m_Children)::reference node) {return node == &child; });
+void SEThermalCompartment::RemoveChild(SEThermalCompartment const& child)
+{
+  std::remove_if(m_Children.begin(), m_Children.end(),
+                 [&](SEThermalCompartment* compartment) { return compartment == &child; });
+  std::remove_if(m_Leaves.begin(), m_Leaves.end(),
+                 [&](SEThermalCompartment* compartment) { return compartment == &child; });
 }
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+void SEThermalCompartment::RemoveChild(std::string const& childsName)
+{
+  std::remove_if(m_Children.begin(), m_Children.end(),
+                 [&](SEThermalCompartment* compartment) { return compartment->GetName() == childsName; });
+  std::remove_if(m_Leaves.begin(), m_Leaves.end(),
+                 [&](SEThermalCompartment* compartment) { return compartment->GetName() == childsName; });
+}
+//-------------------------------------------------------------------------------
 }

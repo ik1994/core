@@ -1,95 +1,95 @@
-//-------------------------------------------------------------------------------------------
-//- Copyright 2017 Applied Research Associates, Inc.
-//- Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-//- this file except in compliance with the License. You may obtain a copy of the License
-//- at:
-//- http://www.apache.org/licenses/LICENSE-2.0
-//- Unless required by applicable law or agreed to in writing, software distributed under
-//- the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-//- CONDITIONS OF ANY KIND, either express or implied. See the License for the
-//-  specific language governing permissions and limitations under the License.
-//-------------------------------------------------------------------------------------------
-//!
-//! @author David Lee
-//! @date   2017 Aug 3rd
-//!
-//! Unit Test for Biogears-common Config
-//!
-#include <limits>
-#include <thread>
-
-#include <gtest/gtest.h>
-
-#include <biogears/cdm/properties/SEScalar.h>
-#include <biogears/cdm/system/physiology/SERenalSystem.h>
-#include <biogears/cdm/properties/SEScalarTypes.h>
-
-#ifdef DISABLE_BIOGEARS_SERenalSystem_TEST
-#define TEST_FIXTURE_NAME DISABLED_SERenalSystem_Fixture
-#else
-#define TEST_FIXTURE_NAME SERenalSystem_Fixture
-#endif
-
-using namespace biogears;
-// The fixture for testing class Foo.
-class TEST_FIXTURE_NAME : public ::testing::Test {
-protected:
-  // You can do set-up work for each test here.
-  TEST_FIXTURE_NAME() = default;
-
-  // You can do clean-up work that doesn't throw exceptions here.
-  virtual ~TEST_FIXTURE_NAME() = default;
-
-  // If the constructor and destructor are not enough for setting up
-  // and cleaning up each test, you can define the following methods:
-
-  // Code here will be called immediately after the constructor (right
-  // before each test).
-  virtual void SetUp() override;
-
-  // Code here will be called immediately after each test (right
-  // before the destructor).
-  virtual void TearDown() override;
-
-  biogears::Logger* logger;
-  biogears::SERenalSystem* es;
-};
-
-void TEST_FIXTURE_NAME::SetUp()
-{
-  logger = new biogears::Logger;
-  es = new biogears::SERenalSystem(logger);
-}
-
-void TEST_FIXTURE_NAME::TearDown()
-{
-  delete es;
-  delete logger;
-}
-TEST_F(TEST_FIXTURE_NAME, GlomerularFiltrationRate)
-{
-  EXPECT_FALSE( es->HasGlomerularFiltrationRate());
-  es->GetGlomerularFiltrationRate().SetValue(1.0, VolumePerTimeUnit::L_Per_min);
-  EXPECT_TRUE( es->HasGlomerularFiltrationRate());
-  EXPECT_EQ(1.0, es->GetGlomerularFiltrationRate(VolumePerTimeUnit::L_Per_min));
-
-  const biogears::SERenalSystem ces(logger);
-  EXPECT_FALSE( ces.HasGlomerularFiltrationRate());
-  auto dvalue = ces.GetGlomerularFiltrationRate(VolumePerTimeUnit::L_Per_min);
-  EXPECT_NE(dvalue, dvalue);
-}
-TEST_F(TEST_FIXTURE_NAME, FiltrationFraction)
-{
-  EXPECT_FALSE( es->HasFiltrationFraction());
-  es->GetFiltrationFraction().SetValue(1.0);
-  EXPECT_TRUE( es->HasFiltrationFraction());
-  EXPECT_EQ(1.0, es->GetFiltrationFraction().GetValue());
-
-  const biogears::SERenalSystem ces(logger);
-  EXPECT_FALSE( ces.HasFiltrationFraction());
-  auto dvalue = ces.GetFiltrationFraction();
-  EXPECT_NE(dvalue, dvalue);
-}
+////-------------------------------------------------------------------------------------------
+////- Copyright 2017 Applied Research Associates, Inc.
+////- Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+////- this file except in compliance with the License. You may obtain a copy of the License
+////- at:
+////- http://www.apache.org/licenses/LICENSE-2.0
+////- Unless required by applicable law or agreed to in writing, software distributed under
+////- the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+////- CONDITIONS OF ANY KIND, either express or implied. See the License for the
+////-  specific language governing permissions and limitations under the License.
+////-------------------------------------------------------------------------------------------
+////!
+////! @author David Lee
+////! @date   2017 Aug 3rd
+////!
+////! Unit Test for Biogears-common Config
+////!
+//#include <limits>
+//#include <thread>
+//
+//#include <gtest/gtest.h>
+//
+//#include <biogears/cdm/properties/SEScalar.h>
+//#include <biogears/cdm/system/physiology/SERenalSystem.h>
+//#include <biogears/cdm/properties/SEScalarTypes.h>
+//
+//#ifdef DISABLE_BIOGEARS_SERenalSystem_TEST
+//#define TEST_FIXTURE_NAME DISABLED_SERenalSystem_Fixture
+//#else
+//#define TEST_FIXTURE_NAME SERenalSystem_Fixture
+//#endif
+//
+//using namespace biogears;
+//// The fixture for testing class Foo.
+//class TEST_FIXTURE_NAME : public ::testing::Test {
+//protected:
+//  // You can do set-up work for each test here.
+//  TEST_FIXTURE_NAME() = default;
+//
+//  // You can do clean-up work that doesn't throw exceptions here.
+//  virtual ~TEST_FIXTURE_NAME() = default;
+//
+//  // If the constructor and destructor are not enough for setting up
+//  // and cleaning up each test, you can define the following methods:
+//
+//  // Code here will be called immediately after the constructor (right
+//  // before each test).
+//  virtual void SetUp() override;
+//
+//  // Code here will be called immediately after each test (right
+//  // before the destructor).
+//  virtual void TearDown() override;
+//
+//  biogears::Logger* logger;
+//  biogears::SERenalSystem* es;
+//};
+//
+//void TEST_FIXTURE_NAME::SetUp()
+//{
+//  logger = new biogears::Logger;
+//  es = new biogears::SERenalSystem(logger);
+//}
+//
+//void TEST_FIXTURE_NAME::TearDown()
+//{
+//  delete es;
+//  delete logger;
+//}
+//TEST_F(TEST_FIXTURE_NAME, GlomerularFiltrationRate)
+//{
+//  EXPECT_FALSE( es->HasGlomerularFiltrationRate());
+//  es->GetGlomerularFiltrationRate().SetValue(1.0, VolumePerTimeUnit::L_Per_min);
+//  EXPECT_TRUE( es->HasGlomerularFiltrationRate());
+//  EXPECT_EQ(1.0, es->GetGlomerularFiltrationRate(VolumePerTimeUnit::L_Per_min));
+//
+//  const biogears::SERenalSystem ces(logger);
+//  EXPECT_FALSE( ces.HasGlomerularFiltrationRate());
+//  auto dvalue = ces.GetGlomerularFiltrationRate(VolumePerTimeUnit::L_Per_min);
+//  EXPECT_NE(dvalue, dvalue);
+//}
+//TEST_F(TEST_FIXTURE_NAME, FiltrationFraction)
+//{
+//  EXPECT_FALSE( es->HasFiltrationFraction());
+//  es->GetFiltrationFraction().SetValue(1.0);
+//  EXPECT_TRUE( es->HasFiltrationFraction());
+//  EXPECT_EQ(1.0, es->GetFiltrationFraction().GetValue());
+//
+//  const biogears::SERenalSystem ces(logger);
+//  EXPECT_FALSE( ces.HasFiltrationFraction());
+//  auto dvalue = ces.GetFiltrationFraction();
+//  EXPECT_NE(dvalue, dvalue);
+//}
 //TEST_F(TEST_FIXTURE_NAME, LeftAfferentArterioleResistance)
 //{
 //  EXPECT_FALSE( es->HasLeftAfferentArterioleResistance());
@@ -498,30 +498,30 @@ TEST_F(TEST_FIXTURE_NAME, FiltrationFraction)
 //  auto dvalue = ces.GetLeftReabsorptionRate(VolumePerTimeUnit::L_Per_min);
 //  EXPECT_NE(dvalue, dvalue);
 //}
-TEST_F(TEST_FIXTURE_NAME, RenalBloodFlow)
-{
-  EXPECT_FALSE( es->HasRenalBloodFlow());
-  es->GetRenalBloodFlow().SetValue(1.0, VolumePerTimeUnit::L_Per_min);
-  EXPECT_TRUE( es->HasRenalBloodFlow());
-  EXPECT_EQ(1.0, es->GetRenalBloodFlow(VolumePerTimeUnit::L_Per_min));
-
-  const biogears::SERenalSystem ces(logger);
-  EXPECT_FALSE( ces.HasRenalBloodFlow());
-  auto dvalue = ces.GetRenalBloodFlow(VolumePerTimeUnit::L_Per_min);
-  EXPECT_NE(dvalue, dvalue);
-}
-TEST_F(TEST_FIXTURE_NAME, RenalPlasmaFlow)
-{
-  EXPECT_FALSE( es->HasRenalPlasmaFlow());
-  es->GetRenalPlasmaFlow().SetValue(1.0, VolumePerTimeUnit::L_Per_min);
-  EXPECT_TRUE( es->HasRenalPlasmaFlow());
-  EXPECT_EQ(1.0, es->GetRenalPlasmaFlow(VolumePerTimeUnit::L_Per_min));
-
-  const biogears::SERenalSystem ces(logger);
-  EXPECT_FALSE( ces.HasRenalPlasmaFlow());
-  auto dvalue = ces.GetRenalPlasmaFlow(VolumePerTimeUnit::L_Per_min);
-  EXPECT_NE(dvalue, dvalue);
-}
+//TEST_F(TEST_FIXTURE_NAME, RenalBloodFlow)
+//{
+//  EXPECT_FALSE( es->HasRenalBloodFlow());
+//  es->GetRenalBloodFlow().SetValue(1.0, VolumePerTimeUnit::L_Per_min);
+//  EXPECT_TRUE( es->HasRenalBloodFlow());
+//  EXPECT_EQ(1.0, es->GetRenalBloodFlow(VolumePerTimeUnit::L_Per_min));
+//
+//  const biogears::SERenalSystem ces(logger);
+//  EXPECT_FALSE( ces.HasRenalBloodFlow());
+//  auto dvalue = ces.GetRenalBloodFlow(VolumePerTimeUnit::L_Per_min);
+//  EXPECT_NE(dvalue, dvalue);
+//}
+//TEST_F(TEST_FIXTURE_NAME, RenalPlasmaFlow)
+//{
+//  EXPECT_FALSE( es->HasRenalPlasmaFlow());
+//  es->GetRenalPlasmaFlow().SetValue(1.0, VolumePerTimeUnit::L_Per_min);
+//  EXPECT_TRUE( es->HasRenalPlasmaFlow());
+//  EXPECT_EQ(1.0, es->GetRenalPlasmaFlow(VolumePerTimeUnit::L_Per_min));
+//
+//  const biogears::SERenalSystem ces(logger);
+//  EXPECT_FALSE( ces.HasRenalPlasmaFlow());
+//  auto dvalue = ces.GetRenalPlasmaFlow(VolumePerTimeUnit::L_Per_min);
+//  EXPECT_NE(dvalue, dvalue);
+//}
 //TEST_F(TEST_FIXTURE_NAME, RightGlomerularFiltrationRate)
 //{
 //  EXPECT_FALSE( es->HasRightGlomerularFiltrationRate());
@@ -546,42 +546,42 @@ TEST_F(TEST_FIXTURE_NAME, RenalPlasmaFlow)
 //  auto dvalue = ces.GetRightReabsorptionRate(VolumePerTimeUnit::L_Per_min);
 //  EXPECT_NE(dvalue, dvalue);
 //}
-TEST_F(TEST_FIXTURE_NAME, UrinationRate)
-{
-  EXPECT_FALSE( es->HasUrinationRate());
-  es->GetUrinationRate().SetValue(1.0, VolumePerTimeUnit::L_Per_min);
-  EXPECT_TRUE( es->HasUrinationRate());
-  EXPECT_EQ(1.0, es->GetUrinationRate(VolumePerTimeUnit::L_Per_min));
-
-  const biogears::SERenalSystem ces(logger);
-  EXPECT_FALSE( ces.HasUrinationRate());
-  auto dvalue = ces.GetUrinationRate(VolumePerTimeUnit::L_Per_min);
-  EXPECT_NE(dvalue, dvalue);
-}
-TEST_F(TEST_FIXTURE_NAME, UrineProductionRate)
-{
-  EXPECT_FALSE( es->HasUrineProductionRate());
-  es->GetUrineProductionRate().SetValue(1.0, VolumePerTimeUnit::L_Per_min);
-  EXPECT_TRUE( es->HasUrineProductionRate());
-  EXPECT_EQ(1.0, es->GetUrineProductionRate(VolumePerTimeUnit::L_Per_min));
-
-  const biogears::SERenalSystem ces(logger);
-  EXPECT_FALSE( ces.HasUrineProductionRate());
-  auto dvalue = ces.GetUrineProductionRate(VolumePerTimeUnit::L_Per_min);
-  EXPECT_NE(dvalue, dvalue);
-}
-TEST_F(TEST_FIXTURE_NAME, RenalVascularResistance)
-{
-  EXPECT_FALSE( es->HasRenalVascularResistance());
-  es->GetRenalVascularResistance().SetValue(1.0, FlowResistanceUnit::Pa_s_Per_m3);
-  EXPECT_TRUE( es->HasRenalVascularResistance());
-  EXPECT_EQ(1.0, es->GetRenalVascularResistance(FlowResistanceUnit::Pa_s_Per_m3));
-
-  const biogears::SERenalSystem ces(logger);
-  EXPECT_FALSE( ces.HasRenalVascularResistance());
-  auto dvalue = ces.GetRenalVascularResistance(FlowResistanceUnit::Pa_s_Per_m3);
-  EXPECT_NE(dvalue, dvalue);
-}
+//TEST_F(TEST_FIXTURE_NAME, UrinationRate)
+//{
+//  EXPECT_FALSE( es->HasUrinationRate());
+//  es->GetUrinationRate().SetValue(1.0, VolumePerTimeUnit::L_Per_min);
+//  EXPECT_TRUE( es->HasUrinationRate());
+//  EXPECT_EQ(1.0, es->GetUrinationRate(VolumePerTimeUnit::L_Per_min));
+//
+//  const biogears::SERenalSystem ces(logger);
+//  EXPECT_FALSE( ces.HasUrinationRate());
+//  auto dvalue = ces.GetUrinationRate(VolumePerTimeUnit::L_Per_min);
+//  EXPECT_NE(dvalue, dvalue);
+//}
+//TEST_F(TEST_FIXTURE_NAME, UrineProductionRate)
+//{
+//  EXPECT_FALSE( es->HasUrineProductionRate());
+//  es->GetUrineProductionRate().SetValue(1.0, VolumePerTimeUnit::L_Per_min);
+//  EXPECT_TRUE( es->HasUrineProductionRate());
+//  EXPECT_EQ(1.0, es->GetUrineProductionRate(VolumePerTimeUnit::L_Per_min));
+//
+//  const biogears::SERenalSystem ces(logger);
+//  EXPECT_FALSE( ces.HasUrineProductionRate());
+//  auto dvalue = ces.GetUrineProductionRate(VolumePerTimeUnit::L_Per_min);
+//  EXPECT_NE(dvalue, dvalue);
+//}
+//TEST_F(TEST_FIXTURE_NAME, RenalVascularResistance)
+//{
+//  EXPECT_FALSE( es->HasRenalVascularResistance());
+//  es->GetRenalVascularResistance().SetValue(1.0, FlowResistanceUnit::Pa_s_Per_m3);
+//  EXPECT_TRUE( es->HasRenalVascularResistance());
+//  EXPECT_EQ(1.0, es->GetRenalVascularResistance(FlowResistanceUnit::Pa_s_Per_m3));
+//
+//  const biogears::SERenalSystem ces(logger);
+//  EXPECT_FALSE( ces.HasRenalVascularResistance());
+//  auto dvalue = ces.GetRenalVascularResistance(FlowResistanceUnit::Pa_s_Per_m3);
+//  EXPECT_NE(dvalue, dvalue);
+//}
 //TEST_F(TEST_FIXTURE_NAME, RightAfferentArterioleResistance)
 //{
 //  EXPECT_FALSE( es->HasRightAfferentArterioleResistance());
@@ -606,42 +606,42 @@ TEST_F(TEST_FIXTURE_NAME, RenalVascularResistance)
 //  auto dvalue = ces.GetRightEfferentArterioleResistance(FlowResistanceUnit::Pa_s_Per_m3);
 //  EXPECT_NE(dvalue, dvalue);
 //}
-TEST_F(TEST_FIXTURE_NAME, UrineOsmolality)
-{
-  EXPECT_FALSE( es->HasUrineOsmolality());
-  es->GetUrineOsmolality().SetValue(1.0, OsmolalityUnit::Osm_Per_kg);
-  EXPECT_TRUE( es->HasUrineOsmolality());
-  EXPECT_EQ(1.0, es->GetUrineOsmolality(OsmolalityUnit::Osm_Per_kg));
-
-  const biogears::SERenalSystem ces(logger);
-  EXPECT_FALSE( ces.HasUrineOsmolality());
-  auto dvalue = ces.GetUrineOsmolality(OsmolalityUnit::Osm_Per_kg);
-  EXPECT_NE(dvalue, dvalue);
-}
-TEST_F(TEST_FIXTURE_NAME, UrineVolume)
-{
-  EXPECT_FALSE( es->HasUrineVolume());
-  es->GetUrineVolume().SetValue(1.0, VolumeUnit::L);
-  EXPECT_TRUE( es->HasUrineVolume());
-  EXPECT_EQ(1.0, es->GetUrineVolume(VolumeUnit::L));
-
-  const biogears::SERenalSystem ces(logger);
-  EXPECT_FALSE( ces.HasUrineVolume());
-  auto dvalue = ces.GetUrineVolume(VolumeUnit::L);
-  EXPECT_NE(dvalue, dvalue);
-}
-TEST_F(TEST_FIXTURE_NAME, UrineUreaNitrogenConcentration)
-{
-  EXPECT_FALSE( es->HasUrineUreaNitrogenConcentration());
-  es->GetUrineUreaNitrogenConcentration().SetValue(1.0, MassPerVolumeUnit::kg_Per_L);
-  EXPECT_TRUE( es->HasUrineUreaNitrogenConcentration());
-  EXPECT_EQ(1.0, es->GetUrineUreaNitrogenConcentration(MassPerVolumeUnit::kg_Per_L));
-
-  const biogears::SERenalSystem ces(logger);
-  EXPECT_FALSE( ces.HasUrineUreaNitrogenConcentration());
-  auto dvalue = ces.GetUrineUreaNitrogenConcentration(MassPerVolumeUnit::kg_Per_L);
-  EXPECT_NE(dvalue, dvalue);
-}
+//TEST_F(TEST_FIXTURE_NAME, UrineOsmolality)
+//{
+//  EXPECT_FALSE( es->HasUrineOsmolality());
+//  es->GetUrineOsmolality().SetValue(1.0, OsmolalityUnit::Osm_Per_kg);
+//  EXPECT_TRUE( es->HasUrineOsmolality());
+//  EXPECT_EQ(1.0, es->GetUrineOsmolality(OsmolalityUnit::Osm_Per_kg));
+//
+//  const biogears::SERenalSystem ces(logger);
+//  EXPECT_FALSE( ces.HasUrineOsmolality());
+//  auto dvalue = ces.GetUrineOsmolality(OsmolalityUnit::Osm_Per_kg);
+//  EXPECT_NE(dvalue, dvalue);
+//}
+//TEST_F(TEST_FIXTURE_NAME, UrineVolume)
+//{
+//  EXPECT_FALSE( es->HasUrineVolume());
+//  es->GetUrineVolume().SetValue(1.0, VolumeUnit::L);
+//  EXPECT_TRUE( es->HasUrineVolume());
+//  EXPECT_EQ(1.0, es->GetUrineVolume(VolumeUnit::L));
+//
+//  const biogears::SERenalSystem ces(logger);
+//  EXPECT_FALSE( ces.HasUrineVolume());
+//  auto dvalue = ces.GetUrineVolume(VolumeUnit::L);
+//  EXPECT_NE(dvalue, dvalue);
+//}
+//TEST_F(TEST_FIXTURE_NAME, UrineUreaNitrogenConcentration)
+//{
+//  EXPECT_FALSE( es->HasUrineUreaNitrogenConcentration());
+//  es->GetUrineUreaNitrogenConcentration().SetValue(1.0, MassPerVolumeUnit::kg_Per_L);
+//  EXPECT_TRUE( es->HasUrineUreaNitrogenConcentration());
+//  EXPECT_EQ(1.0, es->GetUrineUreaNitrogenConcentration(MassPerVolumeUnit::kg_Per_L));
+//
+//  const biogears::SERenalSystem ces(logger);
+//  EXPECT_FALSE( ces.HasUrineUreaNitrogenConcentration());
+//  auto dvalue = ces.GetUrineUreaNitrogenConcentration(MassPerVolumeUnit::kg_Per_L);
+//  EXPECT_NE(dvalue, dvalue);
+//}
 //TEST_F(TEST_FIXTURE_NAME, LeftFiltrationFraction)
 //{
 //  EXPECT_FALSE( es->HasLeftFiltrationFraction());
@@ -666,66 +666,66 @@ TEST_F(TEST_FIXTURE_NAME, UrineUreaNitrogenConcentration)
 //  auto dvalue = ces.GetRightFiltrationFraction();
 //  EXPECT_NE(dvalue, dvalue);
 //}
-TEST_F(TEST_FIXTURE_NAME, UrineSpecificGravity)
-{
-  EXPECT_FALSE( es->HasUrineSpecificGravity());
-  es->GetUrineSpecificGravity().SetValue(1.0);
-  EXPECT_TRUE( es->HasUrineSpecificGravity());
-  EXPECT_EQ(1.0, es->GetUrineSpecificGravity().GetValue());
-
-  const biogears::SERenalSystem ces(logger);
-  EXPECT_FALSE( ces.HasUrineSpecificGravity());
-  auto dvalue = ces.GetUrineSpecificGravity();
-  EXPECT_NE(dvalue, dvalue);
-}
-//GlomerularFiltrationRate - VolumePerTime
-//FiltartionFraction - 
-//LeftAfferentArterioleResistance - FlowResistanceUnit
-//LeftBowmansCapsulesHydrostaticPressure - PressureUnit
-//LeftBowmansCapsulesOsmoticPressure - PressureUnit
-//LeftEfferentArterioleResistance - FlowResistanceUnit
-//LeftGlomerularCapillariesHydrostaticPressure - PressureUnit
-//LeftGlomerularCapillariesOsmoticPressure - PressureUnit
-//LeftGlomerularFiltrationCoefficient - VolumePerTimePressureUnit
-//LeftGlomerularFiltrationSurfaceArea - AreaUnit
-//LeftGlomerularFluidPermeability - VolumePerTimePressureAreaUnit
-//LeftFiltrationFraction - 
-//LeftNetFiltrationPressure - PressureUnit
-//LeftNetReabsorptionPressure - PressureUnit
-//LeftPeritubularCapillariesHydrostaticPressure - PressureUnit
-//LeftReabsorptionFiltrationCoefficient - VolumePerTimePressureUnit
-//LeftReabsorptionRate - VolumePerTimeUnit
-//LeftTubularReabsorptionFiltrationSurfaceArea - AreaUnit
-//LeftTubularReabsorptionFluidPermeability - VolumePerTimePressureAreaUnit
-//LeftTubularHydrostaticPressure - PressureUnit
-//LeftTubularOsmoticPressure - PressureUnit
-//RenalBloodFlow - VolumePerTimeUnit
-//RenalPlasmaFlow - VolumePerTimeUnit
-//RenalVascularResistance - FlowResistanceUnit
-//RightAfferentArterioleResistance - FlowResistanceUnit
-//RightBowmansCapsulesHydrostaticPressure - PressureUnit
-//RightBowmansCapsulesOsmoticPressure - PressureUnit
-//RightEfferentArterioleResistance - FlowResistanceUnit
-//RightGlomerularCapillariesHydrostaticPressure - PressureUnit
-//RightGlomerularCapillariesOsmoticPressure - PressureUnit
-//RightGlomerularFiltrationCoefficient - VolumePerTimePressureUnit
-//RightGlomerularFiltrationRate - VolumePerTimeUnit
-//RightGlomerularFiltrationSurfaceArea - AreaUnit
-//RightGlomerularFluidPermeability - VolumePerTimePressureAreaUnit
-//RightFiltrationFraction 
-//RightNetFiltrationPressure - PressureUnit
-//RightNetReabsorptionPressure - PressureUnit
-//RightPeritubularCapillariesHydrostaticPressure - PressureUnit
-//RightPeritubularCapillariesOsmoticPressure - PressureUnit
-//RightReabsorptionFiltrationCoefficient - VolumePerTimePressureUnit
-//RightReabsorptionRate - VolumePerTimeUnit
-//RightTubularReabsorptionFiltrationSurfaceArea - AreaUnit
-//RightTubularReabsorptionFluidPermeability - VolumePerTimePressreAreaUnit
-//RightTubularHydrostaticPressure - PressureUnit
-//RightTubularOsmoticPressure - PressureUnit
-//UrinationRate - VolumePerTimeUnit
-//UrineOsmolality - OsmolalityUnit
-//UrineProductionRate - VolumePerTimeUnit
-//UrineSpecificGravity - 
-//UrineVolume - VolumeUnit
-//UrineUreaNitrogenConcentration - MassPerVolumeUnit
+//TEST_F(TEST_FIXTURE_NAME, UrineSpecificGravity)
+//{
+//  EXPECT_FALSE( es->HasUrineSpecificGravity());
+//  es->GetUrineSpecificGravity().SetValue(1.0);
+//  EXPECT_TRUE( es->HasUrineSpecificGravity());
+//  EXPECT_EQ(1.0, es->GetUrineSpecificGravity().GetValue());
+//
+//  const biogears::SERenalSystem ces(logger);
+//  EXPECT_FALSE( ces.HasUrineSpecificGravity());
+//  auto dvalue = ces.GetUrineSpecificGravity();
+//  EXPECT_NE(dvalue, dvalue);
+//}
+////GlomerularFiltrationRate - VolumePerTime
+////FiltartionFraction - 
+////LeftAfferentArterioleResistance - FlowResistanceUnit
+////LeftBowmansCapsulesHydrostaticPressure - PressureUnit
+////LeftBowmansCapsulesOsmoticPressure - PressureUnit
+////LeftEfferentArterioleResistance - FlowResistanceUnit
+////LeftGlomerularCapillariesHydrostaticPressure - PressureUnit
+////LeftGlomerularCapillariesOsmoticPressure - PressureUnit
+////LeftGlomerularFiltrationCoefficient - VolumePerTimePressureUnit
+////LeftGlomerularFiltrationSurfaceArea - AreaUnit
+////LeftGlomerularFluidPermeability - VolumePerTimePressureAreaUnit
+////LeftFiltrationFraction - 
+////LeftNetFiltrationPressure - PressureUnit
+////LeftNetReabsorptionPressure - PressureUnit
+////LeftPeritubularCapillariesHydrostaticPressure - PressureUnit
+////LeftReabsorptionFiltrationCoefficient - VolumePerTimePressureUnit
+////LeftReabsorptionRate - VolumePerTimeUnit
+////LeftTubularReabsorptionFiltrationSurfaceArea - AreaUnit
+////LeftTubularReabsorptionFluidPermeability - VolumePerTimePressureAreaUnit
+////LeftTubularHydrostaticPressure - PressureUnit
+////LeftTubularOsmoticPressure - PressureUnit
+////RenalBloodFlow - VolumePerTimeUnit
+////RenalPlasmaFlow - VolumePerTimeUnit
+////RenalVascularResistance - FlowResistanceUnit
+////RightAfferentArterioleResistance - FlowResistanceUnit
+////RightBowmansCapsulesHydrostaticPressure - PressureUnit
+////RightBowmansCapsulesOsmoticPressure - PressureUnit
+////RightEfferentArterioleResistance - FlowResistanceUnit
+////RightGlomerularCapillariesHydrostaticPressure - PressureUnit
+////RightGlomerularCapillariesOsmoticPressure - PressureUnit
+////RightGlomerularFiltrationCoefficient - VolumePerTimePressureUnit
+////RightGlomerularFiltrationRate - VolumePerTimeUnit
+////RightGlomerularFiltrationSurfaceArea - AreaUnit
+////RightGlomerularFluidPermeability - VolumePerTimePressureAreaUnit
+////RightFiltrationFraction 
+////RightNetFiltrationPressure - PressureUnit
+////RightNetReabsorptionPressure - PressureUnit
+////RightPeritubularCapillariesHydrostaticPressure - PressureUnit
+////RightPeritubularCapillariesOsmoticPressure - PressureUnit
+////RightReabsorptionFiltrationCoefficient - VolumePerTimePressureUnit
+////RightReabsorptionRate - VolumePerTimeUnit
+////RightTubularReabsorptionFiltrationSurfaceArea - AreaUnit
+////RightTubularReabsorptionFluidPermeability - VolumePerTimePressreAreaUnit
+////RightTubularHydrostaticPressure - PressureUnit
+////RightTubularOsmoticPressure - PressureUnit
+////UrinationRate - VolumePerTimeUnit
+////UrineOsmolality - OsmolalityUnit
+////UrineProductionRate - VolumePerTimeUnit
+////UrineSpecificGravity - 
+////UrineVolume - VolumeUnit
+////UrineUreaNitrogenConcentration - MassPerVolumeUnit

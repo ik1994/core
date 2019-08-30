@@ -100,7 +100,8 @@ template <COMPARTMENT_GRAPH_TEMPLATE>
 void SECompartmentGraph<COMPARTMENT_GRAPH_TYPES>::RemoveCompartment(const CompartmentType& Compartment)
 {
   size_t i = 0;
-  for (CompartmentType* n : m_Compartments) {
+  for (auto n : m_Compartments) {
+    n->RemoveChild(Compartment);
     if (n == &Compartment) {
       m_Compartments.erase(m_Compartments.begin() + i);
       return;
@@ -120,7 +121,8 @@ void SECompartmentGraph<COMPARTMENT_GRAPH_TYPES>::RemoveCompartment(const std::s
 {
   size_t i = 0;
   for (CompartmentType* n : m_Compartments) {
-    if (n->GetName() == name) {
+    n->RemoveChild(name);
+    if (n->GetName() == name) { 
       m_Compartments.erase(m_Compartments.begin() + i);
       return;
     }

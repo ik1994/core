@@ -2230,8 +2230,14 @@ void Tissue::CalculateOncoticPressure()
 
     if (vascular->GetName() == BGE::VascularCompartment::Gut || vascular->GetName() == BGE::VascularCompartment::Lungs || vascular->GetName() == BGE::VascularLiteCompartment::Kidney) {
       for (auto c : vascular->GetChildren()) {
-        vascularCOP = m_VascularCopPaths[c];
+        try {
+        vascularCOP = m_VascularCopPaths.at(c);
+        assert(vascularCOP);
         vascularCOP->GetNextPressureSource().SetValue(-vascularOncoticPressure_mmHg, PressureUnit::mmHg);
+        } catch ( std::runtime_error e) {
+          Fatal("Were going down");
+          Fatal(e.what());
+        }
       }
     } else {
       vascularCOP = m_VascularCopPaths[vascular];

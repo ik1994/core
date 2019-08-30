@@ -43,6 +43,8 @@ public:
   virtual void Balance(BalanceGasBy by);
 
   virtual void AddChild(SEGasCompartment& child);
+  virtual void RemoveChild(SEGasCompartment const& child);
+  virtual void RemoveChild(std::string const& childsName);
   virtual const std::vector<SEGasCompartment*>& GetChildren() { return m_Children; }
   virtual const std::vector<SEGasCompartment*>& GetLeaves() { return m_Leaves; }
 
