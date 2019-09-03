@@ -39,16 +39,12 @@ public:
   virtual std::string GetName() const { return "ChronicRenalStenosis"; }
   virtual const char* GetName_cStr() const { return "ChronicRenalStenosis"; }
 
-  virtual bool HasLeftKidneySeverity() const;
-  virtual SEScalar0To1& GetLeftKidneySeverity();
-
-  virtual bool HasRightKidneySeverity() const;
-  virtual SEScalar0To1& GetRightKidneySeverity();
+  virtual bool HasKidneySeverity() const;
+  virtual SEScalar0To1& GetKidneySeverity();
 
   virtual void ToString(std::ostream& str) const;
 
 protected:
-  SEScalar0To1* m_LeftKidneySeverity;
-  SEScalar0To1* m_RightKidneySeverity;
+  SEScalar0To1* m_KidneySeverity;
 };
 }

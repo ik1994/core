@@ -5,15 +5,13 @@
     <InitialParameters>
 		<PatientFile>StandardMale.xml</PatientFile>
 		<Condition xsi:type="ChronicRenalStenosisData">
-			<LeftKidneySeverity value="0.6"/>
-			<RightKidneySeverity value="0.0"/>
+			<KidneySeverity value="0.6"/>
 		</Condition>    
 	</InitialParameters>
     
 	<!-- Base system data required for all scenario verification -->
   <DataRequests>
   <DataRequest xsi:type="PatientDataRequestData"    Name="Weight"                            Unit="kg"           Precision="1"/>
-  
   <DataRequest xsi:type="PhysiologyDataRequestData" Name="HeartRate"                         Unit="1/min"       Precision="2"/>
   <DataRequest xsi:type="PhysiologyDataRequestData" Name="HeartStrokeVolume"                 Unit="mL"          Precision="1"/>
   <DataRequest xsi:type="PhysiologyDataRequestData" Name="BloodVolume"                       Unit="L"          Precision="2"/>	
@@ -47,7 +45,6 @@
   <DataRequest xsi:type="PhysiologyDataRequestData" Name="RenalBloodFlow"                    Unit="L/min"      Precision="2"/>
   <DataRequest xsi:type="PhysiologyDataRequestData" Name="UrineProductionRate"               Unit="mL/min"      Precision="3"/>
   <DataRequest xsi:type="PhysiologyDataRequestData" Name="ArterialBloodPH" Precision="2"/>
-  <DataRequest xsi:type="PhysiologyDataRequestData" Name="RightAfferentArterioleResistance"  Unit="mmHg min/mL" Precision="4"/>
   
   <DataRequest xsi:type="GasCompartmentDataRequestData" Compartment="Alveoli"                            Name="Pressure"        Unit="cmH2O" Precision="0"/>
 	<DataRequest xsi:type="GasCompartmentDataRequestData" Compartment="Alveoli"  Substance="Oxygen"        Name="PartialPressure" Unit="mmHg"  Precision="0"/>
@@ -63,8 +60,6 @@
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="VenaCava"  Substance="Oxygen"        Name="PartialPressure" Unit="mmHg" Precision="1"/>
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="VenaCava"  Substance="CarbonDioxide" Name="PartialPressure" Unit="mmHg" Precision="1"/>
 	
-	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="RightTubules" Substance="Sodium"        Name="Concentration" Unit="g/L" Precision="2"/>
-	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="LeftTubules"  Substance="Sodium"        Name="Concentration" Unit="g/L" Precision="2"/>
   
   <DataRequest xsi:type="SubstanceDataRequestData"  Substance="Oxygen"         Name="AlveolarTransfer" Unit="mL/s" Precision="2"/>
   <DataRequest xsi:type="SubstanceDataRequestData"  Substance="CarbonDioxide"  Name="AlveolarTransfer" Unit="mL/s" Precision="2"/>
@@ -75,8 +70,8 @@
 
 	<!-- Anything action specific data needed for verification of this scenario -->   
     <DataRequest xsi:type="PhysiologyDataRequestData" Name="SystemicVascularResistance" Unit="mmHg s/mL" Precision="3"/>
-    <DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="LeftRenalArtery"               Name="InFlow"   Unit="mL/min" Precision="1"/>
-    <DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="RightRenalArtery"               Name="InFlow"   Unit="mL/min" Precision="1"/>
+    <DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="RenalArtery"               Name="InFlow"   Unit="mL/min" Precision="1"/>
+
   </DataRequests>
 	
     <Action xsi:type="AdvanceTimeData">

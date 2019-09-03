@@ -857,7 +857,6 @@
   <System xsi:type="BioGearsRenalSystemData">
     <FiltrationFraction readOnly="false" value="0.195868560556588"/>
     <GlomerularFiltrationRate readOnly="false" unit="mL/s" value="1.8677058867557"/>
-    <LeftAfferentArterioleResistance readOnly="false" unit="mmHg s/mL" value="2.49403594739295"/>
     <LeftBowmansCapsulesHydrostaticPressure readOnly="false" unit="mmHg" value="12.8784831784014"/>
     <LeftBowmansCapsulesOsmoticPressure readOnly="false" unit="mmHg" value="0"/>
     <LeftEfferentArterioleResistance readOnly="false" unit="mmHg s/mL" value="4.578"/>
@@ -881,7 +880,6 @@
     <RenalBloodFlow readOnly="false" unit="mL/s" value="16.5343501101332"/>
     <RenalPlasmaFlow readOnly="false" unit="mL/s" value="9.53550626730674"/>
     <RenalVascularResistance readOnly="false" unit="mmHg s/mL" value="4.84961092863331"/>
-    <RightAfferentArterioleResistance readOnly="false" unit="mmHg s/mL" value="2.49403594739286"/>
     <RightBowmansCapsulesHydrostaticPressure readOnly="false" unit="mmHg" value="12.8784831784014"/>
     <RightBowmansCapsulesOsmoticPressure readOnly="false" unit="mmHg" value="0"/>
     <RightEfferentArterioleResistance readOnly="false" unit="mmHg s/mL" value="4.578"/>
@@ -22488,8 +22486,6 @@
         <PropertyConvergence Name="TidalVolume" PercentDifference="0.386930162182596"/>
         <PropertyConvergence Name="OxygenSaturation" PercentDifference="0.978425844926352"/>
         <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="0.0383988826989507"/>
-        <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="2.49623427729599"/>
-        <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="2.49623427729591"/>
         <PropertyConvergence Name="CoreTemperature" PercentDifference="37.0605062334155"/>
         <PropertyConvergence Name="SkinTemperature" PercentDifference="35.3147671335507"/>
       </FeedbackStabilizationCriteria>
@@ -22505,8 +22501,6 @@
           <PropertyConvergence Name="TidalVolume" PercentDifference="NaN"/>
           <PropertyConvergence Name="OxygenSaturation" PercentDifference="NaN"/>
           <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="NaN"/>
-          <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="NaN"/>
-          <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="NaN"/>
           <PropertyConvergence Name="CoreTemperature" PercentDifference="NaN"/>
           <PropertyConvergence Name="SkinTemperature" PercentDifference="NaN"/>
         </Criteria>
@@ -22523,8 +22517,6 @@
           <PropertyConvergence Name="TidalVolume" PercentDifference="NaN"/>
           <PropertyConvergence Name="OxygenSaturation" PercentDifference="NaN"/>
           <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="NaN"/>
-          <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="NaN"/>
-          <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="NaN"/>
           <PropertyConvergence Name="CoreTemperature" PercentDifference="NaN"/>
           <PropertyConvergence Name="SkinTemperature" PercentDifference="NaN"/>
         </Criteria>
@@ -22541,8 +22533,6 @@
           <PropertyConvergence Name="TidalVolume" PercentDifference="NaN"/>
           <PropertyConvergence Name="OxygenSaturation" PercentDifference="NaN"/>
           <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="NaN"/>
-          <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="NaN"/>
-          <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="NaN"/>
           <PropertyConvergence Name="CoreTemperature" PercentDifference="NaN"/>
           <PropertyConvergence Name="SkinTemperature" PercentDifference="NaN"/>
         </Criteria>
@@ -22559,8 +22549,6 @@
           <PropertyConvergence Name="TidalVolume" PercentDifference="NaN"/>
           <PropertyConvergence Name="OxygenSaturation" PercentDifference="NaN"/>
           <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="NaN"/>
-          <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="NaN"/>
-          <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="NaN"/>
           <PropertyConvergence Name="CoreTemperature" PercentDifference="NaN"/>
           <PropertyConvergence Name="SkinTemperature" PercentDifference="NaN"/>
         </Criteria>
@@ -22577,8 +22565,6 @@
           <PropertyConvergence Name="TidalVolume" PercentDifference="NaN"/>
           <PropertyConvergence Name="OxygenSaturation" PercentDifference="NaN"/>
           <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="NaN"/>
-          <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="NaN"/>
-          <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="NaN"/>
           <PropertyConvergence Name="CoreTemperature" PercentDifference="NaN"/>
           <PropertyConvergence Name="SkinTemperature" PercentDifference="NaN"/>
         </Criteria>
@@ -22595,8 +22581,6 @@
           <PropertyConvergence Name="TidalVolume" PercentDifference="NaN"/>
           <PropertyConvergence Name="OxygenSaturation" PercentDifference="NaN"/>
           <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="NaN"/>
-          <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="NaN"/>
-          <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="NaN"/>
           <PropertyConvergence Name="CoreTemperature" PercentDifference="NaN"/>
           <PropertyConvergence Name="SkinTemperature" PercentDifference="NaN"/>
         </Criteria>
@@ -22613,8 +22597,6 @@
           <PropertyConvergence Name="TidalVolume" PercentDifference="NaN"/>
           <PropertyConvergence Name="OxygenSaturation" PercentDifference="NaN"/>
           <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="NaN"/>
-          <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="NaN"/>
-          <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="NaN"/>
           <PropertyConvergence Name="CoreTemperature" PercentDifference="NaN"/>
           <PropertyConvergence Name="SkinTemperature" PercentDifference="NaN"/>
         </Criteria>
@@ -22631,8 +22613,6 @@
           <PropertyConvergence Name="TidalVolume" PercentDifference="NaN"/>
           <PropertyConvergence Name="OxygenSaturation" PercentDifference="NaN"/>
           <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="NaN"/>
-          <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="NaN"/>
-          <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="NaN"/>
           <PropertyConvergence Name="CoreTemperature" PercentDifference="NaN"/>
           <PropertyConvergence Name="SkinTemperature" PercentDifference="NaN"/>
         </Criteria>
@@ -22649,8 +22629,6 @@
           <PropertyConvergence Name="TidalVolume" PercentDifference="NaN"/>
           <PropertyConvergence Name="OxygenSaturation" PercentDifference="NaN"/>
           <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="NaN"/>
-          <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="NaN"/>
-          <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="NaN"/>
           <PropertyConvergence Name="CoreTemperature" PercentDifference="NaN"/>
           <PropertyConvergence Name="SkinTemperature" PercentDifference="NaN"/>
         </Criteria>
@@ -22667,8 +22645,6 @@
           <PropertyConvergence Name="TidalVolume" PercentDifference="NaN"/>
           <PropertyConvergence Name="OxygenSaturation" PercentDifference="NaN"/>
           <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="NaN"/>
-          <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="NaN"/>
-          <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="NaN"/>
           <PropertyConvergence Name="CoreTemperature" PercentDifference="NaN"/>
           <PropertyConvergence Name="SkinTemperature" PercentDifference="NaN"/>
         </Criteria>
@@ -22685,8 +22661,6 @@
           <PropertyConvergence Name="TidalVolume" PercentDifference="NaN"/>
           <PropertyConvergence Name="OxygenSaturation" PercentDifference="NaN"/>
           <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="NaN"/>
-          <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="NaN"/>
-          <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="NaN"/>
           <PropertyConvergence Name="CoreTemperature" PercentDifference="NaN"/>
           <PropertyConvergence Name="SkinTemperature" PercentDifference="NaN"/>
         </Criteria>
@@ -22703,8 +22677,6 @@
           <PropertyConvergence Name="TidalVolume" PercentDifference="NaN"/>
           <PropertyConvergence Name="OxygenSaturation" PercentDifference="NaN"/>
           <PropertyConvergence Name="EndTidalCarbonDioxideFraction" PercentDifference="NaN"/>
-          <PropertyConvergence Name="LeftAfferentArterioleResistance" PercentDifference="NaN"/>
-          <PropertyConvergence Name="RightAfferentArterioleResistance" PercentDifference="NaN"/>
           <PropertyConvergence Name="CoreTemperature" PercentDifference="NaN"/>
           <PropertyConvergence Name="SkinTemperature" PercentDifference="NaN"/>
         </Criteria>

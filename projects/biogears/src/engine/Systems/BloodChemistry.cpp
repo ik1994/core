@@ -259,11 +259,13 @@ void BloodChemistry::Process()
 
   double totalHemoglobinO2Hemoglobin_g = totalHb_g + totalHbO2_g + totalHbCO2_g + totalHBO2CO2_g + totalHBCO_g;
   GetHemoglobinContent().SetValue(totalHemoglobinO2Hemoglobin_g, MassUnit::g);
+  //std::cout << totalHemoglobinO2Hemoglobin_g << std::endl;
 
   // Calculate Blood Cell Counts
   double RedBloodCellCount_ct = GetHemoglobinContent(MassUnit::ug) / m_HbPerRedBloodCell_ug_Per_ct;
   double RedBloodCellVolume_mL = RedBloodCellCount_ct * m_redBloodCellVolume_mL;
   double TotalBloodVolume_mL = m_data.GetCardiovascular().GetBloodVolume(VolumeUnit::mL);
+  //std::cout << TotalBloodVolume_mL << std::endl;
   GetHematocrit().SetValue((RedBloodCellVolume_mL / TotalBloodVolume_mL));
   // Yes, we are giving GetRedBloodCellCount a concentration, because that is what it is, but clinically, it is known as RedBloodCellCount
   GetRedBloodCellCount().SetValue(RedBloodCellCount_ct / m_data.GetCardiovascular().GetBloodVolume(VolumeUnit::L), AmountPerVolumeUnit::ct_Per_L);

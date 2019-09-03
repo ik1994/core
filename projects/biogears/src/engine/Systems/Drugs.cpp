@@ -391,6 +391,7 @@ void Drugs::AdministerSubstanceCompoundInfusion()
       volumeToAdminister_mL = volumeRemaining_mL;
       emptyBags.push_back(compound);
     }
+
     infusion->GetBagVolume().IncrementValue(-volumeToAdminister_mL, VolumeUnit::mL);
 
     for (const SESubstanceConcentration* component : compound->GetComponents()) {

@@ -48,8 +48,6 @@
 		<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="VenaCava"  Substance="Oxygen"        Name="PartialPressure" Unit="mmHg" Precision="1"/>
 		<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="VenaCava"  Substance="CarbonDioxide" Name="PartialPressure" Unit="mmHg" Precision="1"/>
 		
-		<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="RightTubules" Substance="Sodium"        Name="Concentration" Unit="g/L" Precision="2"/>
-		<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="LeftTubules"  Substance="Sodium"        Name="Concentration" Unit="g/L" Precision="2"/>
 		<DataRequest xsi:type="PhysiologyDataRequestData" Name="SystemicVascularResistance" Unit="mmHg s/mL" Precision="3"/>
 
 		<!--Inflammation Testing-->

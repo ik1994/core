@@ -705,11 +705,11 @@ bool BioGears::SetupPatient()
   m_Patient->GetTotalVentilationBaseline().SetValue(targetVent_L_Per_min, VolumePerTimeUnit::L_Per_min);
   //\ToDo:  Could probably optimze further by taking gender into account
   //Stabilization goes faster if we start the driver with a good amplitude that pushes blood gas levels to setpoint.
-  //Based off testing, this relationship holds up well between RR = 12 and RR = 16 for Standard Male.  
+  //Based off testing, this relationship holds up well between RR = 12 and RR = 16 for Standard Male.
   double baselineDriverPressure_cmH2O = -5.8 + 0.25 * (respirationRate_bpm - 12.0);
   //Adjust driver pressure relationship for respiration rates > 16 (slope of driver - RR line decreases)
   if (respirationRate_bpm > 16.0) {
-    //-4.8 = driver pressure at 16 bpm. 
+    //-4.8 = driver pressure at 16 bpm.
     baselineDriverPressure_cmH2O = -4.8 + 0.125 * (respirationRate_bpm - 16);
   }
   //Scale target pressure as ratio of calculated FRC to Standard Male FRC
@@ -1048,7 +1048,7 @@ bool BioGears::CreateCircuitsAndCompartments()
   ///////////////////////////////////////////////////////////////////
 
   SetupLiteTemperature();
- 
+
   // This node is shared between the respiratory, anesthesia, and inhaler circuits
   SEFluidCircuitNode& Ambient = m_Circuits->CreateFluidNode(BGE::EnvironmentNode::Ambient);
   Ambient.GetNextVolume().SetValue(std::numeric_limits<double>::infinity(), VolumeUnit::L);
@@ -1807,8 +1807,8 @@ void BioGears::SetupCardiovascular()
   // Set up our hierarchy //
   //////////////////////////
   SELiquidCompartment& vKidneys = m_Compartments->CreateLiquidCompartment(BGE::VascularCompartment::Kidneys);
-  vKidneys.AddChild(vLeftKidney);
-  vKidneys.AddChild(vRightKidney);
+  //vKidneys.AddChild(vLeftKidney);
+  //vKidneys.AddChild(vRightKidney);
   SELiquidCompartment& vHeart = m_Compartments->CreateLiquidCompartment(BGE::VascularCompartment::Heart);
   vHeart.AddChild(vMyocardium);
   vHeart.AddChild(vLeftHeart);
@@ -2115,26 +2115,26 @@ void BioGears::SetupRenalLite()
   ///// Circuit Parameters//////
   double openSwitch_mmHg_s_Per_mL = m_Config->GetDefaultOpenFlowResistance(FlowResistanceUnit::mmHg_s_Per_mL);
   //Resistances with some tuning multipliers
-  double urineTuningMultiplier = 0.58;
-  double arteryTuningMultiplier = 0.8;
-  double reabsorptionTuningMultiplier = 0.8;
+  double urineTuningMultiplier = 2.2*(0.40);
+  double arteryTuningMultiplier = 0.05 * (0.8);
+  double reabsorptionTuningMultiplier = 1.0*(0.8);
 
-  double renalArteryResistance_mmHg_s_Per_mL = Convert(0.0250 * arteryTuningMultiplier, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
-  double afferentResistance_mmHg_s_Per_mL = Convert(0.0417, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
-  double efferentResistance_mmHg_s_Per_mL = Convert(0.0763, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
-  double glomerularResistance_mmHg_s_Per_mL = Convert(0.0019, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
-  double peritubularResistance_mmHg_s_Per_mL = Convert(0.0167, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
-  double renalVeinResistance_mmHg_s_Per_mL = Convert(0.0066, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
-  double glomerularFilterResistance_mmHg_s_Per_mL = Convert(0.1600 * urineTuningMultiplier, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
-  double tubulesResistance_mmHg_s_Per_mL = Convert(0.1920 * urineTuningMultiplier, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
-  double reabsoprtionResistance_mmHg_s_Per_mL = Convert(0.1613 * reabsorptionTuningMultiplier, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+  double renalArteryResistance_mmHg_s_Per_mL = Convert(0.5 * (0.0250 * arteryTuningMultiplier), FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+  double afferentResistance_mmHg_s_Per_mL = Convert(0.5 * (0.0417)*arteryTuningMultiplier, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+  double efferentResistance_mmHg_s_Per_mL = Convert(0.5 * (0.0763), FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+  double glomerularResistance_mmHg_s_Per_mL = Convert(0.5 * (0.0019), FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+  double peritubularResistance_mmHg_s_Per_mL = Convert(0.5 * (0.0167), FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+  double renalVeinResistance_mmHg_s_Per_mL = Convert(0.5 * (0.0066), FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+  double glomerularFilterResistance_mmHg_s_Per_mL = Convert(0.5 * (0.1600) * urineTuningMultiplier, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+  double tubulesResistance_mmHg_s_Per_mL = Convert(0.5 * (0.1920) * urineTuningMultiplier, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+  double reabsoprtionResistance_mmHg_s_Per_mL = Convert(0.5 * (0.1613) * reabsorptionTuningMultiplier, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
   //This one is tuned
-  double ureterTuningMultiplier = 0.59;
-  double ureterResistance_mmHg_s_Per_mL = Convert(30.0 * ureterTuningMultiplier, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+  double ureterTuningMultiplier = 0.50;
+  double ureterResistance_mmHg_s_Per_mL = Convert(0.5 * (30.0) * ureterTuningMultiplier, FlowResistanceUnit::mmHg_min_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
   double urethraResistance_mmHg_s_Per_mL = openSwitch_mmHg_s_Per_mL;
   //Compliances
   //0.5 * CapacitanceKidney is the per-kidney value from 3 element Windkessel
-  double totalCompliance = (0.5 * (0.91 * 1.7560) * 0.02);
+  double totalCompliance = 0.5 * (0.91 * 1.7560) * 0.02;
   //The fractions here should add to 1.0;
   double renalArteryCompliance_mL_Per_mmHg = totalCompliance * 0.11;
   double renalVeinCompliance_mL_Per_mmHg = totalCompliance * 0.78;
@@ -2142,20 +2142,20 @@ void BioGears::SetupRenalLite()
   ///\todo The bladder is currently not being modeled as a compliance
   //double bladderCompliance_mL_Per_mmHg = Convert(38.3, FlowComplianceUnit::mL_Per_cmH2O, FlowComplianceUnit::mL_Per_mmHg);
 
-  //Large Vasculature (divide total large vasculature fluid volume three ways):
-  double tubulesVolume_mL = singleKidneyLargeVasculatureFluidVolume_mL / 3.0;
-  double renalArteryVolume_mL = singleKidneyLargeVasculatureFluidVolume_mL / 3.0;
-  double renalVeinVolume_mL = singleKidneyLargeVasculatureFluidVolume_mL / 3.0;
+  //Large Vasculature (divide total large vasculature fluid volume three ways)Need to double because we have a single lumped kidney:
+  double tubulesVolume_mL = singleKidneyLargeVasculatureFluidVolume_mL / 3.0; //2.0 * (singleKidneyLargeVasculatureFluidVolume_mL / 3.0);
+  double renalArteryVolume_mL = singleKidneyLargeVasculatureFluidVolume_mL / 3.0; //2.0 * (singleKidneyLargeVasculatureFluidVolume_mL / 3.0);
+  double renalVeinVolume_mL = singleKidneyLargeVasculatureFluidVolume_mL / 3.0; //2.0 * (singleKidneyLargeVasculatureFluidVolume_mL / 3.0);
 
   //Small vasculature (divide total small vasculature fluid volume five ways):
-  double peritubularVolume_mL = singleKidneySmallVasculatureFluidVolume_mL / 5.0;
-  double efferentVolume_mL = singleKidneySmallVasculatureFluidVolume_mL / 5.0;
-  double afferentVolume_mL = singleKidneySmallVasculatureFluidVolume_mL / 5.0;
-  double bowmansVolume_mL = singleKidneySmallVasculatureFluidVolume_mL / 5.0;
-  double glomerularVolume_mL = singleKidneySmallVasculatureFluidVolume_mL / 5.0;
+  double peritubularVolume_mL = singleKidneySmallVasculatureFluidVolume_mL / 5.0; //2.0 * (singleKidneySmallVasculatureFluidVolume_mL / 5.0);
+  double efferentVolume_mL = singleKidneySmallVasculatureFluidVolume_mL / 5.0; //2.0 * (singleKidneySmallVasculatureFluidVolume_mL / 5.0);
+  double afferentVolume_mL = singleKidneySmallVasculatureFluidVolume_mL / 5.0; //2.0 * (singleKidneySmallVasculatureFluidVolume_mL / 5.0);
+  double bowmansVolume_mL = singleKidneySmallVasculatureFluidVolume_mL / 5.0; //2.0 * (singleKidneySmallVasculatureFluidVolume_mL / 5.0);
+  double glomerularVolume_mL = singleKidneySmallVasculatureFluidVolume_mL / 5.0; //2.0 * (singleKidneySmallVasculatureFluidVolume_mL / 5.0);
 
   //Using width = 1.8 mm and length = 11 inches => 710.6 mm^3, double for lumped lite model
-  double ureterVolume_mL = 2.0*(0.71);
+  double ureterVolume_mL = 2.0 * (0.71);
 
   //Tuned constants
   double bladderVolume_mL = 1.0;
@@ -2248,12 +2248,11 @@ void BioGears::SetupRenalLite()
   SEFluidCircuitNode& Ureter = cRenal.CreateNode(BGE::RenalLiteNode::Ureter);
   Ureter.GetVolumeBaseline().SetValue(ureterVolume_mL, VolumeUnit::mL);
 
-   /////////////
+  /////////////
   // Bladder //
   SEFluidCircuitNode& Bladder = cRenal.CreateNode(BGE::RenalLiteNode::Bladder);
   Bladder.GetVolumeBaseline().SetValue(bladderVolume_mL, VolumeUnit::mL);
   //Bladder.GetPressure().SetValue(0.0, PressureUnit::mmHg);
-
 
   //////////////////
   // Create Paths //
@@ -2319,7 +2318,6 @@ void BioGears::SetupRenalLite()
   KidneyBleed.GetResistanceBaseline().SetValue(m_Config->GetDefaultOpenFlowResistance(FlowResistanceUnit::mmHg_s_Per_mL), FlowResistanceUnit::mmHg_s_Per_mL);
   ///////////////////////////////////
 
-  
   ///////////////////////////////////
   //  Urine //
   /////////////////
@@ -2383,13 +2381,13 @@ void BioGears::SetupRenalLite()
   // Add the new connection paths
   SEFluidCircuitPath& NewAorta1ToKidney = cCombinedCardiovascular.CreatePath(*Aorta1, AortaConnection, BGE::CardiovascularPath::Aorta1ToKidney);
   SEFluidCircuitPath& NewKidneyToVenaCava = cCombinedCardiovascular.CreatePath(VenaCavaConnection, *VenaCava, BGE::CardiovascularPath::KidneyToVenaCava);
-  
+
   // We need to move the resistances
   NewAorta1ToKidney.GetResistanceBaseline().Set(AortaConnectionToRenalArtery.GetResistanceBaseline());
   AortaConnectionToRenalArtery.GetResistanceBaseline().Invalidate();
   NewKidneyToVenaCava.GetResistanceBaseline().Set(RenalVeinToVenaCavaConnection.GetResistanceBaseline());
   RenalVeinToVenaCavaConnection.GetResistanceBaseline().Invalidate();
- 
+
   // Update the circuit
   cCombinedCardiovascular.SetNextAndCurrentFromBaselines();
   cCombinedCardiovascular.StateChange();
@@ -2439,7 +2437,6 @@ void BioGears::SetupRenalLite()
   vTubules.MapNode(Tubules);
   vTubules.MapNode(NetTubules);
 
-  
   // Let's build out the hierarchy
   // Grab these, as cardiovascular already made them
   SELiquidCompartment* vKidney = m_Compartments->GetLiquidCompartment(BGE::VascularLiteCompartment::Kidney);
@@ -2464,7 +2461,7 @@ void BioGears::SetupRenalLite()
   SELiquidCompartment& uUreter = m_Compartments->CreateLiquidCompartment(BGE::UrineLiteCompartment::Ureter);
   uUreter.MapNode(Ureter);
   ////////////////
-  
+
   /////////////
   // Bladder //
   SELiquidCompartment& uBladder = m_Compartments->CreateLiquidCompartment(BGE::UrineLiteCompartment::Bladder);
@@ -2484,7 +2481,8 @@ void BioGears::SetupRenalLite()
   ///////////
 
   ////////////////////////////
-  // AortaToRenalArtery //
+  // AortaToRenalArtery, update left and right //
+  m_Compartments->DeleteLiquidLink(BGE::VascularLink::AortaToLeftKidney); // Replace this link
   m_Compartments->DeleteLiquidLink(BGE::VascularLink::AortaToRightKidney); // Replace this link
   SELiquidCompartmentLink& vAortaToRenalArtery = m_Compartments->CreateLiquidLink(vAorta, vRenalArtery, BGE::VascularLiteLink::AortaToKidney);
   vAortaToRenalArtery.MapPath(AortaConnectionToRenalArtery);
@@ -2521,7 +2519,8 @@ void BioGears::SetupRenalLite()
   SELiquidCompartmentLink& vPeritubularCapillariesToRenalVein = m_Compartments->CreateLiquidLink(vPeritubularCapillaries, vRenalVein, BGE::VascularLiteLink::PeritubularCapillariesToRenalVein);
   vPeritubularCapillariesToRenalVein.MapPath(PeritubularCapillariesToRenalVein);
   /////////////////////////////
-  // RenalVeinToVenaCava //
+  // RenalVeinToVenaCava, delete right //
+  m_Compartments->DeleteLiquidLink(BGE::VascularLink::RightKidneyToVenaCava); // Replace this link
   m_Compartments->DeleteLiquidLink(BGE::VascularLink::LeftKidneyToVenaCava); // Replace this link
   SELiquidCompartmentLink& vRenalVeinToVenaCava = m_Compartments->CreateLiquidLink(vRenalVein, vVenaCava, BGE::VascularLiteLink::KidneyToVenaCava);
   vRenalVeinToVenaCava.MapPath(RenalVeinToVenaCavaConnection);
@@ -2529,8 +2528,6 @@ void BioGears::SetupRenalLite()
   // Hemorrhage //
   SELiquidCompartmentLink& vKidneyHemorrhage = m_Compartments->CreateLiquidLink(vRenalVein, vGround, BGE::VascularLiteLink::KidneyHemorrhage);
   vKidneyHemorrhage.MapPath(KidneyBleed);
-
-  
 
   ///////////
   // Urine //
@@ -2545,7 +2542,6 @@ void BioGears::SetupRenalLite()
   SELiquidCompartmentLink& uUreterToBladder = m_Compartments->CreateLiquidLink(uUreter, uBladder, BGE::UrineLiteLink::UreterToBladder);
   uUreterToBladder.MapPath(UreterToBladder);
 
- 
   /////////////////////
   // BladderToGround //
   SELiquidCompartmentLink& uBladderToGround = m_Compartments->CreateLiquidLink(uBladder, vGround, BGE::UrineLiteLink::BladderToGround);
@@ -2556,7 +2552,7 @@ void BioGears::SetupRenalLite()
   SELiquidCompartmentGraph& gRenal = m_Compartments->GetRenalGraph();
   gRenal.AddCompartment(vAorta);
   gRenal.AddCompartment(vVenaCava);
- 
+
   // Blood
   gRenal.AddCompartment(vRenalArtery);
   gRenal.AddCompartment(vAfferentArteriole);
@@ -2576,7 +2572,7 @@ void BioGears::SetupRenalLite()
   //gRenal.AddLink(vTubulesToPeritubularCapillaries); //Active transport only
   gRenal.AddLink(vEfferentArterioleToPeritubularCapillaries);
   gRenal.AddLink(vPeritubularCapillariesToRenalVein);
-  gRenal.AddLink(vRenalVeinToVenaCava); 
+  gRenal.AddLink(vRenalVeinToVenaCava);
   //  Urine
   gRenal.AddCompartment(uUreter);
   gRenal.AddLink(uTubulesToUreter);
@@ -2594,19 +2590,13 @@ void BioGears::SetupRenalLite()
   SELiquidCompartment* vRightKidney = m_Compartments->GetLiquidCompartment(BGE::VascularCompartment::RightKidney);
   gCombinedCardiovascular.RemoveCompartment(*vLeftKidney);
   gCombinedCardiovascular.RemoveCompartment(*vRightKidney);
-  //m_Compartments->DeleteLiquidCompartment(BGE::VascularCompartment::LeftKidney);
-  //m_Compartments->DeleteLiquidCompartment(BGE::VascularCompartment::RightKidney);
   vKidney->RemoveChild(BGE::VascularCompartment::LeftKidney);
   vKidney->RemoveChild(BGE::VascularCompartment::RightKidney);
+  m_Compartments->DeleteLiquidCompartment(BGE::VascularCompartment::LeftKidney);
+  m_Compartments->DeleteLiquidCompartment(BGE::VascularCompartment::RightKidney);
 
   gCombinedCardiovascular.AddGraph(gRenal);
   gCombinedCardiovascular.StateChange();
-  //m_Compartments->StateChange();
-  //testing 
-  SELiquidCompartment* kidney = m_Compartments->GetLiquidCompartment(BGE::VascularLiteCompartment::Kidney);
-  auto test = kidney->GetChildren();
-
-
 }
 
 void BioGears::SetupRenal()
@@ -3387,7 +3377,6 @@ void BioGears::SetupRenal()
   gCombinedCardiovascular.AddGraph(gRenal);
   gCombinedCardiovascular.StateChange();
 }
-
 
 void BioGears::SetupTissue()
 {

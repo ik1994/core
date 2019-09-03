@@ -46,11 +46,11 @@
       <PartitionCoefficient readOnly="false" value="0.375"/>
     </TissueKinetics>
     <TissueKinetics>
-      <Name>LeftKidneyTissue</Name>
+      <Name>KidneyTissue</Name>
       <PartitionCoefficient readOnly="false" value="0.34"/>
     </TissueKinetics>
     <TissueKinetics>
-      <Name>LeftLungTissue</Name>
+      <Name>LungTissue</Name>
       <PartitionCoefficient readOnly="false" value="0.325"/>
     </TissueKinetics>
     <TissueKinetics>
@@ -64,14 +64,6 @@
     <TissueKinetics>
       <Name>MyocardiumTissue</Name>
       <PartitionCoefficient readOnly="false" value="0.39"/>
-    </TissueKinetics>
-    <TissueKinetics>
-      <Name>RightKidneyTissue</Name>
-      <PartitionCoefficient readOnly="false" value="0.34"/>
-    </TissueKinetics>
-    <TissueKinetics>
-      <Name>RightLungTissue</Name>
-      <PartitionCoefficient readOnly="false" value="0.325"/>
     </TissueKinetics>
     <TissueKinetics>
       <Name>SkinTissue</Name>

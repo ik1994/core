@@ -148,6 +148,8 @@ void Cardiovascular::Clear()
 void Cardiovascular::Initialize()
 {
   BioGearsSystem::Initialize();
+  SELiquidCompartment* VenaCava = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::VenaCava);
+  double volume;
 
   m_HeartRhythm = CDM::enumHeartRhythm::NormalSinus;
 
@@ -208,7 +210,7 @@ void Cardiovascular::Initialize()
   m_CurrentCardiacCycleTime_s = 0.0;
 
   CalculateHeartElastance();
-
+  volume = VenaCava->GetVolume().GetValue(VolumeUnit::mL);
   double systemicVascularResistance_mmHg_s_Per_mL = (GetMeanArterialPressure().GetValue(PressureUnit::mmHg) - GetMeanCentralVenousPressure().GetValue(PressureUnit::mmHg)) / GetCardiacOutput().GetValue(VolumePerTimeUnit::mL_Per_s);
   GetSystemicVascularResistance().SetValue(systemicVascularResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
   // This is not part of stabilization due to not knowing when we hit the patient parameters with a circuit configuration
@@ -217,6 +219,7 @@ void Cardiovascular::Initialize()
   GetSystemicVascularResistance().SetValue(systemicVascularResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
   m_LeftHeartElastanceMax_mmHg_Per_mL = m_data.GetConfiguration().GetLeftHeartElastanceMaximum(FlowElastanceUnit::mmHg_Per_mL);
   m_RightHeartElastanceMax_mmHg_Per_mL = m_data.GetConfiguration().GetRightHeartElastanceMaximum(FlowElastanceUnit::mmHg_Per_mL);
+  volume = VenaCava->GetVolume().GetValue(VolumeUnit::mL);
 }
 
 bool Cardiovascular::Load(const CDM::BioGearsCardiovascularSystemData& in)
@@ -589,33 +592,21 @@ void Cardiovascular::ChronicPericardialEffusion()
 void Cardiovascular::ChronicRenalStenosis()
 {
   ///\todo move this to CV
-  double LeftOcclusionFraction = m_data.GetConditions().GetChronicRenalStenosis()->GetLeftKidneySeverity().GetValue();
-  double RightOcclusionFraction = m_data.GetConditions().GetChronicRenalStenosis()->GetRightKidneySeverity().GetValue();
+  double OcclusionFraction = m_data.GetConditions().GetChronicRenalStenosis()->GetKidneySeverity().GetValue();
 
-  if (LeftOcclusionFraction < 0.0) {
+  if (OcclusionFraction < 0.0) {
     /// \error Cannot specify left occlusion fraction less than zero
     Error("Cannot specify left occlusion fraction less than zero. Renal resistances remain unchanged."); //Specify resistance is the same in error
     return;
   }
 
-  if (RightOcclusionFraction < 0.0) {
-    /// \error Cannot specify right occlusion fraction less than zero
-    Error("Cannot specify right occlusion fraction less than zero. Renal resistances remain unchanged.");
-    return;
-  }
-
-  if (LeftOcclusionFraction > 1.0) {
+  if (OcclusionFraction > 1.0) {
     /// \error Cannot specify left occlusion fraction greater than one
     Error("Cannot specify left occlusion fraction greater than one. Renal resistances remain unchanged.");
     return;
   }
 
-  if (RightOcclusionFraction > 1.0) {
-    /// \error Cannot specify right occlusion fraction greater than one
-    Error("Cannot specify right occlusion fraction greater than  one. Renal resistances remain unchanged.");
-    return;
-  }
-
+  
   //Aorta1ToAfferentArteriole paths are equivalent to the renal artery in BioGears. Resistance increases on these paths to represent renal arterial stenosis
   double currentResistance_mmHg_s_Per_mL = m_RenalArteryPath->GetResistanceBaseline(FlowResistanceUnit::mmHg_s_Per_mL);
 
@@ -624,9 +615,9 @@ void Cardiovascular::ChronicRenalStenosis()
   //Open resistance indicates a completely occluded artery. This value is 100 mmHg/mL/s for the cardiovascular circuit.
   double openResistance_mmHg_s_Per_mL = m_data.GetConfiguration().GetCardiovascularOpenResistance(FlowResistanceUnit::mmHg_s_Per_mL);
 
-  double newLeftResistance_mmHg_s_Per_mL = GeneralMath::ResistanceFunction(baseResistance_mmHg_s_Per_mL, openResistance_mmHg_s_Per_mL, currentResistance_mmHg_s_Per_mL, LeftOcclusionFraction);
+  double newResistance_mmHg_s_Per_mL = GeneralMath::ResistanceFunction(baseResistance_mmHg_s_Per_mL, openResistance_mmHg_s_Per_mL, currentResistance_mmHg_s_Per_mL, OcclusionFraction);
 
-  m_RenalArteryPath->GetResistanceBaseline().SetValue(newLeftResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+  m_RenalArteryPath->GetResistanceBaseline().SetValue(newResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -661,11 +652,8 @@ void Cardiovascular::PreProcess()
 //--------------------------------------------------------------------------------------------------
 void Cardiovascular::Process()
 {
-  cardioWatch.lap();
   m_circuitCalculator.Process(*m_CirculatoryCircuit, m_dT_s);
   m_transporter.Transport(*m_CirculatoryGraph, m_dT_s);
-  calcCardioTime += cardioWatch.lap();
-  m_data.GetDataTrack().Probe("CardioProcessTimeBaseline(ms)", calcCardioTime / 1e6);
   CalculateVitalSigns();
 } 
 
@@ -1545,7 +1533,7 @@ void Cardiovascular::TuneCircuit()
 {
   DataTrack circuitTrk;
   std::ofstream circuitFile;
-
+  double test;
   bool success = false;
   double systolicTarget_mmHg = m_patient->GetSystolicArterialPressureBaseline(PressureUnit::mmHg);
   double diastolicTarget_mmHg = m_patient->GetDiastolicArterialPressureBaseline(PressureUnit::mmHg);
@@ -1555,10 +1543,10 @@ void Cardiovascular::TuneCircuit()
   Info(m_ss);
 
   // Tuning variables
-  double pressuretolerance = 0.1;
-  double stabPercentTolerance = 0.5;
-  double stabCheckTime_s = 0.8;
-  double srGain = 0.005;//0.01; //Systemic is sensitive
+  double pressuretolerance = 0.01; //0.1;
+  double stabPercentTolerance = 0.25; //0.5;
+  double stabCheckTime_s = 15.0; //0.8;
+  double srGain = 0.01; //Systemic is sensitive
   double acGain1 = 0.06; //Gains are empirical
   double acGain2 = 0.02; //Gains are empirical
   double vrGain = 0.06; //Gains are empirical
@@ -1581,7 +1569,7 @@ void Cardiovascular::TuneCircuit()
     stable = false;
     stableTime_s = 0;
     while (!stable) {
-
+      test = m_VenaCava->GetVolume().GetValue(VolumeUnit::mL);
       HeartDriver();
       m_circuitCalculator.Process(*m_CirculatoryCircuit, m_dT_s);
       CalculateVitalSigns();
@@ -1620,9 +1608,9 @@ void Cardiovascular::TuneCircuit()
         tgt_cardiacOutput_mL_Per_min = cardiacOutput_mL_Per_min;
         stableCO = false;
       }
-      //bool stableMeanCVP = true;
-      //if (GeneralMath::PercentDifference(tgt_meanCVP_mmHg, meanCVP_mmHg) > 0.25)
-      //  { stableTime_s = 0; tgt_meanCVP_mmHg = meanCVP_mmHg; stableMeanCVP = false; }
+      bool stableMeanCVP = true;
+      if (GeneralMath::PercentDifference(tgt_meanCVP_mmHg, meanCVP_mmHg) > 0.25)
+        { stableTime_s = 0; tgt_meanCVP_mmHg = meanCVP_mmHg; stableMeanCVP = false; }
       bool stableBloodVol = true;
       if (GeneralMath::PercentDifference(tgt_blood_mL, blood_mL) > stabPercentTolerance) {
         stableTime_s = 0;
@@ -1679,6 +1667,7 @@ void Cardiovascular::TuneCircuit()
     double aortaComplianceScale = 1;
     double rightHeartResistanceScale = 1;
     double venaCavaComplianceScale = 1;
+    test = m_VenaCava->GetVolume().GetValue(VolumeUnit::mL);
     if ((systolicError_mmHg > 0 && diastolicError_mmHg > 0) || (systolicError_mmHg < 0 && diastolicError_mmHg < 0)) // Same direction
     {
       if (cardiacOutput_mL_Per_min > 4000.0) {
@@ -1720,7 +1709,7 @@ void Cardiovascular::TuneCircuit()
         continue;
       bloodVolumeBaseline_mL += c->GetVolume(VolumeUnit::mL);
       c->Balance(BalanceLiquidBy::Concentration);
-      if (m_CirculatoryGraph->GetCompartment(c->GetName()) == nullptr)
+      if (m_CirculatoryGraph->GetCompartment(c->GetName()) == nullptr && c->GetName() != m_Pericardium->GetName())
         Info(std::string{"Cardiovascular Graph does not have cmpt "} + c->GetName());
       if (c->HasSubstanceQuantity(m_data.GetSubstances().GetHb())) // Unit testing does not have any Hb
         m_data.GetSaturationCalculator().CalculateBloodGasDistribution(*c); //so don't do this if we don't have Hb

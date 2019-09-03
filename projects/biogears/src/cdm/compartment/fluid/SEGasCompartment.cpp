@@ -146,11 +146,6 @@ void SEGasCompartment::AddChild(SEGasCompartment& child)
   for (SEGasSubstanceQuantity* subQ : m_SubstanceQuantities)
     subQ->AddChild(child.CreateSubstanceQuantity(subQ->GetSubstance()));
 }
-//-----------------------------------------------------------------------------
-void SEGasCompartment::RemoveCompartment(SEGasCompartment const & child) {
-    std::remove_if(m_Children.begin(), m_Children.end(), [&](decltype(m_Children)::reference node) {return node == &child; });
-    std::remove_if(m_Leaves.begin(), m_Leaves.end(), [&](decltype(m_Children)::reference node) {return node == &child; });
-}
 //-------------------------------------------------------------------------------
 void SEGasCompartment::RemoveChild(SEGasCompartment const& child)
 {

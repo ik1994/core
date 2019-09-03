@@ -33,8 +33,6 @@
 	<DataRequest xsi:type="PhysiologyDataRequestData" Name="GlomerularFiltrationRate"          Unit="mL/min"      Precision="0"/> 
 	<DataRequest xsi:type="PhysiologyDataRequestData" Name="RenalBloodFlow"                    Unit="L/min"      Precision="2"/>
 	<DataRequest xsi:type="PhysiologyDataRequestData" Name="UrineProductionRate"               Unit="mL/min"      Precision="3"/>
-	<DataRequest xsi:type="PhysiologyDataRequestData" Name="LeftAfferentArterioleResistance"   Unit="mmHg min/mL" Precision="4"/>
-	<DataRequest xsi:type="PhysiologyDataRequestData" Name="RightAfferentArterioleResistance"  Unit="mmHg min/mL" Precision="4"/>
 	<DataRequest xsi:type="PhysiologyDataRequestData" Name="OxygenConsumptionRate"             Unit="mL/min"      Precision="3"/>
 	<DataRequest xsi:type="PhysiologyDataRequestData" Name="CarbonDioxideProductionRate"       Unit="mL/min"      Precision="3"/>
     
@@ -52,8 +50,6 @@
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="VenaCava"  Substance="Oxygen"        Name="PartialPressure" Unit="mmHg" Precision="1"/>
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="VenaCava"  Substance="CarbonDioxide" Name="PartialPressure" Unit="mmHg" Precision="1"/>
 	
-	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="RightTubules" Substance="Sodium"        Name="Concentration" Unit="g/L" Precision="2"/>
-	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="LeftTubules"  Substance="Sodium"        Name="Concentration" Unit="g/L" Precision="2"/>
 	
 	<DataRequest xsi:type="SubstanceDataRequestData"  Substance="Oxygen"         Name="AlveolarTransfer" Unit="mL/s" Precision="2"/>
 	<DataRequest xsi:type="SubstanceDataRequestData"  Substance="CarbonDioxide"  Name="AlveolarTransfer" Unit="mL/s" Precision="2"/>
@@ -76,12 +72,11 @@
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="BrainVasculature"       Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/> 
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="FatVasculature"         Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/> 
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="GutVasculature"         Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/> 	
-	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="LeftKidneyVasculature"  Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/> 		
+	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="KidneyVasculature"  Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/> 		
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="LeftLungVasculature"    Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/>
   <DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="LiverVasculature"       Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/>
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="MuscleVasculature"      Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/> 
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="MyocardiumVasculature"  Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/> 
-	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="RightKidneyVasculature" Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/> 	
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="RightLungVasculature"   Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/> 		
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="SkinVasculature"        Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/>
   <DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="SpleenVasculature"      Substance="Pralidoxime" Name="Concentration" Unit="ug/L" Precision="4"/>

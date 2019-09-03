@@ -184,6 +184,7 @@ protected:
   SESubstance* m_lactate;
   SESubstance* m_potassium;
   //Compartments
+  SELiquidCompartment* m_kidney;
   SELiquidCompartment* m_aorta;
   SELiquidCompartment* m_venaCava;
   SELiquidCompartment* m_bladder;

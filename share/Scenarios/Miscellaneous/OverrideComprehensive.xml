@@ -44,8 +44,6 @@
 		<DataRequest xsi:type="PhysiologyDataRequestData" Name="GlomerularFiltrationRate"          Unit="mL/min"      Precision="0"/> 
 		<DataRequest xsi:type="PhysiologyDataRequestData" Name="RenalBloodFlow"                    Unit="L/min"      Precision="2"/>
 		<DataRequest xsi:type="PhysiologyDataRequestData" Name="UrineProductionRate"               Unit="mL/min"      Precision="3"/>
-		<DataRequest xsi:type="PhysiologyDataRequestData" Name="LeftAfferentArterioleResistance"   Unit="mmHg min/mL" Precision="4"/>
-		<DataRequest xsi:type="PhysiologyDataRequestData" Name="RightAfferentArterioleResistance"  Unit="mmHg min/mL" Precision="4"/>
 		
 		<DataRequest xsi:type="GasCompartmentDataRequestData" Compartment="Alveoli"                            Name="Pressure"        Unit="cmH2O" Precision="0"/>
 		<DataRequest xsi:type="GasCompartmentDataRequestData" Compartment="Alveoli"  Substance="Oxygen"        Name="PartialPressure" Unit="mmHg"  Precision="0"/>
@@ -61,8 +59,6 @@
 		<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="VenaCava"  Substance="Oxygen"        Name="PartialPressure" Unit="mmHg" Precision="1"/>
 		<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="VenaCava"  Substance="CarbonDioxide" Name="PartialPressure" Unit="mmHg" Precision="1"/>
 		
-		<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="RightTubules" Substance="Sodium"        Name="Concentration" Unit="g/L" Precision="2"/>
-		<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="LeftTubules"  Substance="Sodium"        Name="Concentration" Unit="g/L" Precision="2"/>
 		
 		<DataRequest xsi:type="SubstanceDataRequestData"  Substance="Oxygen"         Name="AlveolarTransfer" Unit="mL/s" Precision="2"/>
 		<DataRequest xsi:type="SubstanceDataRequestData"  Substance="CarbonDioxide"  Name="AlveolarTransfer" Unit="mL/s" Precision="2"/>

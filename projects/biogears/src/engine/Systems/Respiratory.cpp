@@ -833,17 +833,24 @@ void Respiratory::AirwayObstruction()
 //--------------------------------------------------------------------------------------------------
 void Respiratory::BronchoConstriction()
 {
-  if (!m_PatientActions->HasBronchoconstriction())
+  if (!m_PatientActions->HasBronchoconstriction() || !m_PatientActions->HasAsthmaAttack())
     return;
-
-  double dSeverity = m_PatientActions->GetBronchoconstriction()->GetSeverity().GetValue();
 
   SEFluidCircuitPath* tracheaToBronchi = m_RespiratoryCircuit->GetPath(BGE::RespiratoryLitePath::TracheaToBronchi);
   double dBronchiResistance = tracheaToBronchi->GetNextResistance(FlowResistanceUnit::cmH2O_s_Per_L);
   double dClosedResistance = dBronchiResistance;
 
+  //Asthma attack on
+  double aSeverity = m_PatientActions->GetAsthmaAttack()->GetSeverity().GetValue();
+  // Resistance function: Base = 10, Min = 10, Max = 1750 (increasing with severity)
+  double dResistanceScalingFactor = GeneralMath::ResistanceFunction(10.0, m_dRespOpenResistance_cmH2O_s_Per_L, dClosedResistance, aSeverity);
+
+  //bronchoconstriction
+  double dSeverity = m_PatientActions->GetBronchoconstriction()->GetSeverity().GetValue();
   dBronchiResistance = GeneralMath::ResistanceFunction(70.0, m_dRespOpenResistance_cmH2O_s_Per_L, dClosedResistance, dSeverity);
-  tracheaToBronchi->GetNextResistance().SetValue(dBronchiResistance, FlowResistanceUnit::cmH2O_s_Per_L);
+
+  double totalResistance = dResistanceScalingFactor + dBronchiResistance;
+  tracheaToBronchi->GetNextResistance().SetValue(totalResistance, FlowResistanceUnit::cmH2O_s_Per_L);
 }
 
 //--------------------------------------------------------------------------------------------------

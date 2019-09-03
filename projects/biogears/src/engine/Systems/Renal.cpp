@@ -18,7 +18,6 @@ specific language governing permissions and limitations under the License.
 #include <biogears/cdm/patient/SEPatient.h>
 #include <biogears/cdm/patient/assessments/SEUrinalysis.h>
 #include <biogears/cdm/patient/assessments/SEUrinalysisMicroscopic.h>
-#include <biogears/cdm/patient/conditions/SEChronicRenalStenosis.h>
 #include <biogears/cdm/properties/SEScalar.h>
 #include <biogears/cdm/properties/SEScalarAmountPerTime.h>
 #include <biogears/cdm/properties/SEScalarArea.h>
@@ -278,7 +277,9 @@ void Renal::SetUp()
   //Compartments
   m_aorta = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Aorta);
   m_venaCava = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::VenaCava);
+  m_kidney = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Kidney);
 
+  m_KidneyTissue = m_data.GetCompartments().GetTissueCompartment(BGE::TissueLiteCompartment::Kidney);
   m_Glomerular = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::GlomerularCapillaries);
   m_Peritubular = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::PeritubularCapillaries);
   m_Bowmans = m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::BowmansCapsules);
@@ -298,7 +299,7 @@ void Renal::SetUp()
   m_ReabsorptionPermeabilitySetpoint_mL_Per_s_mmHg_m2 = m_data.GetConfiguration().GetTubularReabsorptionFluidPermeabilityBaseline(VolumePerTimePressureAreaUnit::mL_Per_s_mmHg_m2);
 
   m_RenalCircuit = &m_data.GetCircuits().GetRenalCircuit();
-  //Left
+
   m_GlomerularNode = m_RenalCircuit->GetNode(BGE::RenalLiteNode::GlomerularCapillaries);
   m_NetGlomerularCapillariesNode = m_RenalCircuit->GetNode(BGE::RenalLiteNode::NetGlomerularCapillaries);
   m_BowmansNode = m_RenalCircuit->GetNode(BGE::RenalLiteNode::BowmansCapsules);
@@ -392,16 +393,11 @@ void Renal::AtSteadyState()
 //--------------------------------------------------------------------------------------------------
 void Renal::PreProcess()
 {
-  renalWatch.lap();
-  preRenWatch.lap();
   CalculateUltrafiltrationFeedback();
   CalculateReabsorptionFeedback();
   CalculateTubuloglomerularFeedback();
   UpdateBladderVolume();
   ProcessActions();
-  calcPreRenTime += preRenWatch.lap();
-  //m_data.GetDataTrack().Probe("RenalPreProcessTimeInitial(ms)", calcPreRenTime / 1e6);
-  calcRenalTime += renalWatch.lap();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -415,14 +411,9 @@ void Renal::PreProcess()
 //--------------------------------------------------------------------------------------------------
 void Renal::Process()
 {
-  renalWatch.lap();
-  processRenWatch.lap();
   //Circuit Processing is done on the entire circulatory circuit elsewhere
   CalculateActiveTransport();
   CalculateVitalSigns();
-  calcProcessRenTime += processRenWatch.lap();
-  //m_data.GetDataTrack().Probe("RenalProcessTimeInitial(ms)", calcProcessRenTime / 1e6);
-  calcRenalTime += renalWatch.lap();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -435,8 +426,6 @@ void Renal::Process()
 //--------------------------------------------------------------------------------------------------
 void Renal::PostProcess()
 {
-  renalWatch.lap();
-  postRenWatch.lap();
   //Circuit PostProcessing is done on the entire circulatory circuit elsewhere
   if (m_data.GetActions().GetPatientActions().HasOverride()
       && m_data.GetState() == EngineState::Active) {
@@ -444,10 +433,6 @@ void Renal::PostProcess()
       ProcessOverride();
     }
   }
-  calcPostRenTime += postRenWatch.lap();
-  //m_data.GetDataTrack().Probe("RenalPostProcessTimeInitial(ms)", calcPostRenTime / 1e6);
-  calcRenalTime += renalWatch.lap();
-  //m_data.GetDataTrack().Probe("RenalTimeInitial(ms)", calcRenalTime / 1e6);
 }
 
 //--------------------------------------------------------------------------------------------------

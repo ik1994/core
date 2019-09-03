@@ -74,8 +74,7 @@ specific language governing permissions and limitations under the License.
 		<xs:complexContent>
 			<xs:extension base="PatientConditionData">
 				<xs:sequence>	
-					<xs:element name="LeftKidneySeverity" type="Scalar0To1Data" minOccurs="0" maxOccurs="1"/><!--<< @brief Fraction of the Left kidney artery stenosed.-->
-					<xs:element name="RightKidneySeverity" type="Scalar0To1Data" minOccurs="0" maxOccurs="1"/><!--<< @brief Fraction of the Right kidney artery stenosed.-->
+					<xs:element name="KidneySeverity" type="Scalar0To1Data" minOccurs="0" maxOccurs="1"/><!--<< @brief Fraction of the Left kidney artery stenosed.-->
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>

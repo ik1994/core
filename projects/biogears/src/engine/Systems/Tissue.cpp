@@ -298,8 +298,6 @@ void Tissue::SetUp()
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::LargeIntestine)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::LargeIntestineVToGutE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::SmallIntestine)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::SmallIntestineVToGutE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Splanchnic)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::SplanchnicVToGutE1);
-  //m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::LeftKidney)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::LeftKidneyVToKidneyE1);
-  //m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::RightKidney)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::RightKidneyVToKidneyE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularLiteCompartment::Kidney)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::KidneyVToKidneyE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::Liver)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::LiverVToLiverE1);
   m_VascularCopPaths[m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::LeftLung)] = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::TissueLitePath::LeftLungVToLungE1);
@@ -1223,9 +1221,9 @@ void Tissue::CalculateMetabolicConsumptionAndProduction(double time_s)
 
   /// \event Patient: Fatigue - Energy stores are sub-maximal, skip if beginning of cardiac cycle.
   if (!m_Patient->IsEventActive(CDM::enumPatientEvent::StartOfCardiacCycle)) {
-    if (fatigue > 0.0035) {
+    if (fatigue > 0.0055) {
       m_Patient->SetEvent(CDM::enumPatientEvent::Fatigue, true, m_data.GetSimulationTime());
-    } else if (fatigue < 0.000001) {
+    } else if (fatigue < 0.0000001) {
       m_Patient->SetEvent(CDM::enumPatientEvent::Fatigue, false, m_data.GetSimulationTime());
     }
   }
@@ -2228,7 +2226,7 @@ void Tissue::CalculateOncoticPressure()
     vascularOncoticPressure_mmHg = 2.1 * totalProteinVascular_g_Per_dL + 0.16 * std::pow(totalProteinVascular_g_Per_dL, 2) + 0.009 * std::pow(totalProteinVascular_g_Per_dL, 3);
     interstitialOncoticPressure_mmHg = 2.1 * totalProteinInterstitial_g_Per_dL + 0.16 * std::pow(totalProteinInterstitial_g_Per_dL, 2) + 0.009 * std::pow(totalProteinInterstitial_g_Per_dL, 3);
 
-    if (vascular->GetName() == BGE::VascularCompartment::Gut || vascular->GetName() == BGE::VascularCompartment::Lungs || vascular->GetName() == BGE::VascularLiteCompartment::Kidney) {
+    if (vascular->GetName() == BGE::VascularCompartment::Gut || vascular->GetName() == BGE::VascularCompartment::Lungs) {
       for (auto c : vascular->GetChildren()) {
         try {
         vascularCOP = m_VascularCopPaths.at(c);
