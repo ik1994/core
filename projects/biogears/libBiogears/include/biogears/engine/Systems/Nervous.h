@@ -73,11 +73,13 @@ protected:
   double m_ArterialOxygenSetPoint_mmHg; /// \todo Aaron these should be baselines.
   double m_ArterialCarbonDioxideSetPoint_mmHg;
   double m_BaroreceptorFatigueScale;
+  double m_BaroreceptorFrequencyBaseline_Hz;
   double m_CentralVentilationDelta_L_Per_min;
   double m_ChemoreceptorFiringRate_Hz;
   double m_ChemoreceptorFiringRateSetPoint_Hz;
   double m_PeripheralBloodGasInteractionBaseline_Hz;
   double m_PeripheralVentilationDelta_L_Per_min;
+  double m_PreviousMeanArterialPressure_mmHg;
 
   // Stateless member variable (Set in SetUp())
   bool m_FeedbackActive;
@@ -90,6 +92,8 @@ protected:
   double m_painVASDuration_s;
   double m_painVAS;
   double m_painStimulus;
+
+  bool m_TestBaroreceptors;
 
   // Configuration fractions representing the amount by which each quantity can change due to baroreceptors;
   double m_normalizedGammaHeartRate;

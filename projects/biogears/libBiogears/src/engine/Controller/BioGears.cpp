@@ -982,7 +982,6 @@ void BioGears::AtSteadyState(EngineState state)
 {
   m_State = state;
   m_Environment->AtSteadyState();
-  m_NervousSystem->AtSteadyState();
   m_CardiovascularSystem->AtSteadyState();
   m_Inhaler->AtSteadyState();
   m_RespiratorySystem->AtSteadyState();
@@ -995,13 +994,13 @@ void BioGears::AtSteadyState(EngineState state)
   m_DrugSystem->AtSteadyState();
   m_TissueSystem->AtSteadyState();
   m_BloodChemistrySystem->AtSteadyState();
+  m_NervousSystem->AtSteadyState();
   m_ECG->AtSteadyState();
 }
 
 void BioGears::PreProcess()
 {
   m_Environment->PreProcess();
-  m_NervousSystem->PreProcess();
   m_CardiovascularSystem->PreProcess();
   m_Inhaler->PreProcess();
   m_RespiratorySystem->PreProcess();
@@ -1014,12 +1013,12 @@ void BioGears::PreProcess()
   m_DrugSystem->PreProcess();
   m_TissueSystem->PreProcess();
   m_BloodChemistrySystem->PreProcess();
+  m_NervousSystem->PreProcess();
   m_ECG->PreProcess();
 }
 void BioGears::Process()
 {
   m_Environment->Process();
-  m_NervousSystem->Process();
   m_CardiovascularSystem->Process();
   m_Inhaler->Process();
   m_RespiratorySystem->Process();
@@ -1032,12 +1031,12 @@ void BioGears::Process()
   m_DrugSystem->Process();
   m_TissueSystem->Process();
   m_BloodChemistrySystem->Process();
+  m_NervousSystem->Process();
   m_ECG->Process();
 }
 void BioGears::PostProcess()
 {
   m_Environment->PostProcess();
-  m_NervousSystem->PostProcess();
   m_CardiovascularSystem->PostProcess();
   m_Inhaler->PostProcess();
   m_RespiratorySystem->PostProcess();
@@ -1050,6 +1049,7 @@ void BioGears::PostProcess()
   m_DrugSystem->PostProcess();
   m_TissueSystem->PostProcess();
   m_BloodChemistrySystem->PostProcess();
+  m_NervousSystem->PostProcess();
   m_ECG->PostProcess();
 }
 
