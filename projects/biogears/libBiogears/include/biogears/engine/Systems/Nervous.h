@@ -69,6 +69,14 @@ protected:
   void ChemoreceptorFeedback();
   void SetPupilEffects();
 
+  void UrsinoBaroreceptor();
+
+  double m_FilteredPressure;
+  double m_HeartRateModSympathetic;
+  double m_HeartRateModVagal;
+  double m_ResistanceMod;
+  double m_ElastanceMod;
+  double m_ComplianceMod;
   // Serializable member variables (Set in Initialize and in schema)
   double m_ArterialOxygenSetPoint_mmHg; /// \todo Aaron these should be baselines.
   double m_ArterialCarbonDioxideSetPoint_mmHg;
