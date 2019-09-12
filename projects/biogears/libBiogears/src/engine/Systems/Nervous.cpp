@@ -68,10 +68,11 @@ void Nervous::Initialize()
 {
   BioGearsSystem::Initialize();
   m_FeedbackActive = false;
-  m_TestBaroreceptors = false;
+  m_TestBaroreceptors = true;
   m_blockActive = false;
+
   m_BaroreceptorFatigueScale = 0.0;
-  m_BaroreceptorFrequencyBaseline_Hz = 30.0; //From Ottesen
+  m_BaroreceptorFrequencyBaseline_Hz = 35.0; //From Ottesen
   m_CentralVentilationDelta_L_Per_min = 0.0;
   m_ChemoreceptorFiringRate_Hz = 3.65;
   m_ChemoreceptorFiringRateSetPoint_Hz = m_ChemoreceptorFiringRate_Hz;
@@ -176,7 +177,12 @@ void Nervous::AtSteadyState()
 {
   if (m_data.GetState() == EngineState::AtInitialStableState) {
     m_FeedbackActive = true;
-    SetBaroreceptorFrequencyComponents(std::vector<double>(3), FrequencyUnit::Hz); //Vector of 0's
+  }
+  if (m_data.GetState() == EngineState::AtSecondaryStableState) {
+    for (auto component : GetBaroreceptorFrequencyComponents()) {
+      m_BaroreceptorFrequencyBaseline_Hz += component->GetValue(FrequencyUnit::Hz);
+    }
+    SetBaroreceptorFrequencyComponents(std::vector<double>(3), FrequencyUnit::Hz);
   }
 
   // The set-points (Baselines) get reset at the end of each stabilization period.
@@ -212,7 +218,7 @@ void Nervous::PreProcess()
 {
   CheckPainStimulus();
   BaroreceptorFeedback();
-  UrsinoBaroreceptor();
+  //UrsinoBaroreceptor();
   ChemoreceptorFeedback();
 }
 
@@ -253,11 +259,6 @@ void Nervous::PostProcess()
 /// \todo Add decompensation. Perhaps a reduction in the effect that is a function of blood volume below a threshold... and maybe time.
 void Nervous::BaroreceptorFeedback()
 {
-  //New model constants
-  std::vector<double> tau_s{ 0.6, 5.26, 250.0 };
-  std::vector<double> gain_Hz_Per_mmHg{ 3.06, 1.91, 2.22 };
-  double maxFrequency_Hz = 120.0;
-
   //Determine dP/dt and update last arterial pressure
   double alpha = 0.1;
   if (m_data.GetState() < EngineState::AtSecondaryStableState) {
@@ -265,7 +266,20 @@ void Nervous::BaroreceptorFeedback()
   }
   double arterialPressure_mmHg = m_data.GetCardiovascular().GetArterialPressure(PressureUnit::mmHg);
   double dMeanPressure_mmHg_Per_s = alpha * (arterialPressure_mmHg - m_PreviousMeanArterialPressure_mmHg);
- // m_PreviousMeanArterialPressure_mmHg += dMeanPressure_mmHg_Per_s * m_dt_s;
+  m_PreviousMeanArterialPressure_mmHg += dMeanPressure_mmHg_Per_s * m_dt_s;
+
+  if (!m_FeedbackActive) {
+    m_data.GetDataTrack().Probe("BaroreceptorComponents", GetBaroreceptorFrequencyComponents(FrequencyUnit::Hz));
+    m_data.GetDataTrack().Probe("Baroreceptor-Combined", m_BaroreceptorFrequencyBaseline_Hz);
+    m_data.GetDataTrack().Probe("Baroreceptor-Baseline", m_BaroreceptorFrequencyBaseline_Hz);
+    m_data.GetDataTrack().Probe("MeanPressureInput", m_PreviousMeanArterialPressure_mmHg);
+    return;
+  }
+
+  //New model constants
+  std::vector<double> tau_s{ 0.6, 5.26, 250.0 };
+  std::vector<double> gain_Hz_Per_mmHg{ 3.06, 1.91, 2.22 };
+  double maxFrequency_Hz = 120.0;
 
   //Get previous component frequencies and total frequency (sum of components and baseline)
   std::vector<double> baroreceptorComponentFrequencies = GetBaroreceptorFrequencyComponents(FrequencyUnit::Hz);
@@ -276,24 +290,20 @@ void Nervous::BaroreceptorFeedback()
   //Calcualte new frequencies
   double dComponentFrequency_Hz_Per_s = 0.0;
   double nextFrequency_Hz = 0.0;
-  /*for (size_t pos = 0; pos < baroreceptorComponentFrequencies.size(); ++pos) {
+  for (size_t pos = 0; pos < baroreceptorComponentFrequencies.size(); ++pos) {
     dComponentFrequency_Hz_Per_s = gain_Hz_Per_mmHg[pos] * dMeanPressure_mmHg_Per_s * combinedFrequencySignal_Hz * (maxFrequency_Hz - combinedFrequencySignal_Hz) / (std::pow(maxFrequency_Hz / 2.0, 2.0)) - (1.0 / tau_s[pos]) * baroreceptorComponentFrequencies[pos];
     nextFrequency_Hz = baroreceptorComponentFrequencies[pos] + dComponentFrequency_Hz_Per_s * m_dt_s;
     baroreceptorComponentFrequencies[pos] = nextFrequency_Hz;
-  }*/
+  }
   //Push new values to CDM
   if (!SetBaroreceptorFrequencyComponents(baroreceptorComponentFrequencies, FrequencyUnit::Hz)) {
     Error("Nervous::BaroreceptorFeedback: Vector length mismatch");
   }
 
-  /*m_data.GetDataTrack().Probe("BaroreceptorComponents", GetBaroreceptorFrequencyComponents(FrequencyUnit::Hz));
+  m_data.GetDataTrack().Probe("BaroreceptorComponents", GetBaroreceptorFrequencyComponents(FrequencyUnit::Hz));
   m_data.GetDataTrack().Probe("Baroreceptor-Combined", combinedFrequencySignal_Hz);
-  m_data.GetDataTrack().Probe("Baroreceptor-Baseline", m_BaroreceptorFrequencyBaseline_Hz);*/
- // m_data.GetDataTrack().Probe("MeanPressureInput", m_PreviousMeanArterialPressure_mmHg);
-
-  if (!m_FeedbackActive) {
-    return;
-  }
+  m_data.GetDataTrack().Probe("Baroreceptor-Baseline", m_BaroreceptorFrequencyBaseline_Hz);
+  m_data.GetDataTrack().Probe("MeanPressureInput", m_PreviousMeanArterialPressure_mmHg);
 
   double meanArterialPressure_mmHg = m_data.GetCardiovascular().GetArterialPressure(PressureUnit::mmHg);
   //First calculate the sympathetic and parasympathetic firing rates:
@@ -328,6 +338,8 @@ void Nervous::BaroreceptorFeedback()
     sympatheticFraction = 1.0 / (1.0 + std::pow(combinedFrequencySignal_Hz / m_BaroreceptorFrequencyBaseline_Hz, nu));
     parasympatheticFraction = 1.0 / (1.0 + std::pow(combinedFrequencySignal_Hz / m_BaroreceptorFrequencyBaseline_Hz, -nu));
   }
+  double hrParasympatheticFraction = 1.0 / (1.0 + std::pow(combinedFrequencySignal_Hz / 49.0, nu));
+  double hrSympatheticFraction = 1.0 / (1.0 + std::pow(combinedFrequencySignal_Hz / 49.0, -nu));
 
   //Currently baroreceptor fatigue has only been tested for severe infections leading to sepsis.  We only accumulate fatigue if the sympathetic
   // outflow is above a certain threshold.  If we drop below threshold, we allow fatigue parameter to return towards 0. Note that even if infetion
@@ -349,6 +361,9 @@ void Nervous::BaroreceptorFeedback()
   double normalizedHeartRate = GetBaroreceptorHeartRateScale().GetValue();
   double tauHeartRate_s = m_data.GetConfiguration().GetHeartRateDistributedTimeDelay(TimeUnit::s);
   double deltaNormalizedHeartRate = (1.0 / tauHeartRate_s) * (-normalizedHeartRate + m_normalizedAlphaHeartRate * sympatheticFraction - m_normalizedBetaHeartRate * parasympatheticFraction + m_normalizedGammaHeartRate) * m_dt_s;
+  //if (m_TestBaroreceptors) {
+  //  deltaNormalizedHeartRate = (1.0 / tauHeartRate_s) * (-normalizedHeartRate + m_normalizedAlphaHeartRate * hrSympatheticFraction - m_normalizedBetaHeartRate * hrParasympatheticFraction + m_normalizedGammaHeartRate) * m_dt_s;
+  //}
   normalizedHeartRate += deltaNormalizedHeartRate;
   GetBaroreceptorHeartRateScale().SetValue(normalizedHeartRate);
 
