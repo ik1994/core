@@ -69,12 +69,15 @@ void Nervous::Initialize()
   BioGearsSystem::Initialize();
   m_FeedbackActive = false;
   m_blockActive = false;
+
   m_BaroreceptorFatigueScale = 0.0;
-  m_CentralVentilationDelta_L_Per_min = 0.0;
   m_ChemoreceptorFiringRate_Hz = 3.65;
   m_ChemoreceptorFiringRateSetPoint_Hz = m_ChemoreceptorFiringRate_Hz;
   m_PeripheralBloodGasInteractionBaseline_Hz = 0.0;
-  m_PeripheralVentilationDelta_L_Per_min = 0.0;
+  m_CentralFrequencyDelta_Per_min = 0.0;
+  m_CentralPressureDelta_cmH2O = 0.0;
+  m_PeripheralFrequencyDelta_Per_min = 0.0;
+  m_PeripheralPressureDelta_cmH2O = 0.0;
   GetBaroreceptorHeartRateScale().SetValue(1.0);
   GetBaroreceptorHeartElastanceScale().SetValue(1.0);
   GetBaroreceptorResistanceScale().SetValue(1.0);
@@ -96,11 +99,13 @@ bool Nervous::Load(const CDM::BioGearsNervousSystemData& in)
   m_ArterialOxygenSetPoint_mmHg = in.ArterialOxygenSetPoint_mmHg();
   m_ArterialCarbonDioxideSetPoint_mmHg = in.ArterialCarbonDioxideSetPoint_mmHg();
   m_BaroreceptorFatigueScale = in.BaroreceptorFatigueScale();
-  m_CentralVentilationDelta_L_Per_min = in.ChemoreceptorCentralVentilationDelta_L_Per_min();
   m_ChemoreceptorFiringRate_Hz = in.ChemoreceptorFiringRate_Hz();
   m_ChemoreceptorFiringRateSetPoint_Hz = in.ChemoreceptorFiringRateSetPoint_Hz();
   m_PeripheralBloodGasInteractionBaseline_Hz = in.ChemoreceptorPeripheralBloodGasInteractionBaseline_Hz();
-  m_PeripheralVentilationDelta_L_Per_min = in.ChemoreceptorPeripheralVentilationDelta_L_Per_min();
+  m_CentralFrequencyDelta_Per_min = in.CentralFrequencyDelta_Per_min();
+  m_CentralPressureDelta_cmH2O = in.CentralPressureDelta_cmH2O(); //Meant to be cmH2O, correct later
+  m_PeripheralFrequencyDelta_Per_min = in.PeripheralFrequencyDelta_Per_min();
+  m_PeripheralPressureDelta_cmH2O = in.PeripheralPressureDelta_cmH2O(); //Meant to be cmH2O, correct later
 
   return true;
 }
@@ -116,11 +121,13 @@ void Nervous::Unload(CDM::BioGearsNervousSystemData& data) const
   data.ArterialOxygenSetPoint_mmHg(m_ArterialOxygenSetPoint_mmHg);
   data.ArterialCarbonDioxideSetPoint_mmHg(m_ArterialCarbonDioxideSetPoint_mmHg);
   data.BaroreceptorFatigueScale(m_BaroreceptorFatigueScale);
-  data.ChemoreceptorCentralVentilationDelta_L_Per_min(m_CentralVentilationDelta_L_Per_min);
   data.ChemoreceptorPeripheralBloodGasInteractionBaseline_Hz(m_PeripheralBloodGasInteractionBaseline_Hz);
   data.ChemoreceptorFiringRate_Hz(m_ChemoreceptorFiringRate_Hz);
   data.ChemoreceptorFiringRateSetPoint_Hz(m_ChemoreceptorFiringRateSetPoint_Hz);
-  data.ChemoreceptorPeripheralVentilationDelta_L_Per_min(m_PeripheralVentilationDelta_L_Per_min);
+  data.CentralFrequencyDelta_Per_min(m_CentralFrequencyDelta_Per_min);
+  data.CentralPressureDelta_cmH2O(m_CentralPressureDelta_cmH2O);
+  data.PeripheralFrequencyDelta_Per_min(m_PeripheralFrequencyDelta_Per_min);
+  data.PeripheralPressureDelta_cmH2O(m_PeripheralPressureDelta_cmH2O);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,8 +174,7 @@ void Nervous::AtSteadyState()
 
   //Central and peripheral ventilation changes are set to 0 because patient baseline ventilation is updated to include
   //their contributions at steady state.
-  m_CentralVentilationDelta_L_Per_min = 0.0;
-  m_PeripheralVentilationDelta_L_Per_min = 0.0;
+
   //The chemoreceptor firing rate and its setpoint are reset so that central and peripheral derivatives will evaluate to 0
   //the first time step after stabilization (and will stay that way, assuming no other perturbations to blood gas levels)
   m_ChemoreceptorFiringRateSetPoint_Hz = m_ChemoreceptorFiringRate_Hz;
@@ -538,6 +544,9 @@ void Nervous::ChemoreceptorFeedback()
   double centralInput = arterialCO2Pressure_mmHg - m_ArterialCarbonDioxideSetPoint_mmHg;
   double peripheralInput = m_ChemoreceptorFiringRate_Hz - m_ChemoreceptorFiringRateSetPoint_Hz;
 
+  double m_CentralVentilationDelta_L_Per_min = 0.0;
+  double m_PeripheralVentilationDelta_L_Per_min = 0.0;
+
   //Evaluate model derivatives pertaining to change in chemoreceptor firing rate, and changes in central and peripheral contributions to ventilation
   double dFiringRate_Hz = (1.0 / firingRateTimeConstant_s) * (-m_ChemoreceptorFiringRate_Hz + psi) * m_dt_s;
   double dCentralVentilation_L_Per_min = (1.0 / centralTimeConstant_s) * (-m_CentralVentilationDelta_L_Per_min + centralGainConstant_L_Per_min_mmHg * centralInput) * m_dt_s;
@@ -575,8 +584,8 @@ void Nervous::ChemoreceptorFeedback()
   //Update values for next time step
   m_ChemoreceptorFiringRate_Hz += dFiringRate_Hz;
   m_ChemoreceptorFiringRate_Hz = std::max(0.0, m_ChemoreceptorFiringRate_Hz);
-  m_CentralVentilationDelta_L_Per_min += dCentralVentilation_L_Per_min;
-  m_PeripheralVentilationDelta_L_Per_min += dPeripheralVentilation_L_Per_min;
+ // m_CentralVentilationDelta_L_Per_min += dCentralVentilation_L_Per_min;
+ // m_PeripheralVentilationDelta_L_Per_min += dPeripheralVentilation_L_Per_min;
 
   //-----Cardiovascular Feedback:  This functionality is currently only active after stabilization.
   if (!m_FeedbackActive)
