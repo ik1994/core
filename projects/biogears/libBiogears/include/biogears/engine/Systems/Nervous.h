@@ -71,6 +71,12 @@ protected:
 
   void UrsinoBaroreceptor();
 
+  void AfferentResponse();
+  void SympatheticSignalProcess();
+  void ParasympatheticSignalProcess();
+  void EfferentResponse();
+
+
   double m_FilteredPressure;
   double m_HeartRateModSympathetic;
   double m_HeartRateModVagal;
@@ -100,6 +106,24 @@ protected:
   double m_painVASDuration_s;
   double m_painVAS;
   double m_painStimulus;
+
+  //Testing combined signals
+  double m_AfferentBaroreceptor_Hz;
+  double m_AfferentPulmonary_Hz;	//*AP
+  double m_AfferentAtrial_Hz;		//*AA
+  double m_FilteredPulmonaryVenousPressure_Hz; //*AA
+  double m_AfferentThermal_Hz;		//*AT
+  double m_SympathethicNode_Hz;
+  double m_SympatheticPeripheral_Hz;
+  double m_Vagal_Hz;
+  double m_AchVagal;
+  double m_AchSympatheticNode;
+  double m_AchSympatheticPeripheral;
+  double m_AdrenalMedulla;
+  std::vector<double> m_HeartRateEffectors;
+  std::vector<double> m_HeartElastanceEffectors;
+  std::vector<double> m_ResistanceEffectors;
+
 
   bool m_TestBaroreceptors;
 

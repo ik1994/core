@@ -684,6 +684,8 @@ void Cardiovascular::Process()
   m_circuitCalculator.Process(*m_CirculatoryCircuit, m_dT_s);
   m_transporter.Transport(*m_CirculatoryGraph, m_dT_s);
   CalculateVitalSigns();
+  m_data.GetDataTrack().Probe("ElastanceLeft_BG", m_LeftHeartElastanceMax_mmHg_Per_mL);
+  m_data.GetDataTrack().Probe("ElastanceRight_BG", m_RightHeartElastanceMax_mmHg_Per_mL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1476,12 +1478,12 @@ void Cardiovascular::BeginCardiacCycle()
   // Apply baroreceptor reflex effects
   /// \todo need to reset the heart elastance min and max at the end of each stabiliation period in AtSteadyState()
   m_LeftHeartElastanceMax_mmHg_Per_mL = m_data.GetConfiguration().GetLeftHeartElastanceMaximum(FlowElastanceUnit::mmHg_Per_mL);
- /* if (m_data.GetNervous().HasBaroreceptorHeartElastanceScale())
-    m_LeftHeartElastanceMax_mmHg_Per_mL *= m_data.GetNervous().GetBaroreceptorHeartElastanceScale().GetValue();*/
+  if (m_data.GetNervous().HasBaroreceptorHeartElastanceScale())
+    m_LeftHeartElastanceMax_mmHg_Per_mL *= m_data.GetNervous().GetBaroreceptorHeartElastanceScale().GetValue();
 
   m_RightHeartElastanceMax_mmHg_Per_mL = m_data.GetConfiguration().GetRightHeartElastanceMaximum(FlowElastanceUnit::mmHg_Per_mL);
-  /*if (m_data.GetNervous().HasBaroreceptorHeartElastanceScale())
-    m_RightHeartElastanceMax_mmHg_Per_mL *= m_data.GetNervous().GetBaroreceptorHeartElastanceScale().GetValue();*/
+  if (m_data.GetNervous().HasBaroreceptorHeartElastanceScale())
+    m_RightHeartElastanceMax_mmHg_Per_mL *= m_data.GetNervous().GetBaroreceptorHeartElastanceScale().GetValue();
 
   double HeartDriverFrequency_Per_Min = m_patient->GetHeartRateBaseline(FrequencyUnit::Per_min);
 

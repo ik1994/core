@@ -205,6 +205,7 @@ bool SENervousSystem::SetBaroreceptorFrequencyComponents(std::vector<double> new
       (*sfIt)->SetValue(*dblIt, unit);
     }
   }
+  return true;
 }
 //-------------------------------------------------------------------------------
 bool SENervousSystem::HasBaroreceptorHeartRateScale() const
