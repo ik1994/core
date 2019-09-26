@@ -81,6 +81,9 @@ protected:
   double m_PeripheralFrequencyDelta_Per_min;
   double m_PeripheralPressureDelta_cmH2O;
 
+  double m_PreviousCO2Concentration;
+  double m_DynamicCO2Signal;
+
   // Stateless member variable (Set in SetUp())
   bool m_FeedbackActive;
   double m_dt_s;

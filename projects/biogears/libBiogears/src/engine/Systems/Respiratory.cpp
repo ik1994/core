@@ -201,6 +201,7 @@ void Respiratory::Initialize()
   GetTidalVolume().SetValue(TidalVolume_L, VolumeUnit::L);
   GetRespirationRate().SetValue(RespirationRate_Per_min, FrequencyUnit::Per_min);
   GetRespirationDriverFrequency().SetValue(RespirationRate_Per_min, FrequencyUnit::Per_min);
+  GetRespirationDriverPressure().SetValue(m_PeakRespiratoryDrivePressure_cmH2O, PressureUnit::cmH2O);
   GetCarricoIndex().SetValue(452.0, PressureUnit::mmHg);
   GetInspiratoryExpiratoryRatio().SetValue(0.5);
   GetTotalAlveolarVentilation().SetValue(RespirationRate_Per_min * (TidalVolume_L - DeadSpace_L), VolumePerTimeUnit::L_Per_min);
@@ -440,7 +441,6 @@ void Respiratory::AtSteadyState()
   double inspiratoryCapacity_L = totalLungCapacity_L - m_InstantaneousFunctionalResidualCapacity_L;
   m_Patient->GetRespirationRateBaseline().SetValue(respirationRate_Per_min, FrequencyUnit::Per_min);
   m_Patient->GetTidalVolumeBaseline().SetValue(tidalVolume_L, VolumeUnit::L);
-  m_Patient->GetTotalVentilationBaseline().SetValue(GetTargetPulmonaryVentilation(VolumePerTimeUnit::L_Per_min), VolumePerTimeUnit::L_Per_min);
   m_Patient->GetFunctionalResidualCapacity().SetValue(m_InstantaneousFunctionalResidualCapacity_L, VolumeUnit::L);
   m_Patient->GetVitalCapacity().SetValue(vitalCapacity_L, VolumeUnit::L);
   m_Patient->GetExpiratoryReserveVolume().SetValue(expiratoryReserveVolume_L, VolumeUnit::L);
@@ -455,8 +455,6 @@ void Respiratory::AtSteadyState()
   ss << typeString << "Patient respiration rate = " << respirationRate_Per_min << " bpm.";
   Info(ss);
   ss << typeString << "Patient tidal volume = " << tidalVolume_L << " L.";
-  Info(ss);
-  ss << typeString << "Patient pulmonary ventilation baseline = " << m_Patient->GetTotalVentilationBaseline(VolumePerTimeUnit::L_Per_min);
   Info(ss);
   ss << typeString << "Patient functional residual capacity = " << m_InstantaneousFunctionalResidualCapacity_L << " L.";
   Info(ss);
@@ -525,7 +523,6 @@ void Respiratory::Process()
   SEFluidCircuit& RespirationCircuit = m_data.GetCircuits().GetActiveRespiratoryCircuit();
   // Calc the circuits
   m_Calculator.Process(RespirationCircuit, m_dt_s);
-  //ModifyPleuralVolume();
   SEGasCompartmentGraph& RespirationGraph = m_data.GetCompartments().GetActiveRespiratoryGraph();
   SELiquidCompartmentGraph& AerosolGraph = m_data.GetCompartments().GetActiveAerosolGraph();
   // Transport substances
@@ -582,8 +579,8 @@ void Respiratory::UpdatePleuralCompliance()
   dRightPleuralCompliance = LIMIT(dRightPleuralCompliance, 1e-6, 0.05);
   dLeftPleuralCompliance = LIMIT(dLeftPleuralCompliance, 1e-6, 0.05);
 
-  m_RightPleuralCavityToRespiratoryMuscle->GetNextCompliance().SetValue(dRightPleuralCompliance, FlowComplianceUnit::L_Per_cmH2O);
-  m_LeftPleuralCavityToRespiratoryMuscle->GetNextCompliance().SetValue(dLeftPleuralCompliance, FlowComplianceUnit::L_Per_cmH2O);
+ // m_RightPleuralCavityToRespiratoryMuscle->GetNextCompliance().SetValue(dRightPleuralCompliance, FlowComplianceUnit::L_Per_cmH2O);
+ // m_LeftPleuralCavityToRespiratoryMuscle->GetNextCompliance().SetValue(dLeftPleuralCompliance, FlowComplianceUnit::L_Per_cmH2O);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -897,17 +894,13 @@ void Respiratory::RespiratoryDriver()
     //Prepare for the next cycle -------------------------------------------------------------------------------
     if (m_BreathingCycleTime_s > TotalBreathingCycleTime_s) //End of the cycle or currently not breathing
     {
-      m_PeakRespiratoryDrivePressure_cmH2O = GetRespirationMusclePressure(PressureUnit::cmH2O);
+      m_PeakRespiratoryDrivePressure_cmH2O = GetRespirationDriverPressure(PressureUnit::cmH2O);
       m_VentilationFrequency_Per_min = GetRespirationDriverFrequency(FrequencyUnit::Per_min);
 
       //All actions that effect the target tidal volume and respiration rate are processed in the function below.  The
       //ventilation frequency (m_VentilationFrequency_Per_min) is calculated in this function.
       ProcessDriverActions();
-
-      //There's a maximum force the driver can try to achieve
-      m_PeakRespiratoryDrivePressure_cmH2O = std::max(m_PeakRespiratoryDrivePressure_cmH2O, m_MaxDriverPressure_cmH2O);
-      //The peak driver pressure is the pressure above the default pressure.  Therefore, we subtract it from the base pressure.
-      m_PeakRespiratoryDrivePressure_cmH2O -= m_DefaultDrivePressure_cmH2O;
+      m_BreathingCycleTime_s = 0.0;
     }
 
     //Run the driver based on the waveform used in
@@ -1010,32 +1003,12 @@ void Respiratory::ProcessDriverActions()
   double dHalfVitalCapacity_L = m_Patient->GetVitalCapacity(VolumeUnit::L) / 2;
   double dMaximumPulmonaryVentilationRate = m_data.GetConfiguration().GetPulmonaryVentilationRateMaximum(VolumePerTimeUnit::L_Per_min);
   m_TargetTidalVolume_L = std::min(m_TargetTidalVolume_L, dHalfVitalCapacity_L);
+  
+  m_VentilationFrequency_Per_min += infectionModifier;
+  m_VentilationFrequency_Per_min *= painModifier;
+  m_VentilationFrequency_Per_min *= NMBModifier * SedationModifier;
+  m_VentilationFrequency_Per_min += DrugRRChange_Per_min;
 
-  //Calculate ventilation based on target tidal volume and apply action effects
-  if (m_TargetTidalVolume_L == 0.0) //Can't divide by zero
-  {
-    m_VentilationFrequency_Per_min = 0.0;
-  } else {
-    if (m_data.GetActions().GetPatientActions().HasOverride()
-        && m_data.GetActions().GetPatientActions().GetOverride()->HasRespirationRateOverride()
-        && m_data.GetActions().GetPatientActions().GetOverride()->GetOverrideConformance() == CDM::enumOnOff::On) {
-      // In the event of a conformant RR override, the member variable is used to keep track of the changing baseline, but will reset to the patient's true baseline after being turned off
-      // Conformant changes are driven towards a new value using a moving average concept to allow other values in BG physiology to catch up in the event of extreme changes, max change per time step is 3 /min in either diurection
-      // Still bound by patient min and max
-      m_VentilationFrequency_Per_min = m_OverrideRRBaseline_Per_min;
-      const double RRoverride_Per_min = m_data.GetActions().GetPatientActions().GetOverride()->GetRespirationRateOverride(FrequencyUnit::Per_min);
-      double OverrideVentilationIncrease_Per_min = std::abs((RRoverride_Per_min - m_VentilationFrequency_Per_min) / (m_VentilationFrequency_Per_min)) * (RRoverride_Per_min - m_VentilationFrequency_Per_min);
-      BLIM(OverrideVentilationIncrease_Per_min, -3.0, 3.0);
-      m_VentilationFrequency_Per_min += OverrideVentilationIncrease_Per_min;
-      m_OverrideRRBaseline_Per_min = m_VentilationFrequency_Per_min;
-    } else {
-      m_VentilationFrequency_Per_min = GetTargetPulmonaryVentilation(VolumePerTimeUnit::L_Per_min) / m_TargetTidalVolume_L;
-    }
-    m_VentilationFrequency_Per_min += infectionModifier;
-    m_VentilationFrequency_Per_min *= painModifier;
-    m_VentilationFrequency_Per_min *= NMBModifier * SedationModifier;
-    m_VentilationFrequency_Per_min += DrugRRChange_Per_min;
-  }
   //Make sure the the ventilation frequency is not negative or greater than maximum achievable based on ventilation
   m_VentilationFrequency_Per_min = BLIM(m_VentilationFrequency_Per_min, 0.0, dMaximumPulmonaryVentilationRate / dHalfVitalCapacity_L);
 }
@@ -1621,8 +1594,7 @@ void Respiratory::CalculateVitalSigns()
   double dPleuralPressure_cmH2O = (m_LeftPleuralCavity->GetNextPressure().GetValue(PressureUnit::cmH2O) + m_RightPleuralCavity->GetNextPressure().GetValue(PressureUnit::cmH2O)) / 2.0; //Average of L and R
   GetTranspulmonaryPressure().SetValue(dAlveolarPressure - dPleuralPressure_cmH2O, PressureUnit::cmH2O);
 
-  GetRespirationDriverPressure().Set(m_RespiratoryMuscle->GetNextPressure());
-  GetRespirationMusclePressure().Set(m_RespiratoryMuscle->GetNextPressure());
+  GetRespirationMusclePressure().SetValue(m_RespiratoryMuscle->GetNextPressure(PressureUnit::cmH2O) - 1033.23, PressureUnit::cmH2O);
 
   double avgAlveoliO2PP_mmHg = (m_LeftAlveoliO2->GetPartialPressure(PressureUnit::mmHg) + m_RightAlveoliO2->GetPartialPressure(PressureUnit::mmHg)) / 2.0;
   GetAlveolarArterialGradient().SetValue(avgAlveoliO2PP_mmHg - m_AortaO2->GetPartialPressure(PressureUnit::mmHg), PressureUnit::mmHg);
