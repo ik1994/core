@@ -15,12 +15,12 @@ specific language governing permissions and limitations under the License.
 #include <biogears/exports.h>
 
 #include <biogears/cdm/circuit/fluid/SEFluidCircuitCalculator.h>
+#include <biogears/cdm/scenario/SEPatientActionCollection.h>
 #include <biogears/cdm/substance/SESubstanceTransport.h>
 #include <biogears/cdm/system/physiology/SECardiovascularSystem.h>
 #include <biogears/cdm/utils/RunningAverage.h>
 #include <biogears/engine/Controller/BioGearsSystem.h>
 #include <biogears/schema/biogears/BioGearsPhysiology.hxx>
-#include <biogears/cdm/scenario/SEPatientActionCollection.h>
 
 namespace biogears {
 class SELiquidCompartmentGraph;
@@ -52,10 +52,11 @@ protected:
   BioGears& m_data;
 
 public:
-  virtual ~Cardiovascular() override;;
+  virtual ~Cardiovascular() override;
+  ;
 
-  static size_t TypeHash() { return reinterpret_cast<size_t>(&TypeHash); }  //! Hopefully this returns a unique ID for every type
-  static constexpr char const * const  TypeTag() { return "Cardiovascular"; }
+  static size_t TypeHash() { return reinterpret_cast<size_t>(&TypeHash); } //! Hopefully this returns a unique ID for every type
+  static constexpr char const* const TypeTag() { return "Cardiovascular"; }
   const char* classname() const override { return TypeTag(); }
   size_t hash_code() const override { return TypeHash(); }
 
@@ -92,7 +93,7 @@ private:
   /**/ void AdjustVascularTone();
   /**/ void BeginCardiacCycle();
   /**/ void CalculateHeartElastance();
-  
+
   // IF STABILIZING
   void TuneCircuit();
   /**/ void TunePaths(double systemicResistanceScale, double systemicComplianceScale, double aortaResistanceScale, double aortaComplianceScale, double rightHeartResistanceScale, double venaCavaComplianceScale);
@@ -119,7 +120,6 @@ protected:
   void OverrideControlLoop();
 
 private:
-
   // Serializable member variables (Set in Initialize and in schema)
   //Driver
   bool m_StartSystole;
@@ -233,6 +233,10 @@ private:
   std::vector<SEFluidCircuitPath*> m_systemicResistancePaths;
   std::vector<SEFluidCircuitPath*> m_systemicCompliancePaths;
   std::vector<SEFluidCircuitPath*> m_tissueResistancePaths;
+  std::vector<SEFluidCircuitPath*> m_splanchnicResistancePaths;
+  std::vector<SEFluidCircuitPath*> m_extrasplanchnicResistancePaths;
+  std::vector<SEFluidCircuitPath*> m_ventricleResistancePaths;
+  std::vector<SEFluidCircuitPath*> m_muscleResistancePaths;
 
   SEPatientActionCollection* m_PatientActions;
 };
