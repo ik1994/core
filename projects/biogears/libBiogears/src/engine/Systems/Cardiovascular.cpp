@@ -385,6 +385,7 @@ void Cardiovascular::SetUp()
   m_rightRenalArteryPath = m_CirculatoryCircuit->GetPath(BGE::RenalPath::RightRenalArteryToAfferentArteriole);
 
   m_systemicResistancePaths.clear();
+  m_cerebralResistancePaths.clear();
   m_extrasplanchnicResistancePaths.clear();
   m_splanchnicResistancePaths.clear();
   m_ventricleResistancePaths.clear();
@@ -397,7 +398,19 @@ void Cardiovascular::SetUp()
   SEFluidCircuitNode* ground = m_CirculatoryCircuit->GetNode(BGE::CardiovascularNode::Ground);
   for (SEFluidCircuitPath* path : m_CirculatoryCircuit->GetPaths()) {
     if (&path->GetSourceNode() == aorta && path->HasResistanceBaseline()) {
-      if (&path->GetTargetNode() != ground) {
+      if (&path->GetTargetNode() != ground && path->HasCardiovascularRegion()) {
+        CDM::enumResistancePathType region = path->GetCardiovascularRegion();
+        switch (region) {
+        case CDM::enumResistancePathType::Extrasplanchnic:
+          m_extrasplanchnicResistancePaths.push_back(path);
+          break;
+        case CDM::enumResistancePathType::Muscle:
+          m_muscleResistancePaths.push_back(path);
+          break;
+        case CDM::enumResistancePathType::Splanchnic:
+          m_splanchnicResistancePaths.push_back(path);
+          break;
+        }
         if (m_data.GetConfiguration().IsCerebralEnabled() && path->GetTargetNode().GetName() == BGE::CerebralNode::NeckArteries) {
           continue;
         }
@@ -406,12 +419,26 @@ void Cardiovascular::SetUp()
       }
     }
   }
-
   for (SEFluidCircuitPath* path : m_CirculatoryCircuit->GetPaths()) {
     for (SEFluidCircuitNode* node : venousNodes) {
       if (&path->GetSourceNode() == node) {
-        if (path->HasResistanceBaseline() && &path->GetTargetNode() != ground)
+        if (path->HasResistanceBaseline() && &path->GetTargetNode() != ground) {
+          if (path->HasCardiovascularRegion()) {
+            CDM::enumResistancePathType region = path->GetCardiovascularRegion();
+            switch (region) {
+            case CDM::enumResistancePathType::Extrasplanchnic:
+              m_extrasplanchnicResistancePaths.push_back(path);
+              break;
+            case CDM::enumResistancePathType::Muscle:
+              m_muscleResistancePaths.push_back(path);
+              break;
+            case CDM::enumResistancePathType::Splanchnic:
+              m_splanchnicResistancePaths.push_back(path);
+              break;
+            }
+          }
           m_systemicResistancePaths.push_back(path);
+        }
         if (path->HasComplianceBaseline())
           m_systemicCompliancePaths.push_back(path);
         break;
@@ -422,7 +449,18 @@ void Cardiovascular::SetUp()
   SEFluidCircuitPath* path = m_CirculatoryCircuit->GetPath(BGE::CardiovascularPath::PortalVeinToLiver1);
   if (!Contains(m_systemicResistancePaths, (*path))) {
     m_systemicResistancePaths.push_back(path);
+    m_splanchnicResistancePaths.push_back(path);
   }
+
+  //Since we have cerbral circuit defined separately, we can add cerebral resistance paths here
+  if (m_data.GetConfiguration().IsCerebralEnabled()) {
+    for (auto path : m_data.GetCircuits().GetCerebralCircuit().GetPaths()) {
+      if (path->HasCardiovascularRegion()) {
+        m_cerebralResistancePaths.push_back(path);
+      }
+    }
+  }
+
   m_AortaCompliance = m_CirculatoryCircuit->GetPath(BGE::CardiovascularPath::Aorta1ToGround);
   m_AortaResistance = m_CirculatoryCircuit->GetPath(BGE::CardiovascularPath::Aorta3ToAorta1);
   m_VenaCavaCompliance = m_CirculatoryCircuit->GetPath(BGE::CardiovascularPath::VenaCavaToGround);
@@ -801,7 +839,7 @@ void Cardiovascular::CalculateVitalSigns()
   GetArterialPressure().SetValue(AortaNodePressure_mmHg, PressureUnit::mmHg);
   GetPulmonaryArterialPressure().SetValue(PulmonaryArteryNodePressure_mmHg, PressureUnit::mmHg);
   GetCentralVenousPressure().SetValue(VenaCavaPressure_mmHg, PressureUnit::mmHg);
-  GetCerebralBloodFlow().Set(m_Brain->GetInFlow());
+  GetCerebralBloodFlow().Set(m_CirculatoryCircuit->GetPath(BGE::CerebralPath::CerebralCapillariesToCerebralVeins1)->GetFlow());
   if (m_data.GetConfiguration().IsCerebralEnabled()) {
     GetIntracranialPressure().Set(m_CirculatoryCircuit->GetNode(BGE::CerebralNode::SpinalFluid)->GetPressure());
     GetCerebralPerfusionPressure().SetValue(GetMeanArterialPressure(PressureUnit::mmHg) - GetIntracranialPressure(PressureUnit::mmHg), PressureUnit::mmHg);
@@ -1560,7 +1598,6 @@ void Cardiovascular::CalculateHeartElastance()
 
   m_LeftHeartElastance_mmHg_Per_mL = (m_LeftHeartElastanceMax_mmHg_Per_mL - m_LeftHeartElastanceMin_mmHg_Per_mL) * elastanceShapeFunction + m_LeftHeartElastanceMin_mmHg_Per_mL;
   m_RightHeartElastance_mmHg_Per_mL = (m_RightHeartElastanceMax_mmHg_Per_mL - m_RightHeartElastanceMin_mmHg_Per_mL) * elastanceShapeFunction + m_RightHeartElastanceMin_mmHg_Per_mL;
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1917,17 +1954,46 @@ void Cardiovascular::AdjustVascularTone()
   double UpdatedResistance_mmHg_s_Per_mL = 0.0;
   double UpdatedCompliance_mL_Per_mmHg = 0.0;
   double totalComplianceChange_mL_Per_mmHg = 0.0;
-  if (m_data.GetNervous().HasBaroreceptorResistanceScale()) {
+  double baroreceptorResistanceScale = 0.0;
+  CDM::enumResistancePathType resistanceRegion;
+  /*if (m_data.GetNervous().HasBaroreceptorResistanceScale()) {
     for (SEFluidCircuitPath* Path : m_systemicResistancePaths) {
-      /// \todo We are treating all systemic resistance paths equally, including the brain.
+       \todo We are treating all systemic resistance paths equally, including the brain.
       UpdatedResistance_mmHg_s_Per_mL = m_data.GetNervous().GetBaroreceptorResistanceScale().GetValue() * Path->GetResistanceBaseline(FlowResistanceUnit::mmHg_s_Per_mL);
       if (UpdatedResistance_mmHg_s_Per_mL < m_minIndividialSystemicResistance__mmHg_s_Per_mL) {
         UpdatedResistance_mmHg_s_Per_mL = m_minIndividialSystemicResistance__mmHg_s_Per_mL;
       }
       Path->GetNextResistance().SetValue(UpdatedResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
     }
+  }*/
+  if (m_data.GetNervous().HasResistanceScales()) {
+    for (SEFluidCircuitPath* path : m_systemicResistancePaths) {
+      UpdatedResistance_mmHg_s_Per_mL = path->GetResistanceBaseline(FlowResistanceUnit::mmHg_s_Per_mL);
+      resistanceRegion = path->GetCardiovascularRegion();
+      switch (resistanceRegion) {
+      case CDM::enumResistancePathType::Cerebral:
+        baroreceptorResistanceScale = m_data.GetNervous().GetResistanceScaleCerebral().GetValue();
+        break;
+      case CDM::enumResistancePathType::Muscle:
+        baroreceptorResistanceScale = m_data.GetNervous().GetResistanceScaleMuscle().GetValue();
+        break;
+      case CDM::enumResistancePathType::Splanchnic:
+        baroreceptorResistanceScale = m_data.GetNervous().GetResistanceScaleSplanchnic().GetValue();
+        break;
+      case CDM::enumResistancePathType::Ventricle:
+        baroreceptorResistanceScale = m_data.GetNervous().GetResistanceScaleVentricle().GetValue();
+        break;
+      default:
+        baroreceptorResistanceScale = m_data.GetNervous().GetResistanceScaleExtrasplanchnic().GetValue();
+      }
+      UpdatedResistance_mmHg_s_Per_mL *= baroreceptorResistanceScale;
+      if (UpdatedResistance_mmHg_s_Per_mL < m_minIndividialSystemicResistance__mmHg_s_Per_mL) {
+        UpdatedResistance_mmHg_s_Per_mL = m_minIndividialSystemicResistance__mmHg_s_Per_mL;
+      }
+      path->GetNextResistance().SetValue(UpdatedResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+    }
   }
-
+    
   if (m_data.GetNervous().HasBaroreceptorComplianceScale()) {
     for (SEFluidCircuitPath* Path : m_systemicCompliancePaths) {
       UpdatedCompliance_mL_Per_mmHg = m_data.GetNervous().GetBaroreceptorComplianceScale().GetValue() * Path->GetComplianceBaseline(FlowComplianceUnit::mL_Per_mmHg);

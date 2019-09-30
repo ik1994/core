@@ -75,6 +75,8 @@ protected:
   void SympatheticSignalProcess();
   void ParasympatheticSignalProcess();
   void EfferentResponse();
+  void LocalRegulation();
+  void CerebralAutoregulation();
 
 
   double m_FilteredPressure;
@@ -123,6 +125,18 @@ protected:
   std::vector<double> m_HeartRateEffectors;
   std::vector<double> m_HeartElastanceEffectors;
   std::vector<double> m_ResistanceEffectors;
+
+  double m_LocalMuscleO2Effect;
+  double m_LocalHeartO2Effect;
+  double m_LocalMuscleO2Baseline;
+  double m_LocalHeartO2Baseline;
+  double m_CerebralAutoEffect;
+  double m_HypoxiaEffectPeripheral;
+  double m_HypoxiaEffectNode;
+  double m_CerebralBloodFlowBaseline_mL_Per_s;
+  double m_CerebralCO2Baseline_mmHg;
+  double m_CerebralBloodFlowFilter;
+
 
 
   bool m_TestBaroreceptors;
