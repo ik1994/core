@@ -115,6 +115,8 @@ protected:
   double m_AfferentAtrial_Hz;		//*AA
   double m_FilteredPulmonaryVenousPressure_Hz; //*AA
   double m_AfferentThermal_Hz;		//*AT
+  double m_SympatheticActivationNode;
+  double m_SympatheticActivationPeripheral;
   double m_SympathethicNode_Hz;
   double m_SympatheticPeripheral_Hz;
   double m_Vagal_Hz;
@@ -123,13 +125,16 @@ protected:
   double m_AchSympatheticPeripheral;
   double m_AdrenalMedulla;
   std::vector<double> m_HeartRateEffectors;
-  std::vector<double> m_HeartElastanceEffectors;
+  //std::vector<double> m_HeartElastanceEffectors;
   std::vector<double> m_ResistanceEffectors;
+  double m_HeartElastanceEffector;
 
   double m_LocalMuscleO2Effect;
   double m_LocalHeartO2Effect;
+  double m_LocalCerebralO2Effect;
   double m_LocalMuscleO2Baseline;
   double m_LocalHeartO2Baseline;
+  double m_LocalCerebralO2Baseline;
   double m_CerebralAutoEffect;
   double m_HypoxiaEffectPeripheral;
   double m_HypoxiaEffectNode;

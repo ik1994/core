@@ -401,7 +401,9 @@ void Cardiovascular::SetUp()
       if (&path->GetTargetNode() != ground && path->HasCardiovascularRegion()) {
         CDM::enumResistancePathType region = path->GetCardiovascularRegion();
         switch (region) {
-        case CDM::enumResistancePathType::Extrasplanchnic:
+        case CDM::enumResistancePathType::Cerebral:
+          continue;
+		case CDM::enumResistancePathType::Extrasplanchnic:
           m_extrasplanchnicResistancePaths.push_back(path);
           break;
         case CDM::enumResistancePathType::Muscle:
@@ -410,9 +412,6 @@ void Cardiovascular::SetUp()
         case CDM::enumResistancePathType::Splanchnic:
           m_splanchnicResistancePaths.push_back(path);
           break;
-        }
-        if (m_data.GetConfiguration().IsCerebralEnabled() && path->GetTargetNode().GetName() == BGE::CerebralNode::NeckArteries) {
-          continue;
         }
         m_systemicResistancePaths.push_back(path);
         venousNodes.push_back(&path->GetTargetNode());
@@ -1966,7 +1965,51 @@ void Cardiovascular::AdjustVascularTone()
       Path->GetNextResistance().SetValue(UpdatedResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
     }
   }*/
-  if (m_data.GetNervous().HasResistanceScales()) {
+  if (m_data.GetNervous().HasResistanceScaleCerebral()) {
+    baroreceptorResistanceScale = m_data.GetNervous().GetResistanceScaleCerebral().GetValue();
+    for (SEFluidCircuitPath* cPath : m_cerebralResistancePaths) {
+      UpdatedResistance_mmHg_s_Per_mL = cPath->GetResistanceBaseline(FlowResistanceUnit::mmHg_s_Per_mL);
+      UpdatedResistance_mmHg_s_Per_mL *= baroreceptorResistanceScale;
+      if (UpdatedResistance_mmHg_s_Per_mL < m_minIndividialSystemicResistance__mmHg_s_Per_mL) {
+        UpdatedResistance_mmHg_s_Per_mL = m_minIndividialSystemicResistance__mmHg_s_Per_mL;
+      }
+      cPath->GetNextResistance().SetValue(UpdatedResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+    }
+  }
+  if (m_data.GetNervous().HasResistanceScaleExtrasplanchnic()) {
+    baroreceptorResistanceScale = m_data.GetNervous().GetResistanceScaleExtrasplanchnic().GetValue();
+    for (SEFluidCircuitPath* ePath : m_extrasplanchnicResistancePaths) {
+      UpdatedResistance_mmHg_s_Per_mL = ePath->GetResistanceBaseline(FlowResistanceUnit::mmHg_s_Per_mL);
+      UpdatedResistance_mmHg_s_Per_mL *= baroreceptorResistanceScale;
+      if (UpdatedResistance_mmHg_s_Per_mL < m_minIndividialSystemicResistance__mmHg_s_Per_mL) {
+        UpdatedResistance_mmHg_s_Per_mL = m_minIndividialSystemicResistance__mmHg_s_Per_mL;
+      }
+      ePath->GetNextResistance().SetValue(UpdatedResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+    }
+  }
+  if (m_data.GetNervous().HasResistanceScaleMuscle()) {
+    baroreceptorResistanceScale = m_data.GetNervous().GetResistanceScaleMuscle().GetValue();
+    for (SEFluidCircuitPath* mPath : m_muscleResistancePaths) {
+      UpdatedResistance_mmHg_s_Per_mL = mPath->GetResistanceBaseline(FlowResistanceUnit::mmHg_s_Per_mL);
+      UpdatedResistance_mmHg_s_Per_mL *= baroreceptorResistanceScale;
+      if (UpdatedResistance_mmHg_s_Per_mL < m_minIndividialSystemicResistance__mmHg_s_Per_mL) {
+        UpdatedResistance_mmHg_s_Per_mL = m_minIndividialSystemicResistance__mmHg_s_Per_mL;
+      }
+      mPath->GetNextResistance().SetValue(UpdatedResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+    }
+  }
+  if (m_data.GetNervous().HasResistanceScaleSplanchnic()) {
+    baroreceptorResistanceScale = m_data.GetNervous().GetResistanceScaleSplanchnic().GetValue();
+    for (SEFluidCircuitPath* sPath : m_splanchnicResistancePaths) {
+      UpdatedResistance_mmHg_s_Per_mL = sPath->GetResistanceBaseline(FlowResistanceUnit::mmHg_s_Per_mL);
+      UpdatedResistance_mmHg_s_Per_mL *= baroreceptorResistanceScale;
+      if (UpdatedResistance_mmHg_s_Per_mL < m_minIndividialSystemicResistance__mmHg_s_Per_mL) {
+        UpdatedResistance_mmHg_s_Per_mL = m_minIndividialSystemicResistance__mmHg_s_Per_mL;
+      }
+      sPath->GetNextResistance().SetValue(UpdatedResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
+    }
+  }
+  /*if (m_data.GetNervous().HasResistanceScales()) {
     for (SEFluidCircuitPath* path : m_systemicResistancePaths) {
       UpdatedResistance_mmHg_s_Per_mL = path->GetResistanceBaseline(FlowResistanceUnit::mmHg_s_Per_mL);
       resistanceRegion = path->GetCardiovascularRegion();
@@ -1992,8 +2035,8 @@ void Cardiovascular::AdjustVascularTone()
       }
       path->GetNextResistance().SetValue(UpdatedResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
     }
-  }
-    
+  }*/
+
   if (m_data.GetNervous().HasBaroreceptorComplianceScale()) {
     for (SEFluidCircuitPath* Path : m_systemicCompliancePaths) {
       UpdatedCompliance_mL_Per_mmHg = m_data.GetNervous().GetBaroreceptorComplianceScale().GetValue() * Path->GetComplianceBaseline(FlowComplianceUnit::mL_Per_mmHg);
