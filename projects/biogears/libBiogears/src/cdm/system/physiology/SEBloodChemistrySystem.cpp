@@ -31,6 +31,7 @@ namespace biogears {
   constexpr char idCarbonMonoxideSaturation[] = "CarbonMonoxideSaturation";
   constexpr char idHematocrit[] = "Hematocrit";
   constexpr char idHemoglobinContent[] = "HemoglobinContent";
+  constexpr char idHemoglobinLostToUrine[] = "HemoglobinLostToUrine";
   constexpr char idOxygenSaturation[] = "OxygenSaturation";
   constexpr char idOxygenVenousSaturation[] = "OxygenVenousSaturation";
   constexpr char idPhosphate[] = "Phosphate";
@@ -71,6 +72,7 @@ SEBloodChemistrySystem::SEBloodChemistrySystem(Logger* logger)
   m_CarbonMonoxideSaturation = nullptr;
   m_Hematocrit = nullptr;
   m_HemoglobinContent = nullptr;
+  m_HemoglobinLostToUrine = nullptr;
   m_OxygenSaturation = nullptr;
   m_OxygenVenousSaturation = nullptr;
   m_Phosphate = nullptr;
@@ -117,6 +119,7 @@ void SEBloodChemistrySystem::Clear()
   SAFE_DELETE(m_CarbonMonoxideSaturation);
   SAFE_DELETE(m_Hematocrit);
   SAFE_DELETE(m_HemoglobinContent);
+  SAFE_DELETE(m_HemoglobinLostToUrine);
   SAFE_DELETE(m_OxygenSaturation);
   SAFE_DELETE(m_OxygenVenousSaturation);
   SAFE_DELETE(m_Phosphate);
@@ -169,6 +172,8 @@ const SEScalar* SEBloodChemistrySystem::GetScalar(const std::string& name)
     return &GetHematocrit();
   if (name == idHemoglobinContent)
     return &GetHemoglobinContent();
+  if (name == idHemoglobinLostToUrine)
+    return &GetHemoglobinLostToUrine();
   if (name == idOxygenSaturation)
     return &GetOxygenSaturation();
   if (name == idOxygenVenousSaturation)
@@ -250,6 +255,8 @@ bool SEBloodChemistrySystem::Load(const CDM::BloodChemistrySystemData& in)
     GetHematocrit().Load(in.Hematocrit().get());
   if (in.HemoglobinContent().present())
     GetHemoglobinContent().Load(in.HemoglobinContent().get());
+  if (in.HemoglobinLostToUrine().present())
+    GetHemoglobinLostToUrine().Load(in.HemoglobinLostToUrine().get());
   if (in.OxygenSaturation().present())
     GetOxygenSaturation().Load(in.OxygenSaturation().get());
   if (in.OxygenVenousSaturation().present())
@@ -331,6 +338,8 @@ void SEBloodChemistrySystem::Unload(CDM::BloodChemistrySystemData& data) const
     data.Hematocrit(std::unique_ptr<CDM::ScalarFractionData>(m_Hematocrit->Unload()));
   if (m_HemoglobinContent != nullptr)
     data.HemoglobinContent(std::unique_ptr<CDM::ScalarMassData>(m_HemoglobinContent->Unload()));
+  if (m_HemoglobinLostToUrine != nullptr)
+    data.HemoglobinLostToUrine(std::unique_ptr<CDM::ScalarMassData>(m_HemoglobinLostToUrine->Unload()));
   if (m_OxygenSaturation != nullptr)
     data.OxygenSaturation(std::unique_ptr<CDM::ScalarFractionData>(m_OxygenSaturation->Unload()));
   if (m_OxygenVenousSaturation != nullptr)
@@ -578,6 +587,27 @@ double SEBloodChemistrySystem::GetHemoglobinContent(const MassUnit& unit) const
   if (m_HemoglobinContent == nullptr)
     return SEScalar::dNaN();
   return m_HemoglobinContent->GetValue(unit);
+}
+
+//-------------------------------------------------------------------------------
+
+bool SEBloodChemistrySystem::HasHemoglobinLostToUrine() const
+{
+  return m_HemoglobinLostToUrine == nullptr ? false : m_HemoglobinLostToUrine->IsValid();
+}
+//-------------------------------------------------------------------------------
+SEScalarMass& SEBloodChemistrySystem::GetHemoglobinLostToUrine()
+{
+  if (m_HemoglobinLostToUrine == nullptr)
+    m_HemoglobinLostToUrine = new SEScalarMass();
+  return *m_HemoglobinLostToUrine;
+}
+//-------------------------------------------------------------------------------
+double SEBloodChemistrySystem::GetHemoglobinLostToUrine(const MassUnit& unit) const
+{
+  if (m_HemoglobinLostToUrine == nullptr)
+    return SEScalar::dNaN();
+  return m_HemoglobinLostToUrine->GetValue(unit);
 }
 //-------------------------------------------------------------------------------
 
