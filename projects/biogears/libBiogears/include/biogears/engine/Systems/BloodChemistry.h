@@ -95,9 +95,10 @@ protected:
 
   // Stateless member variable (Set in SetUp())
   double m_redBloodCellVolume_mL;
-  double m_HbLostToUrine;
+  double m_HbLostToUrine_g;
+  double m_RhTransfusionReactionVolume_mL;
   double m_HbPerRedBloodCell_ug_Per_ct;
-  double m_RhFactorMismatch;
+  double m_RhFactorMismatch_ct;
   SELiquidCompartment* m_aorta;
   SELiquidSubstanceQuantity* m_aortaO2;
   SELiquidSubstanceQuantity* m_aortaCO2;
