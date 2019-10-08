@@ -498,7 +498,7 @@ void Nervous::ChemoreceptorFeedback()
   //-------Respiratory Feedback:  This is active throughtout the simulation (including stabilization)------------------------------
 
   //Chemoreceptor time constants (all in s):  _p/c_P/F --> peripheral(p)/central(c) chemoreceptor effect on respiratory driver pressure(P)/frequency(F)
-  double tau_p_P = 100.0, tau_p_F = 110.0, tau_c_P = 180.0, tau_c_F = 180;
+  double tau_p_P = 100.0, tau_p_F = 110.0, tau_c_P = 180.0, tau_c_F = 180.;
   //Chemoreceptor gains -- Tuned to data from Reynold, 1972 and Reynolds, 1973 (cited in Cheng, 2016)
   double gain_p_P = 0.8, gain_p_F = 0.50, gain_c_P = 0.75, gain_c_F = 0.70;
 
@@ -507,10 +507,10 @@ void Nervous::ChemoreceptorFeedback()
   double arterialCO2Pressure_mmHg = m_data.GetBloodChemistry().GetArterialCarbonDioxidePressure(PressureUnit::mmHg);
 
   //Magosso and Ursino cite findings that central chemoreceptors are less sensitive at sub-normal levels of CO2 than to super-normal levels
-  /*if (arterialCO2Pressure_mmHg < m_ArterialCarbonDioxideSetPoint_mmHg) {
+  if (arterialCO2Pressure_mmHg < m_ArterialCarbonDioxideSetPoint_mmHg && m_data.GetState() == EngineState::Active) {
     gain_c_P *= 0.067;
     gain_c_F *= 0.067;
-  }*/
+  }
 
   //Dissociation curves--Derive apparent O2 and CO2 saturations from arterial pressures (sat calculator not good enough to use here)
   double a1 = 0.3836, alpha1 = 3.198e-2, K1 = 15.0, beta1 = 8.275e-3, C1 = 9.0, Z = 2.277e-2, Ca_O2max = 0.2;		//O2 params
