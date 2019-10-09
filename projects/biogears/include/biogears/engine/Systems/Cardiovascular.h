@@ -51,8 +51,6 @@ class BIOGEARS_API Cardiovascular : public SECardiovascularSystem, public BioGea
 protected:
   Cardiovascular(BioGears& bg);
   BioGears& m_data;
-  biogears::StopWatch<std::chrono::nanoseconds> cardioWatch;
-  double calcCardioTime;
 
 
 public:

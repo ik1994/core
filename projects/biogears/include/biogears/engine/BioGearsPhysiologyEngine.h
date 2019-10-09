@@ -133,11 +133,11 @@ namespace tatrc {
         DEFINE_STATIC_STRING(EnvironmentToMouth);
         DEFINE_STATIC_STRING(MouthToCarina);
         DEFINE_STATIC_STRING(MouthToStomach);
-        DEFINE_STATIC_STRING(CarinaToDeadSpace);
-        DEFINE_STATIC_STRING(DeadSpaceToAlveoli);
+        DEFINE_STATIC_STRING(CarinaToLeftDeadSpace);
+        DEFINE_STATIC_STRING(LeftDeadSpaceToAlveoli);
         DEFINE_STATIC_STRING(CarinaToRightDeadSpace);
         DEFINE_STATIC_STRING(RightDeadSpaceToAlveoli);
-        DEFINE_STATIC_STRING(EnvironmentToChestLeak);
+        DEFINE_STATIC_STRING(EnvironmentToLeftChestLeak);
         DEFINE_STATIC_STRING(EnvironmentToRightChestLeak);
         DEFINE_STATIC_STRING(LeftAlveoliLeakToLeftPleural);
         DEFINE_STATIC_STRING(LeftAlveoliToLeftAlveoliLeak);
@@ -152,7 +152,7 @@ namespace tatrc {
         {
 
           static std::vector<std::string> _values = {
-            EnvironmentToMouth, MouthToCarina, MouthToStomach, CarinaToDeadSpace, DeadSpaceToAlveoli, CarinaToRightDeadSpace, RightDeadSpaceToAlveoli, EnvironmentToChestLeak, EnvironmentToRightChestLeak, LeftAlveoliLeakToLeftPleural, LeftAlveoliToLeftAlveoliLeak, LeftChestLeakToLeftPleural, LeftPleuralToEnvironment, RightAlveoliLeakToRightPleural, RightAlveoliToRightAlveoliLeak, RightChestLeakToRightPleural, RightPleuralToEnvironment
+            EnvironmentToMouth, MouthToCarina, MouthToStomach, CarinaToLeftDeadSpace, LeftDeadSpaceToAlveoli, CarinaToRightDeadSpace, RightDeadSpaceToAlveoli, EnvironmentToLeftChestLeak, EnvironmentToRightChestLeak, LeftAlveoliLeakToLeftPleural, LeftAlveoliToLeftAlveoliLeak, LeftChestLeakToLeftPleural, LeftPleuralToEnvironment, RightAlveoliLeakToRightPleural, RightAlveoliToRightAlveoliLeak, RightChestLeakToRightPleural, RightPleuralToEnvironment
           };
           return _values;
         }

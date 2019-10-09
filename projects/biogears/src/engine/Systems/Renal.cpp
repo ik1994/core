@@ -49,25 +49,6 @@ Renal::Renal(BioGears& bg)
   , m_data(bg)
 {
   Clear();
-  renalWatch.reset();
-  preRenWatch.reset();
-  processRenWatch.reset();
-  postRenWatch.reset();
-  reabsWatch.reset();
-  activeTransportWatch.reset();
-  glucoWatch.reset();
-  glomWatch.reset();
-  excretionWatch.reset();
-
-  calcRenalTime = 0.0;
-  calcPreRenTime = 0.0;
-  calcProcessRenTime = 0.0;
-  calcPostRenTime = 0.0;
-  calcRTTime = 0.0;
-  calcATTime = 0.0;
-  calcGNTime = 0.0;
-  calcGTTime = 0.0;
-  calcExcTime = 0.0;
 }
 
 Renal::~Renal()
@@ -115,14 +96,9 @@ void Renal::Clear()
   m_KidneyTissue = nullptr;
   m_Ureter = nullptr;
   m_Peritubular = nullptr;
-  m_rightUreter = nullptr;
-  m_rightPeritubular = nullptr;
   m_Glomerular = nullptr;
   m_Bowmans = nullptr;
-  m_rightGlomerular = nullptr;
-  m_rightBowmans = nullptr;
   m_Tubules = nullptr;
-  m_rightTubules = nullptr;
 
   m_aortaLactate = nullptr;
 
@@ -653,7 +629,6 @@ void Renal::ProcessActions()
 //--------------------------------------------------------------------------------------------------
 void Renal::CalculateActiveTransport()
 {
-  activeTransportWatch.lap();
   m_SubstanceTransport.LactateExcretedMass_mg = 0;
   m_SubstanceTransport.GlucoseReabsorptionMass_mg = 0.0;
 
@@ -666,24 +641,14 @@ void Renal::CalculateActiveTransport()
     if (sub->GetClearance().GetRenalDynamic() == RenalDynamic::Regulation) {
       //This is the generic methodology
 
-      glomWatch.lap();
       CalculateGlomerularTransport(*sub);
-      calcGTTime += glomWatch.lap();
-      //m_data.GetDataTrack().Probe("GlomerularTransportTimeInitial(ms)", calcGTTime / 1e6);
-
-      reabsWatch.lap();
       CalculateReabsorptionTransport(*sub);
-      calcRTTime += reabsWatch.lap();
-      //m_data.GetDataTrack().Probe("ReabsorptionTimeInitial(ms)", calcRTTime / 1e6);
 
       if (sub == m_potassium) {
         CalculateSecretion();
       }
 
-      excretionWatch.lap();
       CalculateExcretion(*sub);
-      calcExcTime += excretionWatch.lap();
-      //m_data.GetDataTrack().Probe("ExcretionTimeInitial(ms)", calcExcTime / 1e6);
 
     } else if (sub->GetClearance().GetRenalDynamic() == RenalDynamic::Clearance) {
       //This bypasses the generic methodology and just automatically clears
@@ -695,13 +660,7 @@ void Renal::CalculateActiveTransport()
   }
 
   //Convert excreted Lactate to Glucose
-  glucoWatch.lap();
   CalculateGluconeogenesis();
-  calcGNTime += glucoWatch.lap();
-  //m_data.GetDataTrack().Probe("GluconeogenesisTimeInitial(ms)", calcGNTime / 1e6);
-
-  calcATTime += activeTransportWatch.lap();
-  //m_data.GetDataTrack().Probe("ActiveTransportTimeInitial(ms)", calcATTime / 1e6);
 }
 
 //--------------------------------------------------------------------------------------------------

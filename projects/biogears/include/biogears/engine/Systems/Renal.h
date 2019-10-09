@@ -42,28 +42,6 @@ class BIOGEARS_API Renal : public SERenalSystem, public BioGearsSystem {
 protected:
   Renal(BioGears& bg);
   BioGears& m_data;
-
-  biogears::StopWatch<std::chrono::nanoseconds> renalWatch;
-  double calcRenalTime;
-
-  biogears::StopWatch<std::chrono::nanoseconds> preRenWatch;
-  double calcPreRenTime;
-  biogears::StopWatch<std::chrono::nanoseconds> processRenWatch;
-  double calcProcessRenTime;
-  biogears::StopWatch<std::chrono::nanoseconds> postRenWatch;
-  double calcPostRenTime;
-
-  biogears::StopWatch<std::chrono::nanoseconds> activeTransportWatch;
-  double calcATTime;
-  biogears::StopWatch<std::chrono::nanoseconds> glucoWatch;
-  double calcGNTime;
-  biogears::StopWatch<std::chrono::nanoseconds> glomWatch;
-  double calcGTTime;
-  biogears::StopWatch<std::chrono::nanoseconds> reabsWatch;
-  double calcRTTime;
-  biogears::StopWatch<std::chrono::nanoseconds> excretionWatch;
-  double calcExcTime;
-
   double m_dt;
 
 public:
@@ -191,14 +169,9 @@ protected:
   SETissueCompartment* m_KidneyTissue;
   SELiquidCompartment* m_Ureter;
   SELiquidCompartment* m_Peritubular;
-  SELiquidCompartment* m_rightUreter;
-  SELiquidCompartment* m_rightPeritubular;
   SELiquidCompartment* m_Glomerular;
   SELiquidCompartment* m_Bowmans;
-  SELiquidCompartment* m_rightGlomerular;
-  SELiquidCompartment* m_rightBowmans;
   SELiquidCompartment* m_Tubules;
-  SELiquidCompartment* m_rightTubules;
   SELiquidCompartment* m_ground;
   // Compartment Substance Quantites
   SELiquidSubstanceQuantity* m_aortaLactate;

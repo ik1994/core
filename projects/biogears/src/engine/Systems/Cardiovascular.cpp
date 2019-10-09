@@ -59,10 +59,7 @@ Cardiovascular::Cardiovascular(BioGears& bg)
   , m_transporter(VolumePerTimeUnit::mL_Per_s, VolumeUnit::mL, MassUnit::ug, MassPerVolumeUnit::ug_Per_mL, bg.GetLogger())
 {
   Clear();
-  cardioWatch.reset();
-
-  calcCardioTime = 0.0;
-  m_TuningFile = "tune.csv";
+  m_TuningFile = "";
 }
 
 Cardiovascular::~Cardiovascular()
@@ -210,7 +207,6 @@ void Cardiovascular::Initialize()
   m_CurrentCardiacCycleTime_s = 0.0;
 
   CalculateHeartElastance();
-  volume = VenaCava->GetVolume().GetValue(VolumeUnit::mL);
   double systemicVascularResistance_mmHg_s_Per_mL = (GetMeanArterialPressure().GetValue(PressureUnit::mmHg) - GetMeanCentralVenousPressure().GetValue(PressureUnit::mmHg)) / GetCardiacOutput().GetValue(VolumePerTimeUnit::mL_Per_s);
   GetSystemicVascularResistance().SetValue(systemicVascularResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
   // This is not part of stabilization due to not knowing when we hit the patient parameters with a circuit configuration
@@ -219,7 +215,6 @@ void Cardiovascular::Initialize()
   GetSystemicVascularResistance().SetValue(systemicVascularResistance_mmHg_s_Per_mL, FlowResistanceUnit::mmHg_s_Per_mL);
   m_LeftHeartElastanceMax_mmHg_Per_mL = m_data.GetConfiguration().GetLeftHeartElastanceMaximum(FlowElastanceUnit::mmHg_Per_mL);
   m_RightHeartElastanceMax_mmHg_Per_mL = m_data.GetConfiguration().GetRightHeartElastanceMaximum(FlowElastanceUnit::mmHg_Per_mL);
-  volume = VenaCava->GetVolume().GetValue(VolumeUnit::mL);
 }
 
 bool Cardiovascular::Load(const CDM::BioGearsCardiovascularSystemData& in)
@@ -1629,7 +1624,7 @@ void Cardiovascular::TuneCircuit()
       }
 
       if (!m_TuningFile.empty()) {
-       // circuitTrk.Track(time_s, *m_CirculatoryCircuit);
+        circuitTrk.Track(time_s, *m_CirculatoryCircuit);
         circuitTrk.Track("MAP_mmHg", time_s, map_mmHg);
         circuitTrk.Track("Systolic_mmHg", time_s, systolic_mmHg);
         circuitTrk.Track("Diastolilc_mmHg", time_s, diastolic_mmHg);

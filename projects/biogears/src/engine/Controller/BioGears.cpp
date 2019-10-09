@@ -960,7 +960,6 @@ void BioGears::Process()
 {
   m_Environment->Process();
   m_NervousSystem->Process();
-
   m_CardiovascularSystem->Process();
   m_Inhaler->Process();
   m_RespiratorySystem->Process();
@@ -3870,7 +3869,6 @@ void BioGears::SetupTissue()
   KidneyI.GetVolumeBaseline().SetValue(KidneyIWFraction * KidneyTissueVolume * 1000.0, VolumeUnit::mL); //intracellular node
   KidneyL.GetPressure().SetValue(l1NodePressure, PressureUnit::mmHg);
 
-  //SEFluidCircuitPath& KidneyVToKidneyE1 = cCombinedCardiovascular.CreatePath(*KidneyV, KidneyE1, BGE::TissueLitePath::LeftKidneyVToKidneyE1);
   SEFluidCircuitPath& KidneyVToKidneyE1 = cCombinedCardiovascular.CreatePath(*KidneyV, KidneyE1, BGE::TissueLitePath::KidneyVToKidneyE1);
   KidneyVToKidneyE1.GetPressureSourceBaseline().SetValue(-copVascular_mmHg, PressureUnit::mmHg);
   SEFluidCircuitPath& KidneyE1ToKidneyE2 = cCombinedCardiovascular.CreatePath(KidneyE1, KidneyE2, BGE::TissueLitePath::KidneyE1ToKidneyE2);
