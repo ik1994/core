@@ -72,8 +72,7 @@
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="Bladder" Substance="Sodium" Name="Concentration"  Unit="g/L" Precision="2"/>
 	
 	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="Ground"  Name="InFlow"   Unit="mL/min" Precision="3"/>
-	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="RightKidneyVasculature"  Name="OutFlow"   Unit="mL/min" Precision="3"/>
-	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="RightKidneyVasculature"  Name="InFlow"   Unit="mL/min" Precision="3"/>
+	<DataRequest xsi:type="LiquidCompartmentDataRequestData" Compartment="KidneyVasculature"  Name="InFlow"   Unit="mL/min" Precision="3"/>
   </DataRequests>
 
     

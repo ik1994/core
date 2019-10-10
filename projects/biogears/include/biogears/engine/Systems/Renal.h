@@ -17,7 +17,6 @@ specific language governing permissions and limitations under the License.
 #include <biogears/cdm/properties/SEScalarMass.h>
 #include <biogears/cdm/system/physiology/SERenalSystem.h>
 #include <biogears/cdm/utils/RunningAverage.h>
-#include <biogears/chrono/stop_watch.tci.h>
 #include <biogears/engine/Controller/BioGearsSystem.h>
 #include <biogears/schema/biogears/BioGearsPhysiology.hxx>
 

@@ -14,8 +14,7 @@
   		<EmphysemaSeverity   value="0.1"/>
   	</Condition>   
   	<Condition xsi:type="ChronicRenalStenosisData">
-  		<LeftKidneySeverity value="0.1"/>
-  		<RightKidneySeverity value="0.05"/>
+  		<KidneySeverity value="0.1"/>
   	</Condition>    
   	<Condition xsi:type="ChronicVentricularSystolicDysfunctionData"/>
   	<Condition xsi:type="ChronicAnemiaData">

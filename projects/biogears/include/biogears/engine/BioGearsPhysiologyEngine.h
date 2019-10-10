@@ -256,7 +256,7 @@ namespace tatrc {
         DEFINE_STATIC_STRING(RightPulmonaryCapillaries);
         DEFINE_STATIC_STRING(RightPulmonaryVeins);
         // Renal
-        DEFINE_STATIC_STRING_EX(Kidneys, KidneyVasculature);
+        DEFINE_STATIC_STRING_EX(Kidneys, KidneysVasculature);
         DEFINE_STATIC_STRING_EX(LeftKidney, LeftKidneyVasculature);
         DEFINE_STATIC_STRING(LeftRenalArtery);
         DEFINE_STATIC_STRING(LeftNephron);

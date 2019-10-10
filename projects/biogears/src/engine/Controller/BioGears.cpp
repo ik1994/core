@@ -2438,18 +2438,17 @@ void BioGears::SetupRenalLite()
 
   // Let's build out the hierarchy
   // Grab these, as cardiovascular already made them
-  SELiquidCompartment* vKidney = m_Compartments->GetLiquidCompartment(BGE::VascularLiteCompartment::Kidney);
+  SELiquidCompartment& vKidney = m_Compartments->CreateLiquidCompartment(BGE::VascularLiteCompartment::Kidney);
   SELiquidCompartment& vNephron = m_Compartments->CreateLiquidCompartment(BGE::VascularLiteCompartment::Nephron);
-  vKidney->GetNodeMapping().Clear(); // Remove the nodes the cardiovascular was using to model the kidney
-  vKidney->AddChild(vRenalArtery);
-  vKidney->AddChild(vNephron);
+  vKidney.AddChild(vRenalArtery);
+  vKidney.AddChild(vNephron);
+  vKidney.AddChild(vRenalVein);
   vNephron.AddChild(vAfferentArteriole);
   vNephron.AddChild(vGlomerularCapillaries);
   vNephron.AddChild(vEfferentArteriole);
   vNephron.AddChild(vPeritubularCapillaries);
   vNephron.AddChild(vBowmansCapsules);
   vNephron.AddChild(vTubules);
-  vKidney->AddChild(vRenalVein);
 
   ///////////
   // Urine //
@@ -2585,14 +2584,18 @@ void BioGears::SetupRenalLite()
 
   // We have discretized these compartments, so remove them
   SELiquidCompartmentGraph& gCombinedCardiovascular = m_Compartments->GetActiveCardiovascularGraph();
+  SELiquidCompartment* vKidneys = m_Compartments->GetLiquidCompartment(BGE::VascularCompartment::Kidneys);
   SELiquidCompartment* vLeftKidney = m_Compartments->GetLiquidCompartment(BGE::VascularCompartment::LeftKidney);
   SELiquidCompartment* vRightKidney = m_Compartments->GetLiquidCompartment(BGE::VascularCompartment::RightKidney);
   gCombinedCardiovascular.RemoveCompartment(*vLeftKidney);
   gCombinedCardiovascular.RemoveCompartment(*vRightKidney);
-  vKidney->RemoveChild(BGE::VascularCompartment::LeftKidney);
-  vKidney->RemoveChild(BGE::VascularCompartment::RightKidney);
+  gCombinedCardiovascular.RemoveCompartment(*vKidneys);
+  vKidneys->RemoveChild(BGE::VascularCompartment::LeftKidney);
+  vKidneys->RemoveChild(BGE::VascularCompartment::RightKidney);
   m_Compartments->DeleteLiquidCompartment(BGE::VascularCompartment::LeftKidney);
   m_Compartments->DeleteLiquidCompartment(BGE::VascularCompartment::RightKidney);
+  m_Compartments->DeleteLiquidCompartment(BGE::VascularCompartment::Kidneys);
+
 
   gCombinedCardiovascular.AddGraph(gRenal);
   gCombinedCardiovascular.StateChange();
