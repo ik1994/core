@@ -846,7 +846,7 @@ void Respiratory::BronchoConstriction()
   double dResistanceScalingFactor = GeneralMath::ResistanceFunction(10.0, m_dRespOpenResistance_cmH2O_s_Per_L, dClosedResistance, aSeverity);
 
   //bronchoconstriction
-  double dSeverity = m_PatientActions->GetBronchoconstriction()->GetSeverity().GetValue();
+  const double dSeverity = m_PatientActions->GetBronchoconstriction()->GetSeverity().GetValue();
   dBronchiResistance = GeneralMath::ResistanceFunction(70.0, m_dRespOpenResistance_cmH2O_s_Per_L, dClosedResistance, dSeverity);
 
   double totalResistance = dResistanceScalingFactor + dBronchiResistance;
