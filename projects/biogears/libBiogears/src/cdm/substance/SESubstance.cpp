@@ -42,7 +42,7 @@ struct SESubstance::Implementation {
   SEScalarElectricResistance MembraneResistance;
 
   SESubstanceAerosolization Aerosolization;
-  SEScalarTimeMasPerVolume AreaUnderCurve;
+  SEScalarTimeMassPerVolume AreaUnderCurve;
   SEScalarMassPerVolume BloodConcentration;
   SEScalarMassPerVolume EffectSiteConcentration;
   SEScalarMass MassInBody;
@@ -103,7 +103,8 @@ SESubstance::~SESubstance()
 //-----------------------------------------------------------------------------
 void SESubstance::Clear()
 {
-  m_impl = std::make_unique<Implementation>();
+  auto logger = m_impl->Aerosolization.GetLogger();
+  m_impl = std::make_unique<Implementation>(logger);
 }
 //-----------------------------------------------------------------------------
 const SEScalar* SESubstance::GetScalar(const char* name)
@@ -207,7 +208,7 @@ bool SESubstance::Load(const CDM::SubstanceData& in)
   }
 
   if (in.AreaUnderCurve().present()) {
-    GetAreaUInderCurve().Load(in.AreaUnderCurve().get()); 
+    GetAreaUnderCurve().Load(in.AreaUnderCurve().get()); 
   }
   if (in.BloodConcentration().present()) {
     GetBloodConcentration().Load(in.BloodConcentration().get());
@@ -313,7 +314,7 @@ void SESubstance::Unload(CDM::SubstanceData& data) const
   }
 
   if (HasAreaUnderCurve()) {
-    data.AreaUnderCurve(std::unique_ptr<CDM::ScalarTimeMassPerVolumeData>(m_AreaUnderCurve->Unload()));
+    data.AreaUnderCurve(std::unique_ptr<CDM::ScalarTimeMassPerVolumeData>(impl.AreaUnderCurve.Unload()));
   }
   if (HasBloodConcentration()) {
     data.BloodConcentration(std::unique_ptr<CDM::ScalarMassPerVolumeData>(impl.BloodConcentration.Unload()));
@@ -575,7 +576,7 @@ bool SESubstance::HasAreaUnderCurve() const
 SEScalarTimeMassPerVolume& SESubstance::GetAreaUnderCurve()
 {
   auto& impl = *m_impl;
-  return &impl.AreaUnderCurve;
+  return impl.AreaUnderCurve;
 }
 //-----------------------------------------------------------------------------
 double SESubstance::GetAreaUnderCurve(const TimeMassPerVolumeUnit& unit) const noexcept
@@ -604,21 +605,20 @@ double SESubstance::GetBloodConcentration(const MassPerVolumeUnit& unit) const n
 //-----------------------------------------------------------------------------
 bool SESubstance::HasEffectSiteConcentration() const
 {
-  return (m_EffectSiteConcentration == nullptr) ? false : m_EffectSiteConcentration->IsValid();
+  auto& impl = *m_impl;
+  return impl.EffectSiteConcentration.IsValid();
 }
 //-----------------------------------------------------------------------------
 SEScalarMassPerVolume& SESubstance::GetEffectSiteConcentration()
 {
-  if (m_EffectSiteConcentration == nullptr)
-    m_EffectSiteConcentration = new SEScalarMassPerVolume();
-  return *m_EffectSiteConcentration;
+  auto& impl = *m_impl;
+  return impl.EffectSiteConcentration;
 }
 //-----------------------------------------------------------------------------
-double SESubstance::GetEffectSiteConcentration(const MassPerVolumeUnit& unit) const
+double SESubstance::GetEffectSiteConcentration(const MassPerVolumeUnit& unit) const noexcept
 {
-  if (m_EffectSiteConcentration == nullptr)
-    return SEScalar::dNaN();
-  return m_EffectSiteConcentration->GetValue(unit);
+  auto& impl = *m_impl;
+  return impl.EffectSiteConcentration.GetValue(unit);
 }
 //-----------------------------------------------------------------------------
 bool SESubstance::HasMassInBody() const
@@ -693,27 +693,6 @@ double SESubstance::GetPlasmaConcentration(const MassPerVolumeUnit& unit) const 
   return (impl.PlasmaConcentration.IsValid()) ? impl.PlasmaConcentration.GetValue(unit) : SEScalar::NaN;
 }
 //-----------------------------------------------------------------------------
-<<<<<<< HEAD
-=======
-bool SESubstance::HasEffectSiteConcentration() const
-{
-  auto& impl = *m_impl;
-  return impl.EffectSiteConcentration.IsValid();
-}
-//-----------------------------------------------------------------------------
-SEScalarMassPerVolume& SESubstance::GetEffectSiteConcentration()
-{
-  auto& impl = *m_impl;
-  return impl.EffectSiteConcentration;
-}
-//-----------------------------------------------------------------------------
-double SESubstance::GetEffectSiteConcentration(const MassPerVolumeUnit& unit) const noexcept
-{
-  auto& impl = *m_impl;
-  return impl.EffectSiteConcentration.GetValue(unit);
-}
-//-----------------------------------------------------------------------------
->>>>>>> f/sawhite-substance -- Refactor of SESubstance using PIMPL to work towards breaking up SESubstanceData from SESubstanceState.  Also would like to use this as the proof of concept for the new inflate/deflate methods
 bool SESubstance::HasSystemicMassCleared() const
 {
   auto& impl = *m_impl;

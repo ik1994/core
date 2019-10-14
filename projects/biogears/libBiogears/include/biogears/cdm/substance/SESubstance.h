@@ -110,7 +110,7 @@ public:
 
   virtual bool HasAreaUnderCurve() const;
   virtual SEScalarTimeMassPerVolume& GetAreaUnderCurve();
-  virtual double GetAreaUnderCurve(const TimeMassPerVolumeUnit& unit) const;
+  virtual double GetAreaUnderCurve(const TimeMassPerVolumeUnit& unit) const noexcept;
 
   virtual bool HasBloodConcentration() const;
   virtual SEScalarMassPerVolume& GetBloodConcentration();
