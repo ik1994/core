@@ -72,22 +72,11 @@ void Nervous::Initialize()
   m_blockActive = false;
 
   m_BaroreceptorFatigueScale = 0.0;
-  m_BaroreceptorFrequencyBaseline_Hz = 97.0; //From Ottesen
   m_CentralVentilationDelta_L_Per_min = 0.0;
   m_ChemoreceptorFiringRate_Hz = 3.65;
   m_ChemoreceptorFiringRateSetPoint_Hz = m_ChemoreceptorFiringRate_Hz;
   m_PeripheralBloodGasInteractionBaseline_Hz = 0.0;
   m_PeripheralVentilationDelta_L_Per_min = 0.0;
-  m_PreviousMeanArterialPressure_mmHg = m_data.GetCardiovascular().GetMeanArterialPressure(PressureUnit::mmHg);
-  //Test Values
-  m_FilteredPressure = m_PreviousMeanArterialPressure_mmHg;
-  m_HeartRateModSympathetic = 0.0;
-  m_HeartRateModVagal = 0.0;
-  m_ElastanceMod = 0.0;
-  m_ComplianceMod = 0.0;
-  m_ResistanceMod = 0.0;
-
-  double tuneTime = 10.0;
 
   SetBaroreceptorFrequencyComponents(std::vector<double>(3), FrequencyUnit::Hz);
   GetBaroreceptorHeartRateScale().SetValue(1.0);
@@ -117,13 +106,11 @@ bool Nervous::Load(const CDM::BioGearsNervousSystemData& in)
   m_ArterialOxygenSetPoint_mmHg = in.ArterialOxygenSetPoint_mmHg();
   m_ArterialCarbonDioxideSetPoint_mmHg = in.ArterialCarbonDioxideSetPoint_mmHg();
   m_BaroreceptorFatigueScale = in.BaroreceptorFatigueScale();
-  m_BaroreceptorFrequencyBaseline_Hz = in.BaroreceptorFrequencyBaseline_Hz();
   m_CentralVentilationDelta_L_Per_min = in.ChemoreceptorCentralVentilationDelta_L_Per_min();
   m_ChemoreceptorFiringRate_Hz = in.ChemoreceptorFiringRate_Hz();
   m_ChemoreceptorFiringRateSetPoint_Hz = in.ChemoreceptorFiringRateSetPoint_Hz();
   m_PeripheralBloodGasInteractionBaseline_Hz = in.ChemoreceptorPeripheralBloodGasInteractionBaseline_Hz();
   m_PeripheralVentilationDelta_L_Per_min = in.ChemoreceptorPeripheralVentilationDelta_L_Per_min();
-  m_PreviousMeanArterialPressure_mmHg = in.PreviousMeanArterialPressure_mmHg();
 
   return true;
 }
@@ -139,13 +126,12 @@ void Nervous::Unload(CDM::BioGearsNervousSystemData& data) const
   data.ArterialOxygenSetPoint_mmHg(m_ArterialOxygenSetPoint_mmHg);
   data.ArterialCarbonDioxideSetPoint_mmHg(m_ArterialCarbonDioxideSetPoint_mmHg);
   data.BaroreceptorFatigueScale(m_BaroreceptorFatigueScale);
-  data.BaroreceptorFrequencyBaseline_Hz(m_BaroreceptorFrequencyBaseline_Hz);
   data.ChemoreceptorCentralVentilationDelta_L_Per_min(m_CentralVentilationDelta_L_Per_min);
   data.ChemoreceptorPeripheralBloodGasInteractionBaseline_Hz(m_PeripheralBloodGasInteractionBaseline_Hz);
   data.ChemoreceptorFiringRate_Hz(m_ChemoreceptorFiringRate_Hz);
   data.ChemoreceptorFiringRateSetPoint_Hz(m_ChemoreceptorFiringRateSetPoint_Hz);
   data.ChemoreceptorPeripheralVentilationDelta_L_Per_min(m_PeripheralVentilationDelta_L_Per_min);
-  data.PreviousMeanArterialPressure_mmHg(m_PreviousMeanArterialPressure_mmHg);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,30 +166,24 @@ void Nervous::SetUp()
   //Reset after stabilization
   m_ArterialCarbonDioxideSetPoint_mmHg = 40.0;
 
-  //Testing combined signal--move to serializeable if successful
-  m_AfferentBaroreceptor_Hz = 97.0;
-  m_AfferentPulmonary_Hz = 11.6;
+  //Test Values
+  m_HeartRateModSympathetic = 0.0;
+  m_HeartRateModVagal = 0.0;
+  m_ElastanceMod = 0.0;
+  m_ComplianceMod = 0.0;
+  m_ResistanceMod = 0.0;
+  m_AfferentBaroreceptor = 97.0;
+  m_AfferentPulmonary = 11.6;
   m_FilteredPulmonaryVenousPressure_Hz = 6.0; //May need to tune depending on BG baseline for LeftAtrium
-  m_AfferentAtrial_Hz = 9.0; //Same as above
-  m_AfferentThermal_Hz = 5.0; //Constant for now
-  m_SympatheticActivationNode = 3.59-18.75;
-  m_SympatheticActivationPeripheral = 13.32-15.26;
-  m_SympathethicNode_Hz = 4.5;
-  m_SympatheticPeripheral_Hz = 4.5;
-  m_Vagal_Hz = 4.5;
-  m_AchSympatheticNode = 4.5;
-  m_AchSympatheticPeripheral = 4.5;
-  m_AchVagal = 4.5;
-  m_AdrenalMedulla = 5.0;
+  m_AfferentAtrial = 9.0; //Same as above
+  m_SympatheticSignal = 0.20;
+  m_VagalSignal = 0.80;
   m_HeartRateEffectors = std::vector<double>{ 0.4, -0.2 };
+  m_AfferentStrain = 0.04;
+  m_PressureHalfMax = m_data.GetPatient().GetSystolicArterialPressureBaseline(PressureUnit::mmHg);
   //m_HeartElastanceEffectors = std::vector<double>{ -0.02, 0.03, 0.001, 0.16 };
   m_ResistanceEffectors = std::vector<double>{ 2.49, 1.655, 2.106 };
   m_HeartElastanceEffector = 0.0;
-  m_LocalHeartO2Effect = 0.0;
-  m_LocalMuscleO2Effect = 0.0;
-  m_LocalHeartO2Baseline = 0.08;
-  m_LocalMuscleO2Baseline = 0.075; //Ursino
-  m_LocalCerebralO2Baseline = 0.1;
   m_CerebralBloodFlowBaseline_mL_Per_s = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::CerebralPath::CerebralCapillariesToCerebralVeins1)->GetFlow(VolumePerTimeUnit::mL_Per_s);
   m_CerebralBloodFlowFilter = m_CerebralBloodFlowBaseline_mL_Per_s;
   m_CerebralAutoEffect = 0.0;
@@ -214,12 +194,6 @@ void Nervous::AtSteadyState()
 {
   if (m_data.GetState() == EngineState::AtInitialStableState) {
     m_FeedbackActive = true;
-  }
-  if (m_data.GetState() == EngineState::AtSecondaryStableState) {
-    for (auto component : GetBaroreceptorFrequencyComponents()) {
-      m_BaroreceptorFrequencyBaseline_Hz += component->GetValue(FrequencyUnit::Hz);
-    }
-    SetBaroreceptorFrequencyComponents(std::vector<double>(3), FrequencyUnit::Hz);
   }
 
   // The set-points (Baselines) get reset at the end of each stabilization period.
@@ -241,16 +215,10 @@ void Nervous::AtSteadyState()
   GetBaroreceptorResistanceScale().SetValue(1.0);
   GetBaroreceptorComplianceScale().SetValue(1.0);
 
-  m_LocalMuscleO2Baseline = m_data.GetCompartments().GetExtracellularFluid(*m_data.GetCompartments().GetTissueCompartment(BGE::TissueCompartment::Muscle)).GetSubstanceQuantity(m_data.GetSubstances().GetO2())->GetMolarity(AmountPerVolumeUnit::mmol_Per_L);
-  m_LocalHeartO2Baseline = m_data.GetCompartments().GetExtracellularFluid(*m_data.GetCompartments().GetTissueCompartment(BGE::TissueCompartment::Myocardium)).GetSubstanceQuantity(m_data.GetSubstances().GetO2())->GetMolarity(AmountPerVolumeUnit::mmol_Per_L);
-  m_LocalCerebralO2Baseline = m_data.GetCompartments().GetExtracellularFluid(*m_data.GetCompartments().GetTissueCompartment(BGE::TissueCompartment::Brain)).GetSubstanceQuantity(m_data.GetSubstances().GetO2())->GetMolarity(AmountPerVolumeUnit::mmol_Per_L);
-  m_LocalMuscleO2Effect = 0.0;
-  m_LocalHeartO2Effect = 0.0;
-  m_LocalCerebralO2Effect = 0.0;
-
   m_CerebralBloodFlowBaseline_mL_Per_s = m_CerebralBloodFlowFilter;
   m_CerebralCO2Baseline_mmHg = m_data.GetCompartments().GetExtracellularFluid(*m_data.GetCompartments().GetTissueCompartment(BGE::TissueCompartment::Brain)).GetSubstanceQuantity(m_data.GetSubstances().GetCO2())->GetPartialPressure(PressureUnit::mmHg);
   m_CerebralAutoEffect = 0.0;
+  m_PressureHalfMax = m_data.GetCardiovascular().GetSystolicArterialPressure(PressureUnit::mmHg);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -265,14 +233,11 @@ void Nervous::PreProcess()
 {
   CheckPainStimulus();
   AfferentResponse();
-  SympatheticSignalProcess();
-  ParasympatheticSignalProcess();
+  CentralSignalProcess();
   EfferentResponse();
-  LocalRegulation();
   CerebralAutoregulation();
 
   //BaroreceptorFeedback();
-  //UrsinoBaroreceptor();
   //ChemoreceptorFeedback();
 }
 
@@ -287,6 +252,8 @@ void Nervous::Process()
 {
   CheckNervousStatus();
   SetPupilEffects();
+  m_data.GetDataTrack().Probe("BaroreceptorComponents", GetBaroreceptorFrequencyComponents(FrequencyUnit::Hz));
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,49 +280,40 @@ void Nervous::PostProcess()
 /// \todo Add decompensation. Perhaps a reduction in the effect that is a function of blood volume below a threshold... and maybe time.
 void Nervous::BaroreceptorFeedback()
 {
-  //Determine dP/dt and update last arterial pressure
-  double alpha = 0.05;
-  if (m_data.GetState() < EngineState::AtSecondaryStableState) {
-    alpha = 0.01;
+  //Randall Model
+  double A = 5.0;
+  double voigtK = 0.1;
+  double voigtTau = 0.9;
+  double s1 = 2.947e-10;
+  double s2 = 3.473e-12;
+  double c = 37.5e-11;
+  double g = 5.019e-8;
+  double Vth = 1.16e-3;
+  double tref = 6.2e-3;
+  double slope = 0.04;
+
+  double systolicPressure_mmHg = m_data.GetCardiovascular().GetSystolicArterialPressure(PressureUnit::mmHg);
+  double strainExp = std::exp(-slope * (systolicPressure_mmHg - m_PressureHalfMax));
+  double wallStrain = 1.0 - std::sqrt((1.0 + strainExp)/(A+strainExp));
+  m_data.GetDataTrack().Probe("WallStrain", wallStrain);
+
+  double dStrain = (1.0 / voigtTau) * (-m_AfferentStrain + voigtK * wallStrain);
+  m_AfferentStrain += (dStrain * m_dt_s);
+
+  m_AfferentBaroreceptor = wallStrain - m_AfferentStrain;		//For testing Randall
+
+  //Update setpoint
+  if (m_data.GetState() > EngineState::SecondaryStabilization) {
+    double kBaro = 7.0e-5;
+    double dSetpointAdjust = kBaro * (systolicPressure_mmHg - m_PressureHalfMax);
+    m_PressureHalfMax += (dSetpointAdjust * m_dt_s);
   }
-  double arterialPressure_mmHg = m_data.GetCardiovascular().GetArterialPressure(PressureUnit::mmHg);
-  double dMeanPressure_mmHg_Per_s = alpha * (arterialPressure_mmHg - m_PreviousMeanArterialPressure_mmHg);
-  m_PreviousMeanArterialPressure_mmHg += dMeanPressure_mmHg_Per_s * m_dt_s;
+  m_data.GetDataTrack().Probe("Randall_Setpoint", m_PressureHalfMax);
+
 
   if (!m_FeedbackActive) {
-    m_data.GetDataTrack().Probe("BaroreceptorComponents", GetBaroreceptorFrequencyComponents(FrequencyUnit::Hz));
-    m_data.GetDataTrack().Probe("Baroreceptor-Combined", m_BaroreceptorFrequencyBaseline_Hz);
-    m_data.GetDataTrack().Probe("Baroreceptor-Baseline", m_BaroreceptorFrequencyBaseline_Hz);
-    m_data.GetDataTrack().Probe("MeanPressureInput", m_PreviousMeanArterialPressure_mmHg);
     return;
   }
-
-  //New model constants
-  std::vector<double> tau_s{ 0.82, 5.58, 262.0 };
-  std::vector<double> gain_Hz_Per_mmHg{ 3.50, 0.73, 1.41 };
-  double maxFrequency_Hz = 120.0;
-
-  //Get previous component frequencies and total frequency (sum of components and baseline)
-  std::vector<double> baroreceptorComponentFrequencies = GetBaroreceptorFrequencyComponents(FrequencyUnit::Hz);
-  double combinedFrequencySignal_Hz = m_BaroreceptorFrequencyBaseline_Hz + GeneralMath::VectorSum(baroreceptorComponentFrequencies);
-  m_AfferentBaroreceptor_Hz = combinedFrequencySignal_Hz; //- maxFrequency_Hz / 2.0;
-  //Calcualte new frequencies
-  double dComponentFrequency_Hz_Per_s = 0.0;
-  double nextFrequency_Hz = 0.0;
-  for (size_t pos = 0; pos < baroreceptorComponentFrequencies.size(); ++pos) {
-    dComponentFrequency_Hz_Per_s = gain_Hz_Per_mmHg[pos] * dMeanPressure_mmHg_Per_s * combinedFrequencySignal_Hz * (maxFrequency_Hz - combinedFrequencySignal_Hz) / (std::pow(maxFrequency_Hz / 2.0, 2.0)) - (1.0 / tau_s[pos]) * baroreceptorComponentFrequencies[pos];
-    nextFrequency_Hz = baroreceptorComponentFrequencies[pos] + dComponentFrequency_Hz_Per_s * m_dt_s;
-    baroreceptorComponentFrequencies[pos] = nextFrequency_Hz;
-  }
-  //Push new values to CDM
-  if (!SetBaroreceptorFrequencyComponents(baroreceptorComponentFrequencies, FrequencyUnit::Hz)) {
-    Error("Nervous::BaroreceptorFeedback: Vector length mismatch");
-  }
-
-  m_data.GetDataTrack().Probe("BaroreceptorComponents", GetBaroreceptorFrequencyComponents(FrequencyUnit::Hz));
-  m_data.GetDataTrack().Probe("Baroreceptor-Combined", combinedFrequencySignal_Hz);
-  m_data.GetDataTrack().Probe("Baroreceptor-Baseline", m_BaroreceptorFrequencyBaseline_Hz);
-  m_data.GetDataTrack().Probe("MeanPressureInput", m_PreviousMeanArterialPressure_mmHg);
 
   double meanArterialPressure_mmHg = m_data.GetCardiovascular().GetMeanArterialPressure(PressureUnit::mmHg);
   //First calculate the sympathetic and parasympathetic firing rates:
@@ -386,12 +344,6 @@ void Nervous::BaroreceptorFeedback()
 
   double sympatheticFraction = 1.0 / (1.0 + std::pow(meanArterialPressure_mmHg / meanArterialPressureSetPoint_mmHg, nu));
   double parasympatheticFraction = 1.0 / (1.0 + std::pow(meanArterialPressure_mmHg / meanArterialPressureSetPoint_mmHg, -nu));
-  if (m_TestBaroreceptors) {
-    sympatheticFraction = 1.0 / (1.0 + std::pow(combinedFrequencySignal_Hz / m_BaroreceptorFrequencyBaseline_Hz, nu));
-    parasympatheticFraction = 1.0 / (1.0 + std::pow(combinedFrequencySignal_Hz / m_BaroreceptorFrequencyBaseline_Hz, -nu));
-  }
-  double hrParasympatheticFraction = 1.0 / (1.0 + std::pow(combinedFrequencySignal_Hz / 49.0, nu));
-  double hrSympatheticFraction = 1.0 / (1.0 + std::pow(combinedFrequencySignal_Hz / 49.0, -nu));
 
   //Currently baroreceptor fatigue has only been tested for severe infections leading to sepsis.  We only accumulate fatigue if the sympathetic
   // outflow is above a certain threshold.  If we drop below threshold, we allow fatigue parameter to return towards 0. Note that even if infetion
@@ -438,7 +390,7 @@ void Nervous::BaroreceptorFeedback()
   double tauCompliance_s = m_data.GetConfiguration().GetVenousComplianceDistributedTimeDelay(TimeUnit::s);
   double deltaNormalizedCompliance = (1.0 / tauCompliance_s) * (-normalizedCompliance + m_normalizedAlphaCompliance * parasympatheticFraction + m_normalizedGammaCompliance) * m_dt_s;
   normalizedCompliance += deltaNormalizedCompliance;
-  GetBaroreceptorComplianceScale().SetValue(normalizedCompliance);
+  //GetBaroreceptorComplianceScale().SetValue(normalizedCompliance);
 #ifdef VERBOSE
   m_data.GetDataTrack().Probe("normalizedHeartRate", normalizedHeartRate);
   m_data.GetDataTrack().Probe("normalizedHeartElastance", normalizedHeartElastance);
@@ -446,91 +398,6 @@ void Nervous::BaroreceptorFeedback()
   m_data.GetDataTrack().Probe("normalizedCompliance", normalizedCompliance);
   m_data.GetDataTrack().Probe("meanArterialPressureSetPoint_mmHg", meanArterialPressureSetPoint_mmHg);
 #endif
-}
-
-void Nervous::UrsinoBaroreceptor()
-{
-  //Continue to use time-weighted mean pressure
-  double alpha = 0.1;
-  double arterialPressure_mmHg = m_data.GetCardiovascular().GetArterialPressure(PressureUnit::mmHg);
-  double dMeanPressure_mmHg_Per_s = alpha * (arterialPressure_mmHg - m_PreviousMeanArterialPressure_mmHg);
-  m_PreviousMeanArterialPressure_mmHg += dMeanPressure_mmHg_Per_s * m_dt_s;
-  //Afferent parameters
-  double tauP = 2.077;
-  double tauZ = 6.37;
-  double fMin = 2.52;
-  double fMax = 47.78;
-  double Pn = m_data.GetPatient().GetMeanArterialPressureBaseline(PressureUnit::mmHg); //92.0;
-  double kA = 11.758;
-  //Efferent sympthetic
-  double fES_inf = 2.10;
-  double fES0 = 16.11;
-  double kES = 0.0675;
-  double fES_min = 2.66;
-  //Efferent vagal
-  double fEV0 = 3.2;
-  double fEV_inf = 6.3;
-  double kEV = 7.06;
-  double fCS0 = 25.0;
-  //Effectors
-  double elastanceGain = 0.475 / 2.392;
-  double resistanceGain = 0.53 / 0.78;
-  double heartRateSympatheticGain = -0.13 / 0.58;
-  double heartRateVagalGain = 0.09 / 0.58;
-  double complianceGain = -132.5 / 1537.0;
-  double tauElastance = 8.0;
-  double tauResistance = 6.0;
-  double tauHeartRateSympathetic = 2.0;
-  double tauHeartRateVagal = 1.5;
-  double tauCompliance = 20.0;
-  //Afferent calculation
-  double dFilterPressure = (1.0 / tauP) * (m_PreviousMeanArterialPressure_mmHg + tauZ * dMeanPressure_mmHg_Per_s - m_FilteredPressure);
-  m_FilteredPressure += dFilterPressure * m_dt_s;
-  double fAfferent = fMin + fMax * std::exp((m_FilteredPressure - Pn) / kA) / (1.0 + std::exp((m_FilteredPressure - Pn) / kA));
-  //Efferent Sympathetic calculation
-  double fEfferentSym = fES_inf + (fES0 - fES_inf) * std::exp(-kES * fAfferent);
-  double fESBase = fES_inf + (fES0 - fES_inf) * std::exp(-kES * fCS0);
-  //Efferent Vagal calculation
-  double fEfferentVagal = fEV0 + fEV_inf * std::exp((fAfferent - fCS0) / kEV) / (1.0 + std::exp((fAfferent - fCS0) / kEV));
-  double fEVBase = (fEV0 + fEV_inf) / 2.0;
-  //Input to effectors
-  double sympatheticInput = 0.0;
-  if (fEfferentSym > fES_min) {
-    sympatheticInput = std::log(fEfferentSym - fES_min + 1.0);
-  }
-  double inputBase = std::log(fESBase - fES_min + 1.0);
-  //Elastance
-  double dElastanceScale = (1.0 / tauElastance) * (-m_ElastanceMod + elastanceGain * sympatheticInput);
-  double elastanceBase = elastanceGain * inputBase;
-  m_ElastanceMod += dElastanceScale;
-  // GetBaroreceptorHeartElastanceScale().SetValue(1.0 + m_ElastanceMod);
-  //Resistance
-  double dResistanceScale = (1.0 / tauResistance) * (-m_ResistanceMod + resistanceGain * sympatheticInput);
-  double resistanceBase = resistanceGain * inputBase;
-  m_ResistanceMod += dResistanceScale;
-  // GetBaroreceptorResistanceScale().SetValue(1.0 + m_ResistanceMod);
-  //Compliance
-  double dComplianceScale = (1.0 / tauCompliance) * (-m_ComplianceMod + complianceGain * sympatheticInput);
-  double complianceBase = complianceGain * inputBase;
-  m_ComplianceMod += dComplianceScale;
-  //  GetBaroreceptorComplianceScale().SetValue(1.0 + m_ComplianceMod);
-  //Heart Rate
-  double dHeartScaleSym = (1.0 / tauHeartRateSympathetic) * (-m_HeartRateModSympathetic + heartRateSympatheticGain * sympatheticInput);
-  m_HeartRateModSympathetic += dHeartScaleSym;
-  double dHeartScaleVagal = (1.0 / tauHeartRateVagal) * (-m_HeartRateModVagal + heartRateVagalGain * fEfferentVagal);
-  m_HeartRateModVagal += dHeartScaleVagal;
-  double heartRateBase = heartRateSympatheticGain * inputBase + heartRateVagalGain * fEVBase;
-  // GetBaroreceptorHeartRateScale().SetValue(1.0 + m_HeartRateModSympathetic + m_HeartRateModVagal);
-
-  m_data.GetDataTrack().Probe("Ursino-AfferentRate", fAfferent);
-  m_data.GetDataTrack().Probe("Ursino-EfferentSym", fEfferentSym);
-  m_data.GetDataTrack().Probe("Ursino-EfferentVagal", fEfferentVagal);
-  m_data.GetDataTrack().Probe("Ursion-FilteredPressure", m_FilteredPressure);
-  m_data.GetDataTrack().Probe("Ursino-Elastance", 1.0 - elastanceBase + m_ElastanceMod);
-  m_data.GetDataTrack().Probe("Ursino-Resistance", 1.0 - resistanceBase + m_ResistanceMod);
-  m_data.GetDataTrack().Probe("Ursino-Compliance", 1.0 - complianceBase + m_ComplianceMod);
-  m_data.GetDataTrack().Probe("Ursino-HeartRate", 1.0 - heartRateBase + m_HeartRateModSympathetic + m_HeartRateModVagal);
-  m_data.GetDataTrack().Probe("MeanPressureInput", m_PreviousMeanArterialPressure_mmHg);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -898,7 +765,7 @@ void Nervous::AfferentResponse()
 {
   //Generate afferent barorceptor signal (*ab = afferent baroreceptor)
   BaroreceptorFeedback();
-  m_data.GetDataTrack().Probe("Afferent_Baroreceptor", m_AfferentBaroreceptor_Hz);
+  m_data.GetDataTrack().Probe("Afferent_Baroreceptor", m_AfferentBaroreceptor);
   //Generate afferent chemoreceptor signal (*ac = afferent chemoreceptor)
   ChemoreceptorFeedback();
   double afferentChemoreceptor_Hz = m_ChemoreceptorFiringRate_Hz;
@@ -908,13 +775,13 @@ void Nervous::AfferentResponse()
   double tauAP_s = 2.0;
   double gainAP_Hz_Per_L = 11.25;
   double tidalVolume_L = m_data.GetRespiratory().GetTidalVolume(VolumeUnit::L);
-  double dFrequencyAP_Hz = (1.0 / tauAP_s) * (-m_AfferentPulmonary_Hz + tidalVolume_L * gainAP_Hz_Per_L);
+  double dFrequencyAP_Hz = (1.0 / tauAP_s) * (-m_AfferentPulmonary + tidalVolume_L * gainAP_Hz_Per_L);
   if (m_FeedbackActive) {
     //Tidal volume jumps around so much at beginning
-    m_AfferentPulmonary_Hz += dFrequencyAP_Hz * m_dt_s;
+    m_AfferentPulmonary += dFrequencyAP_Hz * m_dt_s;
   }
 
-  m_data.GetDataTrack().Probe("Afferent_PulmonaryStretch", m_AfferentPulmonary_Hz);
+  m_data.GetDataTrack().Probe("Afferent_PulmonaryStretch", m_AfferentPulmonary);
 
   //Afferent atrial stretch receptors (*aa = afferent atrial)
   double tauAA_s = 6.37;
@@ -925,198 +792,102 @@ void Nervous::AfferentResponse()
   double dFilteredPulmonaryVenousPressure = (1.0 / tauAA_s) * (pulmonaryVenousPressure_mmHg - m_FilteredPulmonaryVenousPressure_Hz);
   m_FilteredPulmonaryVenousPressure_Hz += dFilteredPulmonaryVenousPressure * m_dt_s;
   double exponentAA = (m_FilteredPulmonaryVenousPressure_Hz - pulmonarySetpoint_mmHg) / kAA_mmHg;
-  m_AfferentAtrial_Hz = (maxAA_Hz * std::exp(exponentAA)) / (1.0 + std::exp(exponentAA));
+  m_AfferentAtrial = (maxAA_Hz * std::exp(exponentAA)) / (1.0 + std::exp(exponentAA));
 
   m_data.GetDataTrack().Probe("AtrialVenousPressure", pulmonaryVenousPressure_mmHg);
   m_data.GetDataTrack().Probe("AtrialVenousPressure_Filtered", m_FilteredPulmonaryVenousPressure_Hz);
-  m_data.GetDataTrack().Probe("Afferent_Atrial", m_AfferentAtrial_Hz);
+  m_data.GetDataTrack().Probe("Afferent_Atrial", m_AfferentAtrial);
 
   //Afferent thermal receptors (*AT)--may do these later, but for now leave at baseline so as to not disrupt model
   double AfferentThermal_Hz = 5.0;
   m_AfferentThermal_Hz = AfferentThermal_Hz;
 }
 
-void Nervous::SympatheticSignalProcess()
+void Nervous::CentralSignalProcess()
 {
-  double fEs0 = 16.11;
-  double fEsMin = 2.66;
-  double fEsInf = 2.1;
-  double fEsMax = 60.0;
-  double kES = 0.0675;
+  //Randall model
+  double kPB = 5.0;
+  double kS = 5.0;
+  double tauPB = 1.8;
+  double tauS = 10.0;
+  double qPB = 10.0;
+  double qS = 10.0;
+  double sPB = 0.54;
+  double sS = 0.05;
 
-  //Update hypoxia thresholds for sympathetic signals
-  double xMinSN = -49.38-18.75, xMaxSN = 3.59-18.75, xMinSP = 7.33-15.26, xMaxSP = 13.32-15.26;
-  double o2SetSN = 45.0, o2SetSP = 30.0, kO2SN = 6.0, kO2SP = 2.0, tauISC = 30.0;
-  double arterialO2 = m_data.GetBloodChemistry().GetArterialOxygenPressure(PressureUnit::mmHg);
-  double expActivationSN = std::exp((arterialO2 - o2SetSN) / kO2SN);
-  double expActivationSP = std::exp((arterialO2 - o2SetSP) / kO2SP);
-  double hypoxiaInputSN = (xMinSN + xMaxSN * expActivationSN) / (1.0 + expActivationSN);
-  double hypoxiaInputSP = (xMinSP + xMaxSP * expActivationSP) / (1.0 + expActivationSP);
-  double dActivationSN = (1.0 / tauISC) * (-m_SympatheticActivationNode + hypoxiaInputSN);
-  double dActivationSP = (1.0 / tauISC) * (-m_SympatheticActivationPeripheral + hypoxiaInputSP);
-  m_SympatheticActivationNode += (dActivationSN * m_dt_s);
-  m_SympatheticActivationPeripheral += (dActivationSP * m_dt_s);
-  //Sympathetic signal to SA/AV nodes
-  double wSN_AB = -1.0, wSN_AC = 1.0, wSN_AT = -1.0; //Weights from arterial baroreceptors, chemoreceptors, pulmonary stretch, atrial stretch, thermal feedback
-  wSN_AB = -1.75;
-  double baroreceptorOffset = (m_BaroreceptorFrequencyBaseline_Hz - 25.0);
-  double thetaSN = m_SympatheticActivationNode; //3.59;
-  double exponentSN = kES * (wSN_AB * (m_AfferentBaroreceptor_Hz - baroreceptorOffset) + wSN_AC * m_ChemoreceptorFiringRate_Hz - thetaSN);
-  m_SympathethicNode_Hz = fEsInf + (fEs0 - fEsInf) * std::exp(exponentSN);
-  ULIM(m_SympathethicNode_Hz, fEsMax);
-  //Sympathetic signal to peripheral vascular beds
-  double wSV_AB = -1.0, wSV_AC = 5.0, wSV_AP = -0.34, wSV_AA = -1.0, wSV_AT = 1.0;
-  wSV_AB = -1.1375;
-  wSV_AC = 1.716;
-  wSV_AP = -0.3997;
-  double thetaSV = m_SympatheticActivationPeripheral; //13.52;
-  double exponentSV = kES * (wSV_AB * (m_AfferentBaroreceptor_Hz - baroreceptorOffset) + wSV_AC * m_ChemoreceptorFiringRate_Hz + wSV_AP * m_AfferentPulmonary_Hz - thetaSV);
-  m_SympatheticPeripheral_Hz = fEsInf + (fEs0 - fEsInf) * std::exp(exponentSV);
-  ULIM(m_SympatheticPeripheral_Hz, fEsMax);
+  double gPB = 1.0 / (1.0 + std::exp(-qPB * (m_AfferentBaroreceptor - sPB)));
+  double gS = 1.0 / (1.0 + std::exp(qS * (m_AfferentBaroreceptor - sS)));
+  double dTPB = (-m_VagalSignal + kPB * gPB) / (tauPB);
+  double dTS = (-m_SympatheticSignal + kS * gS) / (tauS);
+  m_VagalSignal += (dTPB * m_dt_s);
+  m_SympatheticSignal += (dTS * m_dt_s);
 
-  m_data.GetDataTrack().Probe("SympatheticActivationNode", m_SympatheticActivationNode);
-  m_data.GetDataTrack().Probe("SympatheticActivationPeripheral", m_SympatheticActivationPeripheral);
-  m_data.GetDataTrack().Probe("SympatheticNodeSignal", m_SympathethicNode_Hz);
-  m_data.GetDataTrack().Probe("SympatheticPeripheralSignal", m_SympatheticPeripheral_Hz);
-  m_data.GetDataTrack().Probe("SympatheticNodeExponent", exponentSN);
-  m_data.GetDataTrack().Probe("SympatheticPeripheralExponent", exponentSV);
-}
-
-void Nervous::ParasympatheticSignalProcess()
-{
-  //Parasympathetic / vagal signal path (*EV)
-  double fEvInf = 6.3;
-  //double patientAge = m_data.GetPatient().GetAge().GetValue(TimeUnit::yr);
-  double fEv0 = 3.2;
-  double kEV_Hz = 7.06;
-  double wEV_AC = 0.2, wEV_AP = 0.103;
-  double thetaEV_Hz = -0.68; //Derivation: -0.68 (Ursino) + .105 * 5 (thermal addition) + .105 * 3.5 (pulmonary offset for BG)
-  double exponentEV = (m_AfferentBaroreceptor_Hz - m_BaroreceptorFrequencyBaseline_Hz) / kEV_Hz;
-  m_Vagal_Hz = (fEv0 + fEvInf * std::exp(exponentEV)) / (1.0 + std::exp(exponentEV));
-  m_Vagal_Hz += (wEV_AC * m_ChemoreceptorFiringRate_Hz - wEV_AP * m_AfferentPulmonary_Hz - thetaEV_Hz);
-  //Could look in to adding respiratory sinus arrhythmia later
-  m_data.GetDataTrack().Probe("VagalSignal", m_Vagal_Hz);
+  m_data.GetDataTrack().Probe("Randall_TPar", m_VagalSignal);
+  m_data.GetDataTrack().Probe("Randall_TSym", m_SympatheticSignal);
 }
 
 void Nervous::EfferentResponse()
 {
   //Heart Rate
-  double fEsMin = 2.66;
-  double tauHrV_s = 1.5, tauHrS_s = 2.0;
-  double gainHrV = 0.09, gainHrS = -0.23;
-  double patientAge = m_data.GetPatient().GetAge().GetValue(TimeUnit::yr);
-  double heartPeriod0 = 1.0 / (1.97 - 9.5e-3 * patientAge);
-  double hrV = m_HeartRateEffectors[0];
-  double hrS = m_HeartRateEffectors[1];
-
-  double dHrV = (1.0 / tauHrV_s) * (-hrV + gainHrV * m_Vagal_Hz);
-  double hrInput = 0.0;
-  if (m_SympathethicNode_Hz > fEsMin) {
-    hrInput = gainHrS * std::log(m_SympathethicNode_Hz - fEsMin + 1.0);
-  }
-  double dHrS = (1.0 / tauHrS_s) * (-hrS + hrInput);
-  m_HeartRateEffectors[0] = hrV + dHrV * m_dt_s;
-  m_HeartRateEffectors[1] = hrS + dHrS * m_dt_s;
-
-  double nextHeartPeriod = heartPeriod0 + GeneralMath::VectorSum(m_HeartRateEffectors);
-  double nextHeartRate = 60.0 / nextHeartPeriod;
-  m_data.GetDataTrack().Probe("HeartRateEffectors", m_HeartRateEffectors);
-  m_data.GetDataTrack().Probe("HeartRate_Next", nextHeartRate);
+  double hPB = 0.5;
+  double hS = 0.3;
+  double baselineSignal = -hPB * 0.82 + hS * 0.175;
+  double HR0 = m_data.GetPatient().GetHeartRateBaseline(FrequencyUnit::Per_min) / (1.0 + baselineSignal);
+  double HRNext = HR0 * (1.0 - hPB * m_VagalSignal + hS * m_SympatheticSignal);
+  m_data.GetDataTrack().Probe("Randall_HR", HRNext);
 
   //Heart elastance
-  double tauEl_s = 8.0;
-  double gainEl = 0.475 / 20.0;
-  double eMax = 2.392;
-  double elInput = 0.0;
-  if (m_SympathethicNode_Hz > fEsMin) {
-    elInput = gainEl * std::log(m_SympathethicNode_Hz - fEsMin + 1.0);
-  }
-  double dElS = (1.0 / tauEl_s) * (-m_HeartElastanceEffector + elInput);
-  m_HeartElastanceEffector += (dElS * m_dt_s);
+  double leftElastance0 = 2.41;
+  double rightElastance0 = 0.474;
+  double leftGain = 0.45;
+  double rightGain = 0.282;
+  double leftTau = 2.0;
+  double rightTau = 1.5;
 
-  double nextHeartElastance = eMax + m_HeartElastanceEffector; //2.392 = baseline value
+  double dLeftElastance = (1.0 / leftTau) * (-m_HeartElastanceEffector + leftGain * m_SympatheticSignal);
+  double dRightElastance = (1.0 / rightTau) * (-m_ElastanceMod + rightGain * m_SympatheticSignal);
+  m_HeartElastanceEffector += (dLeftElastance * m_dt_s);
+  m_ElastanceMod += (dRightElastance * m_dt_s);
 
-  m_data.GetDataTrack().Probe("HeartElastanceEffectors", m_HeartElastanceEffector);
-  m_data.GetDataTrack().Probe("HeartElastance_Next", nextHeartElastance);
+  m_data.GetDataTrack().Probe("LeftHeartElastance_Mod", m_HeartElastanceEffector);
+  m_data.GetDataTrack().Probe("LeftHeartElastance_Next", m_HeartElastanceEffector + leftElastance0);
+  m_data.GetDataTrack().Probe("RightHeartElastance_Mod", m_ElastanceMod);
+  m_data.GetDataTrack().Probe("RightHeartElastance_Next", m_ElastanceMod + rightElastance0);
 
   //Resistance
-  double tauR_s = 6.0;
-  double baseSplanchnic = 0.83, baseExtra = 2.33, baseMuscle = 2.98;
-  double gainSplanchnic = 0.695, gainExtra = 1.94, gainMuscle = 2.47;
-  double rSplanchnic = m_ResistanceEffectors[0];
-  double rExtra = m_ResistanceEffectors[1];
-  double rMuscle = m_ResistanceEffectors[2];
-  double rInput = 0.0;
-  if (m_SympatheticPeripheral_Hz > fEsMin) {
-    rInput = std::log(m_SympatheticPeripheral_Hz - fEsMin + 1.0);
-  }
-  double dRSplanchnic = (1.0 / tauR_s) * (-rSplanchnic + gainSplanchnic * rInput);
-  double dRExtra = (1.0 / tauR_s) * (-rExtra + gainExtra * rInput);
-  double dRMuscle = (1.0 / tauR_s) * (-rMuscle + gainMuscle * rInput);
+  double tauR_s = 3.0;
+  double baseR_mmHg_s_Per_mL = 0.65;
+  double gainR = 2.0;
 
-  m_ResistanceEffectors[0] = rSplanchnic + dRSplanchnic * m_dt_s;
-  m_ResistanceEffectors[1] = rExtra + dRExtra * m_dt_s;
-  m_ResistanceEffectors[2] = rMuscle + dRMuscle * m_dt_s;
+  double dR = (1.0 / tauR_s) * (-m_ResistanceMod + gainR * m_SympatheticSignal);
+  m_ResistanceMod += (dR * m_dt_s);
+  m_data.GetDataTrack().Probe("Resistance_Mod", m_ResistanceMod);
+  m_data.GetDataTrack().Probe("Resistance_Next", baseR_mmHg_s_Per_mL + m_ResistanceMod);
 
-  m_data.GetDataTrack().Probe("ResistanceEffectors", m_ResistanceEffectors);
-  m_data.GetDataTrack().Probe("ResistanceFractionChange_muscle", m_ResistanceEffectors[2] / baseMuscle);
-  m_data.GetDataTrack().Probe("ResistanceFractionChange_splanchnic", m_ResistanceEffectors[0] / baseSplanchnic);
-  m_data.GetDataTrack().Probe("ResistanceFractionChange_extraSplanchnic", m_ResistanceEffectors[1] / baseExtra);
+  //Venous Compliance
+  double baselineVolume = 3200.0;
+  double vol0 = 3248.1;
+  double gainVolume = -275.0;
+  double tauVolume = 10.0;
 
-  if (m_FeedbackActive) {
-    GetBaroreceptorHeartRateScale().SetValue(nextHeartRate / m_data.GetPatient().GetHeartRateBaseline(FrequencyUnit::Per_min));
-    GetBaroreceptorHeartElastanceScale().SetValue(nextHeartElastance / 2.42);
+  double dVolume = (1.0 / tauVolume) * (-m_ComplianceMod + gainVolume * m_SympatheticSignal);
+  m_ComplianceMod += (dVolume * m_dt_s);
+
+  m_data.GetDataTrack().Probe("Volume_Mod", m_ComplianceMod);
+  m_data.GetDataTrack().Probe("Compliance_Fraction", (vol0 + m_ComplianceMod) / baselineVolume);
+
+  //if (m_FeedbackActive) {
+    GetBaroreceptorHeartRateScale().SetValue(HRNext / m_data.GetPatient().GetHeartRateBaseline(FrequencyUnit::Per_min));
+    GetBaroreceptorHeartElastanceScale().SetValue((m_HeartElastanceEffector + leftElastance0) / 2.49);
     //GetResistanceScaleCerebral().SetValue(1.0 + resistanceMod1 / brainBase);
-    GetResistanceScaleExtrasplanchnic().SetValue(m_ResistanceEffectors[1] / baseExtra);
-    GetResistanceScaleMuscle().SetValue(m_ResistanceEffectors[2] / baseMuscle);
-    GetResistanceScaleSplanchnic().SetValue(m_ResistanceEffectors[0] / baseSplanchnic);
+    GetResistanceScaleExtrasplanchnic().SetValue(baseR_mmHg_s_Per_mL + m_ResistanceMod);
+    GetResistanceScaleMuscle().SetValue(baseR_mmHg_s_Per_mL + m_ResistanceMod);
+    GetResistanceScaleSplanchnic().SetValue(baseR_mmHg_s_Per_mL + m_ResistanceMod);
+    GetBaroreceptorComplianceScale().SetValue((vol0 + m_ComplianceMod) / baselineVolume);
     //GetResistanceScaleVentricle().SetValue(1.0 + resistanceMod2 / ventricleBase);
-  }
-}
+  //}
 
-void Nervous::LocalRegulation()
-{
-  double gainHeartO2 = 35.0, gainMuscleO2 = 30.0, gainCerebralO2 = 10.0;
-  double tauHeartO2 = 10.0, tauMuscleO2 = 10.0, tauCerebralO2 = 10.0;
 
-  SESubstance& o2 = m_data.GetSubstances().GetO2();
-  SETissueCompartment* heartTissue = m_data.GetCompartments().GetTissueCompartment(BGE::TissueCompartment::Myocardium);
-  SETissueCompartment* muscleTissue = m_data.GetCompartments().GetTissueCompartment(BGE::TissueCompartment::Muscle);
-  SETissueCompartment* brainTissue = m_data.GetCompartments().GetTissueCompartment(BGE::TissueCompartment::Brain);
-
-  double heartO2Concentration = m_data.GetCompartments().GetExtracellularFluid(*heartTissue).GetSubstanceQuantity(o2)->GetMolarity(AmountPerVolumeUnit::mmol_Per_L);
-  double muscleO2Concentration = m_data.GetCompartments().GetExtracellularFluid(*muscleTissue).GetSubstanceQuantity(o2)->GetMolarity(AmountPerVolumeUnit::mmol_Per_L);
-  double cerebralO2Concentration = m_data.GetCompartments().GetExtracellularFluid(*brainTissue).GetSubstanceQuantity(o2)->GetMolarity(AmountPerVolumeUnit::mmol_Per_L);
-
-  double dLocalEffectsHeart = (1.0 / tauHeartO2) * (-m_LocalHeartO2Effect - gainHeartO2 * (heartO2Concentration - m_LocalHeartO2Baseline));
-  double dLocalEffectsMuscle = (1.0 / tauMuscleO2) * (-m_LocalMuscleO2Effect - gainMuscleO2 * (muscleO2Concentration - m_LocalMuscleO2Baseline));
-  double dLocalEffectsCerebral = (1.0 / tauCerebralO2) * (-m_LocalCerebralO2Effect - gainCerebralO2 * (cerebralO2Concentration - m_LocalCerebralO2Baseline));
-
-  m_LocalHeartO2Effect += (dLocalEffectsHeart * m_dt_s);
-  m_LocalMuscleO2Effect += (dLocalEffectsMuscle * m_dt_s);
-  m_LocalCerebralO2Effect += (dLocalEffectsCerebral * m_dt_s);
-
-  double heartResistanceScale = GetResistanceScaleVentricle().GetValue();
-  double muscleResistanceScale = GetResistanceScaleMuscle().GetValue();
-  double cerebralResistanceScale = GetResistanceScaleCerebral().GetValue();
-
-  if (m_FeedbackActive) {
-    //GetResistanceScaleVentricle().SetValue(heartResistanceScale / (1.0 + m_LocalHeartO2Effect));
-    //GetResistanceScaleMuscle().SetValue(muscleResistanceScale / (1.0 + m_LocalMuscleO2Effect));
-    //GetResistanceScaleCerebral().SetValue(cerebralResistanceScale / (1.0 + m_LocalCerebralO2Effect));
-  }
-
-  m_data.GetDataTrack().Probe("LocalHeartO2_Base", m_LocalHeartO2Baseline);
-  m_data.GetDataTrack().Probe("LocalHeartO2_Concentration", heartO2Concentration);
-  m_data.GetDataTrack().Probe("LocalHeartO2_Effect", m_LocalHeartO2Effect);
-
-  m_data.GetDataTrack().Probe("LocalMuscleO2_Base", m_LocalMuscleO2Baseline);
-  m_data.GetDataTrack().Probe("LocalMuscleO2_Concentration", muscleO2Concentration);
-  m_data.GetDataTrack().Probe("LocalMuscleO2_Effect", m_LocalMuscleO2Effect);
-
-  m_data.GetDataTrack().Probe("LocalCerebralO2_Base", m_LocalCerebralO2Baseline);
-  m_data.GetDataTrack().Probe("LocalCerebralO2_Concentration", cerebralO2Concentration);
-  m_data.GetDataTrack().Probe("LocalCerebralO2_Effect", m_LocalCerebralO2Effect);
 }
 
 void Nervous::CerebralAutoregulation()
