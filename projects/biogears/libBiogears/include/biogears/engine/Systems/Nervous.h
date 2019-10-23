@@ -104,7 +104,8 @@ protected:
   double m_AfferentAtrial;		//*AA
   double m_FilteredPulmonaryVenousPressure_Hz; //*AA
   double m_AfferentThermal_Hz;		//*AT
-  double m_SympatheticSignal;
+  double m_SympatheticHeartSignal;
+  double m_SympatheticPeripheralSignal;
   double m_VagalSignal;
   double m_PressureHalfMax;
   double m_AfferentStrain;
@@ -116,9 +117,15 @@ protected:
   double m_ElastanceMod;
   double m_ComplianceMod;
 
-  std::vector<double> m_HeartRateEffectors;
-  //std::vector<double> m_HeartElastanceEffectors;
-  std::vector<double> m_ResistanceEffectors;
+  //Baselines
+  double m_BaroreceptorBaseline;
+  double m_SympatheticHeartSignal_Baseline;
+  double m_SympatheticPeripheralSignal_Baseline;
+  double m_VagalSignal_Baseline;
+
+
+
+
   double m_HeartElastanceEffector;
 
 
