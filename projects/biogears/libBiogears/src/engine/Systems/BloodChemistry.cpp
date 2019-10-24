@@ -723,8 +723,6 @@ void BloodChemistry::CalculateHemolyticTransfusionReaction(bool rhMismatch)
   double patientRBC;
   double donorRBC;
   double TotalRBC;
-  double patientAntigen_ct_per_uL;
-  double donorAntigen_ct_per_uL;
   double patientAntigen_ct;
   double donorAntigen_ct;
   double BloodVolume = m_data.GetCardiovascular().GetBloodVolume(VolumeUnit::uL);
@@ -753,13 +751,9 @@ void BloodChemistry::CalculateHemolyticTransfusionReaction(bool rhMismatch)
       donorAntigen_ct = AntA_initial_ct + AntB_initial_ct;
       patientAntigen_ct = 0.0;
     } else if (m_data.GetPatient().GetBloodType() == (CDM::enumBloodType::A)) {
-      /*donorAntigen_ct_per_uL = AntigenB;
-      patientAntigen_ct_per_uL = AntigenA;*/
       donorAntigen_ct = AntB_initial_ct;
       patientAntigen_ct = AntA_initial_ct;
     } else if (m_data.GetPatient().GetBloodType() == (CDM::enumBloodType::B)) {
-      /*donorAntigen_ct_per_uL = AntigenA;
-      patientAntigen_ct_per_uL = AntigenB;*/
       donorAntigen_ct = AntA_initial_ct;
       patientAntigen_ct = AntB_initial_ct;
     }
