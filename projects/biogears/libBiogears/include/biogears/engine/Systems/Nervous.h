@@ -74,19 +74,42 @@ protected:
   void EfferentResponse();
   void CerebralAutoregulation();
 
-
+   bool m_TestBaroreceptors; //For testing
 
   // Serializable member variables (Set in Initialize and in schema)
+  double m_AfferentChemoreceptor_Hz;
+  double m_AfferentPulmonaryStretchReceptor_Hz;
+  double m_AfferentStrain;
+  double m_AfferentStrainBaseline;
   double m_ArterialOxygenSetPoint_mmHg; /// \todo Aaron these should be baselines.
   double m_ArterialCarbonDioxideSetPoint_mmHg;
+  double m_BaroreceptorBaseline;
   double m_BaroreceptorFatigueScale;
+  double m_BaroreceptorOperatingPoint_mmHg;
   double m_CentralVentilationDelta_L_Per_min;
-  double m_ChemoreceptorFiringRate_Hz;
   double m_ChemoreceptorFiringRateSetPoint_Hz;
+  double m_CerebralAutoregulator;
+  double m_CerebralBloodFlowBaseline_mL_Per_s;
+  double m_CerebralBloodFlowInput_mL_Per_s;
+  double m_CerebralCarbonDioxideBaseline_mmHg;
+  double m_ComplianceModifier;
+  double m_HeartElastanceModifier;
+  double m_HypoxiaThresholdHeart;
+  double m_HypoxiaThresholdPeripheral;
+  double m_ResistanceModifier;
   double m_PeripheralBloodGasInteractionBaseline_Hz;
   double m_PeripheralVentilationDelta_L_Per_min;
+  double m_PulmonaryVenousPressureBaseline_mmHg;
+  double m_PulmonaryVenousPressureInput_mmHg;
+  double m_SympatheticHeartSignalBaseline;
+  double m_SympatheticPeripheralSignalBaseline;
+  double m_VagalSignalBaseline;
 
   // Stateless member variable (Set in SetUp())
+  double m_AfferentBaroreceptor_Hz;
+  double m_AfferentPulmonary_Hz; //*AP
+  double m_AfferentAtrial_Hz; //*AA
+  double m_AfferentThermal_Hz; //*AT
   bool m_FeedbackActive;
   double m_dt_s;
   SESubstance* m_Succinylcholine;
@@ -97,46 +120,9 @@ protected:
   double m_painVASDuration_s;
   double m_painVAS;
   double m_painStimulus;
-
-  //Testing combined signals
-  double m_AfferentBaroreceptor;
-  double m_AfferentPulmonary;	//*AP
-  double m_AfferentAtrial;		//*AA
-  double m_FilteredPulmonaryVenousPressure_Hz; //*AA
-  double m_AfferentThermal_Hz;		//*AT
-  double m_SympatheticHeartSignal;
-  double m_SympatheticPeripheralSignal;
-  double m_VagalSignal;
-  double m_PressureHalfMax;
-  double m_AfferentStrain;
-
-  double m_HeartRateModSympathetic;
-  double m_HeartRateModVagal;
-  double m_HeartRateModRespiratory;
-  double m_ResistanceMod;
-  double m_ElastanceMod;
-  double m_ComplianceMod;
-
-  //Baselines
-  double m_BaroreceptorBaseline;
-  double m_SympatheticHeartSignal_Baseline;
-  double m_SympatheticPeripheralSignal_Baseline;
-  double m_VagalSignal_Baseline;
-
-
-
-
-  double m_HeartElastanceEffector;
-
-
-  double m_CerebralAutoEffect;
-  double m_CerebralBloodFlowBaseline_mL_Per_s;
-  double m_CerebralCO2Baseline_mmHg;
-  double m_CerebralBloodFlowFilter;
-
-
-
-  bool m_TestBaroreceptors;
+  double m_SympatheticHeartSignal_Hz;
+  double m_SympatheticPeripheralSignal_Hz;
+  double m_VagalSignal_Hz;
 
   // Configuration fractions representing the amount by which each quantity can change due to baroreceptors;
   double m_normalizedGammaHeartRate;
