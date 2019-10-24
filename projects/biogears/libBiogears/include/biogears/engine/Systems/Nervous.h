@@ -107,7 +107,6 @@ protected:
 
   // Stateless member variable (Set in SetUp())
   double m_AfferentBaroreceptor_Hz;
-  double m_AfferentPulmonary_Hz; //*AP
   double m_AfferentAtrial_Hz; //*AA
   double m_AfferentThermal_Hz; //*AT
   bool m_FeedbackActive;

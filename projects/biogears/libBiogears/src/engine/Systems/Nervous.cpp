@@ -84,7 +84,7 @@ void Nervous::Initialize()
   m_CerebralBloodFlowBaseline_mL_Per_s = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetPath(BGE::CerebralPath::CerebralCapillariesToCerebralVeins1)->GetFlow(VolumePerTimeUnit::mL_Per_s);
   m_CerebralBloodFlowInput_mL_Per_s = m_CerebralBloodFlowBaseline_mL_Per_s;
   m_CerebralCarbonDioxideBaseline_mmHg = m_data.GetCompartments().GetExtracellularFluid(*m_data.GetCompartments().GetTissueCompartment(BGE::TissueCompartment::Brain)).GetSubstanceQuantity(m_data.GetSubstances().GetCO2())->GetPartialPressure(PressureUnit::mmHg);
-  m_ComplianceModifier = 1.0;
+  m_ComplianceModifier = -50.0;
   m_HeartElastanceModifier = 1.0;
   m_HypoxiaThresholdHeart = 3.59;
   m_HypoxiaThresholdPeripheral = 0.0;
@@ -306,6 +306,8 @@ void Nervous::Process()
   m_data.GetDataTrack().Probe("Afferent_Strain", m_AfferentStrain);
   m_data.GetDataTrack().Probe("BaroreceptorOperatingPoint", m_BaroreceptorOperatingPoint_mmHg);
   m_data.GetDataTrack().Probe("Ursino_Parasympathetic", m_VagalSignal_Hz);
+  m_data.GetDataTrack().Probe("HypoxiaThreshold_Heart", m_HypoxiaThresholdHeart);
+  m_data.GetDataTrack().Probe("HypoxiaThreshold_Peripheral", m_HypoxiaThresholdPeripheral);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -358,8 +360,8 @@ void Nervous::CentralSignalProcess()
   const double xMaxSH = 3.59;
   const double oxygenHalfMaxSH = 45.0;
   const double kOxygenSH = 6.0;
-  const double xMinSP = 0.0;
-  const double xMaxSP = -6.0;
+  const double xMinSP = -6.0;
+  const double xMaxSP = 0.0;
   const double oxygenHalfMaxSP = 30.0;
   const double kOxygenSP = 2.0;
   const double tauIschemia = 30.0;
@@ -372,9 +374,10 @@ void Nervous::CentralSignalProcess()
   const double hypoxiaSP = (xMinSP + xMaxSP * expHypoxiaSP) / (1.0 + expHypoxiaSP);
   const double dHypoxiaThresholdSH = (1.0 / tauIschemia) * (-m_HypoxiaThresholdHeart + hypoxiaSH);
   const double dHypoxiaThresholdSP = (1.0 / tauIschemia) * (-m_HypoxiaThresholdPeripheral + hypoxiaSP);
-  m_HypoxiaThresholdHeart += (dHypoxiaThresholdSH * m_dt_s);
-  m_HypoxiaThresholdPeripheral += (dHypoxiaThresholdSP * m_dt_s);
-
+  if (m_FeedbackActive) {
+    m_HypoxiaThresholdHeart += (dHypoxiaThresholdSH * m_dt_s);
+    m_HypoxiaThresholdPeripheral += (dHypoxiaThresholdSP * m_dt_s);
+  }
   //Weights of sympathetic signal to heart (i.e. sino-atrial node)--AB = Afferent baroreceptor, AC = Afferent chemoreceptor, AT = Afferent thermal
   const double wSH_AB = -1.0;
   const double wSH_AC = 1.0;
@@ -388,7 +391,7 @@ void Nervous::CentralSignalProcess()
   const double wSP_AP = -0.34;
   const double wSP_AA = -1.0;
   const double wSP_AT = 1.0;
-  const double exponentSP = kS * (wSP_AB * m_AfferentBaroreceptor_Hz + wSP_AC * m_AfferentChemoreceptor_Hz + wSP_AP * m_AfferentPulmonary_Hz - m_HypoxiaThresholdPeripheral);
+  const double exponentSP = kS * (wSP_AB * m_AfferentBaroreceptor_Hz + wSP_AC * m_AfferentChemoreceptor_Hz + wSP_AP * m_AfferentPulmonaryStretchReceptor_Hz - m_HypoxiaThresholdPeripheral);
   m_SympatheticPeripheralSignal_Hz = std::exp(exponentSP);
 
   //-------Determine vagal (parasympathetic) signal to heart------------------------------------------------------------------
@@ -399,7 +402,7 @@ void Nervous::CentralSignalProcess()
   const double baroreceptorScaleFactor = 1.2;
   const double exponentV = (m_AfferentBaroreceptor_Hz - m_BaroreceptorBaseline) / kV;
   m_VagalSignal_Hz = baroreceptorScaleFactor * std::exp(exponentV) / (1.0 + std::exp(exponentV));
-  m_VagalSignal_Hz += (wV_AC * m_AfferentChemoreceptor_Hz - wV_AP * m_AfferentPulmonary_Hz - hypoxiaThresholdV);
+  m_VagalSignal_Hz += (wV_AC * m_AfferentChemoreceptor_Hz - wV_AP * m_AfferentPulmonaryStretchReceptor_Hz - hypoxiaThresholdV);
 
 }
 
@@ -414,45 +417,46 @@ void Nervous::EfferentResponse()
   m_data.GetDataTrack().Probe("Randall_HR", nextHR);
 
   //Heart elastance
-  const double baseElastance = 2.41;
-  const double gainElastance= 0.45;
+  const double baseElastance = 2.49;
+  const double gainElastance= 0.0;
   const double tauElastance = 2.0;
+  const double initialElastance = baseElastance - gainElastance * m_SympatheticHeartSignalBaseline; //Different than baseline because sympathetic signal is non-zero
 
   const double dHeartElastance = (1.0 / tauElastance) * (-m_HeartElastanceModifier + gainElastance * m_SympatheticHeartSignal_Hz);
   m_HeartElastanceModifier += (dHeartElastance * m_dt_s);
 
   m_data.GetDataTrack().Probe("LeftHeartElastance_Mod", m_HeartElastanceModifier);
-  m_data.GetDataTrack().Probe("LeftHeartElastance_Next", m_HeartElastanceModifier + baseElastance);
+  m_data.GetDataTrack().Probe("LeftHeartElastance_Next", m_HeartElastanceModifier + initialElastance);
 
   //Resistance
-  double tauR_s = 3.0;
-  double gainR = 0.6;
-  double baseR_mmHg_s_Per_mL = 1.0 - gainR * m_SympatheticPeripheralSignalBaseline;
+  const double tauResistance = 3.0;
+  const double gainResistance = 0.6;
+  const double baseR_mmHg_s_Per_mL = 1.0 - gainResistance * m_SympatheticPeripheralSignalBaseline;
 
-  double dR = (1.0 / tauR_s) * (-m_ResistanceModifier + gainR * m_SympatheticPeripheralSignal_Hz);
-  m_ResistanceModifier += (dR * m_dt_s);
+  const double dResistance = (1.0 / tauResistance) * (-m_ResistanceModifier + gainResistance * m_SympatheticPeripheralSignal_Hz);
+  m_ResistanceModifier += (dResistance * m_dt_s);
   m_data.GetDataTrack().Probe("Resistance_Mod", m_ResistanceModifier);
   m_data.GetDataTrack().Probe("Resistance_Next", baseR_mmHg_s_Per_mL + m_ResistanceModifier);
 
   //Venous Compliance
-  double baselineVolume = 3200.0;
-  double vol0 = 3248.1;
-  double gainVolume = -275.0;
-  double tauVolume = 10.0;
+  const double baseVolume = 3200.0;
+  const double gainVolume = -275.0;
+  const double tauVolume = 10.0;
+  const double initialVolume = baseVolume - gainVolume * m_SympatheticPeripheralSignalBaseline; //Different than baseline volume because baseline sympathetic signal is non-zero
 
-  double dVolume = (1.0 / tauVolume) * (-m_ComplianceModifier + gainVolume * m_SympatheticPeripheralSignal_Hz);
+  const double dVolume = (1.0 / tauVolume) * (-m_ComplianceModifier + gainVolume * m_SympatheticPeripheralSignal_Hz);
   m_ComplianceModifier += (dVolume * m_dt_s);
 
   m_data.GetDataTrack().Probe("Volume_Mod", m_ComplianceModifier);
-  m_data.GetDataTrack().Probe("Compliance_Fraction", (vol0 + m_ComplianceModifier) / baselineVolume);
+  m_data.GetDataTrack().Probe("Compliance_Fraction", (initialVolume + m_ComplianceModifier) / baseVolume);
 
   if (m_FeedbackActive) {
-    GetBaroreceptorHeartRateScale().SetValue(HRNext / m_data.GetPatient().GetHeartRateBaseline(FrequencyUnit::Per_min));
-    GetBaroreceptorHeartElastanceScale().SetValue((m_HeartElastanceModifier + elastance0) / 2.49);
+    GetBaroreceptorHeartRateScale().SetValue(nextHR / m_data.GetPatient().GetHeartRateBaseline(FrequencyUnit::Per_min));
+    GetBaroreceptorHeartElastanceScale().SetValue((m_HeartElastanceModifier + initialElastance) / baseElastance);
     GetResistanceScaleExtrasplanchnic().SetValue(baseR_mmHg_s_Per_mL + m_ResistanceModifier);
     GetResistanceScaleMuscle().SetValue(baseR_mmHg_s_Per_mL + m_ResistanceModifier);
     GetResistanceScaleSplanchnic().SetValue(baseR_mmHg_s_Per_mL + m_ResistanceModifier);
-    GetBaroreceptorComplianceScale().SetValue((vol0 + m_ComplianceModifier) / baselineVolume);
+    GetBaroreceptorComplianceScale().SetValue((initialVolume + m_ComplianceModifier) / baseVolume);
   }
 }
 
@@ -524,8 +528,26 @@ void Nervous::BaroreceptorFeedback()
   const double tauVoigt = 0.9;
   const double slopeStrain = 0.04;
 
+  //Adjust apparent operating point as a result of pain and/or drugs (opioids, sedatives, anesthetics)
+  double painEffect = 0.0;
+  double drugEffect = 0.0;
+  if (m_data.GetActions().GetPatientActions().HasPainStimulus()) {
+    const double painVAS = 0.1 * GetPainVisualAnalogueScale().GetValue();
+    painEffect = 0.5 * painVAS * m_BaroreceptorOperatingPoint_mmHg;
+  }
+  for (SESubstance* sub : m_data.GetCompartments().GetLiquidCompartmentSubstances()) {
+    if ((sub->GetClassification() == CDM::enumSubstanceClass::Anesthetic) || (sub->GetClassification() == CDM::enumSubstanceClass::Sedative) || (sub->GetClassification() == CDM::enumSubstanceClass::Opioid)) {
+     drugEffect = m_data.GetDrugs().GetMeanBloodPressureChange(PressureUnit::mmHg);
+     break;
+     //Only want to apply the blood pressure change ONCE (In case there are multiple sedative/opioids/etc)
+     ///\TODO:  Look into a better way to implement drug classification search
+    }
+  }
+
+  const double baroreceptorOperatingPoint_mmHg = m_BaroreceptorOperatingPoint_mmHg + painEffect + drugEffect;
+
   const double systolicPressure_mmHg = m_data.GetCardiovascular().GetSystolicArterialPressure(PressureUnit::mmHg);
-  const double strainExp = std::exp(-slopeStrain * (systolicPressure_mmHg - m_BaroreceptorOperatingPoint_mmHg));
+  const double strainExp = std::exp(-slopeStrain * (systolicPressure_mmHg - baroreceptorOperatingPoint_mmHg));
   const double wallStrain = 1.0 - std::sqrt((1.0 + strainExp) / (A + strainExp));
   const double dStrain = (1.0 / tauVoigt) * (-m_AfferentStrain + kVoigt * wallStrain);
   m_AfferentStrain += (dStrain * m_dt_s);
@@ -557,24 +579,9 @@ void Nervous::BaroreceptorFeedback()
   double meanArterialPressureSetPoint_mmHg = m_data.GetPatient().GetMeanArterialPressureBaseline(PressureUnit::mmHg) //m_MeanArterialPressureNoFeedbackBaseline_mmHg
     + m_data.GetEnergy().GetExerciseMeanArterialPressureDelta(PressureUnit::mmHg);
 
-  //Adjust the MAP set-point for baroreceptors for anesthetics, opioids, and sedatives.  Other drugs should leave set-point as is.
-  for (SESubstance* sub : m_data.GetCompartments().GetLiquidCompartmentSubstances()) {
-    if (!sub->HasPD())
-      continue;
-    if ((sub->GetClassification() == CDM::enumSubstanceClass::Anesthetic) || (sub->GetClassification() == CDM::enumSubstanceClass::Sedative) || (sub->GetClassification() == CDM::enumSubstanceClass::Opioid)) {
-      meanArterialPressureSetPoint_mmHg += m_data.GetDrugs().GetMeanBloodPressureChange(PressureUnit::mmHg);
-      break;
-      //Only want to apply the blood pressure change ONCE (In case there are multiple sedative/opioids/etc)
-      ///\TODO:  Look into a better way to implement drug classification search
-    }
-  }
 
-  //Neurological effects of pain action
-  if (m_data.GetActions().GetPatientActions().HasPainStimulus()) {
-    double painVAS = GetPainVisualAnalogueScale().GetValue();
-    painVAS *= 0.1;
-    meanArterialPressureSetPoint_mmHg *= (1 + 0.65 * painVAS);
-  }
+
+
 
   double sympatheticFraction = 1.0 / (1.0 + std::pow(meanArterialPressure_mmHg / meanArterialPressureSetPoint_mmHg, nu));
   double parasympatheticFraction = 1.0 / (1.0 + std::pow(meanArterialPressure_mmHg / meanArterialPressureSetPoint_mmHg, -nu));
