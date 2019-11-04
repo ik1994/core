@@ -366,7 +366,7 @@ void Nervous::CentralSignalProcess()
   const double kOxygenSP = 2.0;
   const double tauIschemia = 30.0;
  
-  //Update hypoxia thresholds for sympathetic signals
+  //Update hypoxia thresholds for sympathetic signals -- inactive during initial stabilization and when there is a drug disrupting CNS (opioids)
   const double arterialO2 = m_data.GetBloodChemistry().GetArterialOxygenPressure(PressureUnit::mmHg);
   const double expHypoxiaSH = std::exp((arterialO2 - oxygenHalfMaxSH) / kOxygenSH);
   const double expHypoxiaSP = std::exp((arterialO2 - oxygenHalfMaxSP) / kOxygenSP);
@@ -374,7 +374,7 @@ void Nervous::CentralSignalProcess()
   const double hypoxiaSP = (xMinSP + xMaxSP * expHypoxiaSP) / (1.0 + expHypoxiaSP);
   const double dHypoxiaThresholdSH = (1.0 / tauIschemia) * (-m_HypoxiaThresholdHeart + hypoxiaSH);
   const double dHypoxiaThresholdSP = (1.0 / tauIschemia) * (-m_HypoxiaThresholdPeripheral + hypoxiaSP);
-  if (m_FeedbackActive) {
+  if (m_FeedbackActive && m_data.GetDrugs().GetCentralNervousResponse().GetValue()<ZERO_APPROX) {
     m_HypoxiaThresholdHeart += (dHypoxiaThresholdSH * m_dt_s);
     m_HypoxiaThresholdPeripheral += (dHypoxiaThresholdSP * m_dt_s);
   }
@@ -389,7 +389,7 @@ void Nervous::CentralSignalProcess()
   const double wSP_AB = -1.13;
   const double wSP_AC = 1.716;
   const double wSP_AP = -0.34;
-  const double wSP_AA = -1.0;
+  const double wSP_AA = -1.0;	
   const double wSP_AT = 1.0;
   const double exponentSP = kS * (wSP_AB * m_AfferentBaroreceptor_Hz + wSP_AC * m_AfferentChemoreceptor_Hz + wSP_AP * m_AfferentPulmonaryStretchReceptor_Hz - m_HypoxiaThresholdPeripheral);
   m_SympatheticPeripheralSignal_Hz = std::exp(exponentSP);
@@ -418,6 +418,7 @@ void Nervous::EfferentResponse()
   }
   m_data.GetDataTrack().Probe("Randall_HR", nextHR);
   m_data.GetDataTrack().Probe("HR_Intrinsic", m_IntrinsicHeartRate);
+  m_data.GetDataTrack().Probe("HR_Scaled", nextHR / m_data.GetPatient().GetHeartRateBaseline(FrequencyUnit::Per_min));
   //Heart elastance
   const double baseElastance = 2.49;
   const double gainElastance= 0.4;
@@ -634,7 +635,8 @@ void Nervous::ChemoreceptorFeedback()
   const double oxygenScale_mmHg = 29.27;
   const double gasInteractionBase = 3.0;
   const double firingRateTimeConstant_s = 2.0;
-  const double tuningFactor = 1.5;
+  const double tuningFactor = 1.5; 
+  const double drugCNSModifier = m_data.GetDrugs().GetCentralNervousResponse().GetValue();  //Apply effects of opioids that depress central nervous activity
 
   //Note that this method uses instantaneous values of blood gas levels, not running averages
   const double arterialO2Pressure_mmHg = m_data.GetBloodChemistry().GetArterialOxygenPressure(PressureUnit::mmHg);
@@ -665,19 +667,19 @@ void Nervous::ChemoreceptorFeedback()
     m_PeripheralBloodGasInteractionBaseline_Hz = psi;
   }
 
-  //Apply effects of opioids that depress central nervous activity
-  const double drugCNSModifier = m_data.GetDrugs().GetCentralNervousResponse().GetValue();
-
-  const double centralInput = arterialCO2Pressure_mmHg - m_ArterialCarbonDioxideSetPoint_mmHg;
-  const double peripheralInput = m_AfferentChemoreceptor_Hz - m_ChemoreceptorFiringRateSetPoint_Hz;
+  //Adjust inputs to differential equations so that they approach their setpoints (i.e. baseline signal) when drugs that modifiy CNS are present
+  //The peripherial input is not adjusted because the afferent signal is already accounted for.
+  const double afferentFiringInput = psi * std::exp(-5.0*drugCNSModifier) + m_ChemoreceptorFiringRateSetPoint_Hz * (1.0 - std::exp(-5.0 * drugCNSModifier));
+  const double centralInput = (arterialCO2Pressure_mmHg - m_ArterialCarbonDioxideSetPoint_mmHg) * std::exp(-5.0 * drugCNSModifier);
+  const double peripheralInput = (m_AfferentChemoreceptor_Hz - m_ChemoreceptorFiringRateSetPoint_Hz);
 
   //Evaluate model derivatives pertaining to change in chemoreceptor firing rate, and changes in central and peripheral contributions to ventilation
-  const double dFiringRate_Hz = (1.0 / firingRateTimeConstant_s) * (-m_AfferentChemoreceptor_Hz + psi) * m_dt_s;
+  const double dFiringRate_Hz = (1.0 / firingRateTimeConstant_s) * (-m_AfferentChemoreceptor_Hz + afferentFiringInput) * m_dt_s;
   const double dCentralVentilation_L_Per_min = (1.0 / centralTimeConstant_s) * (-m_CentralVentilationDelta_L_Per_min + centralGainConstant_L_Per_min_mmHg * centralInput) * m_dt_s;
-  const double dPeripheralVentilation_L_Per_min = (1.0 / peripheralTimeConstant_s) * (-m_PeripheralVentilationDelta_L_Per_min + peripheralGainConstant_L_Per_min_Hz * peripheralInput) * m_dt_s;
+  const double dPeripheralVentilation_L_Per_min = (1.0 / peripheralTimeConstant_s) * (-m_PeripheralVentilationDelta_L_Per_min + peripheralGainConstant_L_Per_min_Hz * peripheralInput) * m_dt_s;   //Don't use drug modifier here because it has already been applied to peripheral input
 
   //Calculate change in ventilation assuming no metabolic effects--The CNS modifier is applied such that at high values the chemoreceptors cannot force a change from baseline
-  double nextTargetVentilation_L_Per_min = m_data.GetPatient().GetTotalVentilationBaseline(VolumePerTimeUnit::L_Per_min) + std::exp(-5.0 * drugCNSModifier) * (m_CentralVentilationDelta_L_Per_min + m_PeripheralVentilationDelta_L_Per_min);
+  double nextTargetVentilation_L_Per_min = m_data.GetPatient().GetTotalVentilationBaseline(VolumePerTimeUnit::L_Per_min) + (m_CentralVentilationDelta_L_Per_min + m_PeripheralVentilationDelta_L_Per_min);
 
   //Apply metabolic effects. The modifier is tuned to achieve the correct respiratory response for near maximal exercise.
   //A linear relationship is assumed for the respiratory effects due to increased metabolic exertion
