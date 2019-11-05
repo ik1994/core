@@ -1764,6 +1764,14 @@ void Respiratory::CalculateVitalSigns()
     }
   }
 
+  //Zero out if waiting longer than 1 min
+  if (m_ElapsedBreathingCycleTime_min > 1.0) {
+    GetRespirationRate().SetValue(0.0, FrequencyUnit::Per_min);
+    GetTidalVolume().SetValue(0.0, VolumeUnit::L);
+    GetTotalAlveolarVentilation().SetValue(0.0, VolumePerTimeUnit::L_Per_min);
+    GetTotalPulmonaryVentilation().SetValue(0.0, VolumePerTimeUnit::L_Per_min);
+  }
+
   /// \todo Move to blood chemistry
   // Although it is called respiratory acidosis/alkalosis, the detection and event setting is actually a part of the @ref BloodChemistrySystem
   // The terms "metabolic" and "respiratory" refer to the origin of the acid-base disturbance

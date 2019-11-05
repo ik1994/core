@@ -215,6 +215,8 @@ void Nervous::SetUp()
   m_Sarin = m_data.GetSubstances().GetSubstance("Sarin");
   m_Patient = &m_data.GetPatient();
 
+  m_DrugRespirationEffects = 0.0;
+
   m_painStimulusDuration_s = 0.0;
   m_painVASDuration_s = 0.0;
   m_painVAS = 0.0;
@@ -325,17 +327,18 @@ void Nervous::AfferentResponse()
   //Generate afferent barorceptor signal
   BaroreceptorFeedback();
 
-  //Generate afferent chemoreceptor signal
+  //Generate afferent chemoreceptor signal -- combined respiration drug effects modifier calculated in this function since it primarily affects chemoreceptors
   ChemoreceptorFeedback();
 
-  //Generate afferent lung stretch receptor signal (*ap = afferent pulmonary)
+  //Generate afferent lung stretch receptor signal (*ap = afferent pulmonary) -- push this input towards baseline when anesthetics/opioids are effecting respiratory drive
   const double tauAP_s = 2.0;
   const double gainAP_Hz_Per_L = 11.25;
   const double tidalVolume_L = m_data.GetRespiratory().GetTidalVolume(VolumeUnit::L);
-  const double dFrequencyAP_Hz = (1.0 / tauAP_s) * (-m_AfferentPulmonaryStretchReceptor_Hz + tidalVolume_L * gainAP_Hz_Per_L);
+  const double baselineTidalVolume_L = m_data.GetPatient().GetTidalVolumeBaseline(VolumeUnit::L);
+  const double pulmonaryStretchInput = gainAP_Hz_Per_L * (tidalVolume_L * std::exp(-5.0 * m_DrugRespirationEffects) +  baselineTidalVolume_L * (1.0 - std::exp(-5.0 * m_DrugRespirationEffects)));
+  const double dFrequencyAP_Hz = (1.0 / tauAP_s) * (-m_AfferentPulmonaryStretchReceptor_Hz + pulmonaryStretchInput);
   m_AfferentPulmonaryStretchReceptor_Hz += dFrequencyAP_Hz * m_dt_s;
   
-
   //Afferent atrial stretch receptors (*aa = afferent atrial)--Input is a filtered venous pressure first (less noisy) that is determined first
   const double tauAA_s = 6.37;
   const double maxAA_Hz = 18.0;
@@ -374,7 +377,8 @@ void Nervous::CentralSignalProcess()
   const double hypoxiaSP = (xMinSP + xMaxSP * expHypoxiaSP) / (1.0 + expHypoxiaSP);
   const double dHypoxiaThresholdSH = (1.0 / tauIschemia) * (-m_HypoxiaThresholdHeart + hypoxiaSH);
   const double dHypoxiaThresholdSP = (1.0 / tauIschemia) * (-m_HypoxiaThresholdPeripheral + hypoxiaSP);
-  if (m_FeedbackActive && m_data.GetDrugs().GetCentralNervousResponse().GetValue()<ZERO_APPROX) {
+
+  if (m_FeedbackActive && m_DrugRespirationEffects < ZERO_APPROX) {
     m_HypoxiaThresholdHeart += (dHypoxiaThresholdSH * m_dt_s);
     m_HypoxiaThresholdPeripheral += (dHypoxiaThresholdSP * m_dt_s);
   }
@@ -636,7 +640,18 @@ void Nervous::ChemoreceptorFeedback()
   const double gasInteractionBase = 3.0;
   const double firingRateTimeConstant_s = 2.0;
   const double tuningFactor = 1.5; 
-  const double drugCNSModifier = m_data.GetDrugs().GetCentralNervousResponse().GetValue();  //Apply effects of opioids that depress central nervous activity
+
+  //Determine a combined drug effect on the respiratory arm of the nervous system
+  SEDrugSystem& Drugs = m_data.GetDrugs();
+  const double cnsModifier = Drugs.GetCentralNervousResponse().GetValue();  //Apply effects of opioids that depress central nervous activity
+  const double sedationModifier = Drugs.GetSedationLevel().GetValue();		//Apply effects of sedatives
+  const double nbModifier = Drugs.GetNeuromuscularBlockLevel().GetValue();	//Apply effects of neuromuscular blockers
+  m_DrugRespirationEffects = cnsModifier + sedationModifier;				//Assume cns and sedation modifiers gradually accumulate affect on respiratory drive
+  if (nbModifier > 0.1) {
+	//Assume that neuromuscular block shuts down respiratory drive completely
+    m_DrugRespirationEffects = 1.0;
+  }
+  BLIM(m_DrugRespirationEffects, 0.0, 1.0);
 
   //Note that this method uses instantaneous values of blood gas levels, not running averages
   const double arterialO2Pressure_mmHg = m_data.GetBloodChemistry().GetArterialOxygenPressure(PressureUnit::mmHg);
@@ -669,8 +684,8 @@ void Nervous::ChemoreceptorFeedback()
 
   //Adjust inputs to differential equations so that they approach their setpoints (i.e. baseline signal) when drugs that modifiy CNS are present
   //The peripherial input is not adjusted because the afferent signal is already accounted for.
-  const double afferentFiringInput = psi * std::exp(-5.0*drugCNSModifier) + m_ChemoreceptorFiringRateSetPoint_Hz * (1.0 - std::exp(-5.0 * drugCNSModifier));
-  const double centralInput = (arterialCO2Pressure_mmHg - m_ArterialCarbonDioxideSetPoint_mmHg) * std::exp(-5.0 * drugCNSModifier);
+  const double afferentFiringInput = psi * std::exp(-5.0 * m_DrugRespirationEffects) + m_ChemoreceptorFiringRateSetPoint_Hz * (1.0 - std::exp(-5.0 * m_DrugRespirationEffects));
+  const double centralInput = (arterialCO2Pressure_mmHg - m_ArterialCarbonDioxideSetPoint_mmHg) * std::exp(-5.0 * m_DrugRespirationEffects);
   const double peripheralInput = (m_AfferentChemoreceptor_Hz - m_ChemoreceptorFiringRateSetPoint_Hz);
 
   //Evaluate model derivatives pertaining to change in chemoreceptor firing rate, and changes in central and peripheral contributions to ventilation
