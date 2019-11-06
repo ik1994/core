@@ -538,7 +538,7 @@ void Nervous::BaroreceptorFeedback()
   const double tauVoigt = 0.9;
   const double slopeStrain = 0.04;
 
-  //Adjust apparent operating point as a result of pain and/or drugs (opioids, sedatives, anesthetics)
+  //Pain effect changes the operating point of the baroreceptors.  Anesthetics, sedatives, and opioids blunt the sensivitiy of the baroreflex (reflected in kBaro)
   double painEffect = 0.0;
   double drugEffect = 0.0;
   if (m_data.GetActions().GetPatientActions().HasPainStimulus()) {
@@ -547,14 +547,14 @@ void Nervous::BaroreceptorFeedback()
   }
   for (SESubstance* sub : m_data.GetCompartments().GetLiquidCompartmentSubstances()) {
     if ((sub->GetClassification() == CDM::enumSubstanceClass::Anesthetic) || (sub->GetClassification() == CDM::enumSubstanceClass::Sedative) || (sub->GetClassification() == CDM::enumSubstanceClass::Opioid)) {
-     drugEffect = m_data.GetDrugs().GetMeanBloodPressureChange(PressureUnit::mmHg);
+     drugEffect = m_data.GetDrugs().GetMeanBloodPressureChange(PressureUnit::mmHg) / m_data.GetPatient().GetMeanArterialPressureBaseline(PressureUnit::mmHg);
      break;
      //Only want to apply the blood pressure change ONCE (In case there are multiple sedative/opioids/etc)
      ///\TODO:  Look into a better way to implement drug classification search
     }
   }
 
-  const double baroreceptorOperatingPoint_mmHg = m_BaroreceptorOperatingPoint_mmHg + painEffect + drugEffect;
+  const double baroreceptorOperatingPoint_mmHg = m_BaroreceptorOperatingPoint_mmHg + painEffect;
 
   const double systolicPressure_mmHg = m_data.GetCardiovascular().GetSystolicArterialPressure(PressureUnit::mmHg);
   const double strainExp = std::exp(-slopeStrain * (systolicPressure_mmHg - baroreceptorOperatingPoint_mmHg));
@@ -562,11 +562,14 @@ void Nervous::BaroreceptorFeedback()
   const double dStrain = (1.0 / tauVoigt) * (-m_AfferentStrain + kVoigt * wallStrain);
   m_AfferentStrain += (dStrain * m_dt_s);
   const double strainSignal = wallStrain - m_AfferentStrain;
+  m_data.GetDataTrack().Probe("WallStrain", wallStrain);
+  m_data.GetDataTrack().Probe("StrainSignal", strainSignal);
 
   //Convert strain signal to be on same basis as Ursino model--this puts deviations in wall strain on same basis as other signals
   const double fBaroMax = 47.78;
   const double fBaroMin = 2.52;
-  const double kBaro = 0.075;
+  const double kBaro = 0.075 * (1.0 - 2.0 * drugEffect);
+  m_data.GetDataTrack().Probe("BaroSlope", kBaro);
   const double baroExponent = std::exp((strainSignal - m_AfferentStrainBaseline) / kBaro);
   m_AfferentBaroreceptor_Hz = (fBaroMin + fBaroMax * baroExponent) / (1.0 + baroExponent);
 
@@ -588,9 +591,6 @@ void Nervous::BaroreceptorFeedback()
   //Adjusting the mean arterial pressure set-point to account for cardiovascular drug effects
   double meanArterialPressureSetPoint_mmHg = m_data.GetPatient().GetMeanArterialPressureBaseline(PressureUnit::mmHg) //m_MeanArterialPressureNoFeedbackBaseline_mmHg
     + m_data.GetEnergy().GetExerciseMeanArterialPressureDelta(PressureUnit::mmHg);
-
-
-
 
 
   double sympatheticFraction = 1.0 / (1.0 + std::pow(meanArterialPressure_mmHg / meanArterialPressureSetPoint_mmHg, nu));
