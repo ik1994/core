@@ -87,12 +87,12 @@ void Nervous::Initialize()
   m_ComplianceModifier = -50.0;
   m_HeartElastanceModifier = 1.0;
   m_HypoxiaThresholdHeart = 3.59;
-  m_HypoxiaThresholdPeripheral = 0.0;
-  m_IntrinsicHeartRate = 1.6 * m_data.GetPatient().GetHeartRateBaseline(FrequencyUnit::Per_min);  //Approx guess -- should be higher than baseline since baseline assumes some vagal outflow
+  m_HypoxiaThresholdPeripheral = -9.0;
+  m_IntrinsicHeartRate = 1.5 * m_data.GetPatient().GetHeartRateBaseline(FrequencyUnit::Per_min);  //Approx guess -- should be higher than baseline since baseline assumes some vagal outflow
   m_ResistanceModifier = 0.0;
   m_PeripheralBloodGasInteractionBaseline_Hz = 0.0;
   m_PeripheralVentilationDelta_L_Per_min = 0.0;
-  m_PulmonaryVenousPressureBaseline_mmHg = 6.0;
+  m_PulmonaryVenousPressureBaseline_mmHg = m_data.GetCircuits().GetActiveCardiovascularCircuit().GetNode(BGE::CardiovascularNode::LeftAtrium1)->GetPressure(PressureUnit::mmHg);
   m_PulmonaryVenousPressureInput_mmHg = m_PulmonaryVenousPressureBaseline_mmHg;
   m_SympatheticHeartSignalBaseline = 0.175;
   m_SympatheticPeripheralSignalBaseline = 0.2;
@@ -257,10 +257,8 @@ void Nervous::AtSteadyState()
   m_BaroreceptorOperatingPoint_mmHg = m_data.GetCardiovascular().GetSystolicArterialPressure(PressureUnit::mmHg);
   const double wallStrain = 0.4226;  //This is the wall strain when arterial pressure = operating point (see BaroreceptorFeedback)
   m_AfferentStrainBaseline = wallStrain - m_AfferentStrain;
-  m_CerebralBloodFlowBaseline_mL_Per_s = m_CerebralBloodFlowInput_mL_Per_s;
   m_CerebralCarbonDioxideBaseline_mmHg = m_data.GetCompartments().GetExtracellularFluid(*m_data.GetCompartments().GetTissueCompartment(BGE::TissueCompartment::Brain)).GetSubstanceQuantity(m_data.GetSubstances().GetCO2())->GetPartialPressure(PressureUnit::mmHg);
   m_CerebralAutoregulator = 0.0;
-  m_PulmonaryVenousPressureBaseline_mmHg = m_PulmonaryVenousPressureInput_mmHg;
   m_SympatheticHeartSignalBaseline = m_SympatheticHeartSignal_Hz;
   m_SympatheticPeripheralSignalBaseline = m_SympatheticPeripheralSignal_Hz;
   m_VagalSignalBaseline = m_VagalSignal_Hz;
@@ -280,7 +278,7 @@ void Nervous::PreProcess()
   AfferentResponse();
   CentralSignalProcess();
   EfferentResponse();
-  CerebralAutoregulation();
+ CerebralAutoregulation();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -339,7 +337,7 @@ void Nervous::AfferentResponse()
   const double dFrequencyAP_Hz = (1.0 / tauAP_s) * (-m_AfferentPulmonaryStretchReceptor_Hz + pulmonaryStretchInput);
   m_AfferentPulmonaryStretchReceptor_Hz += dFrequencyAP_Hz * m_dt_s;
   
-  //Afferent atrial stretch receptors (*aa = afferent atrial)--Input is a filtered venous pressure first (less noisy) that is determined first
+  //Afferent atrial stretch receptors (*aa = afferent atrial)--Input is a filtered venous pressure (less noisy) that is determined first
   const double tauAA_s = 6.37;
   const double maxAA_Hz = 18.0;
   const double kAA_mmHg = 3.429;
@@ -363,8 +361,8 @@ void Nervous::CentralSignalProcess()
   const double xMaxSH = 3.59;
   const double oxygenHalfMaxSH = 45.0;
   const double kOxygenSH = 6.0;
-  const double xMinSP = -6.0;
-  const double xMaxSP = 0.0;
+  const double xMinSP = -15.0;
+  const double xMaxSP = -9.0;
   const double oxygenHalfMaxSP = 30.0;
   const double kOxygenSP = 2.0;
   const double tauIschemia = 30.0;
@@ -393,9 +391,9 @@ void Nervous::CentralSignalProcess()
   const double wSP_AB = -1.13;
   const double wSP_AC = 1.716;
   const double wSP_AP = -0.34;
-  const double wSP_AA = -1.0;	
+  const double wSP_AA = -1.0;  //-1.0	
   const double wSP_AT = 1.0;
-  const double exponentSP = kS * (wSP_AB * m_AfferentBaroreceptor_Hz + wSP_AC * m_AfferentChemoreceptor_Hz + wSP_AP * m_AfferentPulmonaryStretchReceptor_Hz - m_HypoxiaThresholdPeripheral);
+  const double exponentSP = kS * (wSP_AB * m_AfferentBaroreceptor_Hz + wSP_AC * m_AfferentChemoreceptor_Hz + wSP_AP * m_AfferentPulmonaryStretchReceptor_Hz + wSP_AA * m_AfferentAtrial_Hz - m_HypoxiaThresholdPeripheral);
   m_SympatheticPeripheralSignal_Hz = std::exp(exponentSP);
 
   //-------Determine vagal (parasympathetic) signal to heart------------------------------------------------------------------
