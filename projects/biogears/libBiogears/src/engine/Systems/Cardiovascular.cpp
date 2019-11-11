@@ -59,7 +59,7 @@ Cardiovascular::Cardiovascular(BioGears& bg)
   , m_transporter(VolumePerTimeUnit::mL_Per_s, VolumeUnit::mL, MassUnit::ug, MassPerVolumeUnit::ug_Per_mL, bg.GetLogger())
 {
   Clear();
-  m_TuningFile = "./Tuning/Circuit.csv";
+  m_TuningFile = "";
 }
 
 Cardiovascular::~Cardiovascular()
