@@ -403,7 +403,7 @@ void Cardiovascular::SetUp()
         switch (region) {
         case CDM::enumResistancePathType::Cerebral:
           continue;
-		case CDM::enumResistancePathType::Extrasplanchnic:
+        case CDM::enumResistancePathType::Extrasplanchnic:
           m_extrasplanchnicResistancePaths.push_back(path);
           break;
         case CDM::enumResistancePathType::Muscle:
@@ -440,7 +440,7 @@ void Cardiovascular::SetUp()
         }
         if (path->HasComplianceBaseline()) {
           m_systemicCompliancePaths.push_back(path);
-        }     
+        }
         //break;
       }
     }
@@ -722,10 +722,6 @@ void Cardiovascular::Process()
   m_circuitCalculator.Process(*m_CirculatoryCircuit, m_dT_s);
   m_transporter.Transport(*m_CirculatoryGraph, m_dT_s);
   CalculateVitalSigns();
-  m_data.GetDataTrack().Probe("ElastanceLeft_BG", m_LeftHeartElastanceMax_mmHg_Per_mL);
-  m_data.GetDataTrack().Probe("ElastanceRight_BG", m_RightHeartElastanceMax_mmHg_Per_mL);
-  m_data.GetDataTrack().Probe("PulmonaryVenousPressure", m_data.GetCompartments().GetLiquidCompartment(BGE::VascularCompartment::LeftPulmonaryVeins)->GetPressure(PressureUnit::mmHg));
-  m_data.GetDataTrack().Probe("ThoracicPressure", m_data.GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::PleuralCavity)->GetPressure(PressureUnit::mmHg)-760.0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -792,7 +788,6 @@ void Cardiovascular::CalculateVitalSigns()
   double gutFlow_mL_Per_s = m_pAortaToLargeIntestine->GetNextFlow(VolumePerTimeUnit::mL_Per_s) + m_pAortaToSmallIntestine->GetNextFlow(VolumePerTimeUnit::mL_Per_s) + m_pAortaToSplanchnic->GetNextFlow(VolumePerTimeUnit::mL_Per_s);
 
   // Calculate heart rate - Threshold of 0.1 is empirically determined. Approximate zero makes it too noisy.
-  m_CurrentCardiacCycleDuration_s += m_dT_s;
   if (LHeartFlow_mL_Per_s > 0.1 && !m_HeartFlowDetected) {
     m_HeartFlowDetected = true;
     CalculateHeartRate();
@@ -1098,11 +1093,11 @@ void Cardiovascular::TraumaticBrainInjury()
 /// The hemorrhage function simulates bleeding from a specified compartment
 /// \details
 /// The cardiovascular circuit has paths from each compartment to ground (initially open) that represent
-/// bleeding sites.  When a hemorrhage is activated, the current pressure at the location and the 
+/// bleeding sites.  When a hemorrhage is activated, the current pressure at the location and the
 /// user specified bleed rate are used to determine a resistance for the appropriate bleeding path.
 /// A resistance is set (rather than a flow source) so that pulsatile flow characteristics can be
 /// observed and so that bleeding rate diminishes with blood volume.
-/// Tourniquets can be applied to the extremities, which increase the resistance on the paths into and 
+/// Tourniquets can be applied to the extremities, which increase the resistance on the paths into and
 /// out of the heomrrhage compartment.
 //--------------------------------------------------------------------------------------------------
 void Cardiovascular::Hemorrhage()
@@ -1173,7 +1168,7 @@ void Cardiovascular::Hemorrhage()
   //or B) refers to an incompatible compartments.  We are therefore safe to loop through this map without further checks.
   for (auto tPair : tourniquets) {
     tournCmpt = tPair.first;
-	tourniquet = tPair.second;
+    tourniquet = tPair.second;
     CDM::enumTourniquetApplicationLevel::value tLevel = tourniquet->GetTourniquetLevel();
     //Take advantage of the fact that extremities are all named as Aorta1ToLeftArm1 and LeftArm1ToLeftArm2
     std::string supplyPathName = "Aorta1To" + tournCmpt + "1";
@@ -1198,7 +1193,6 @@ void Cardiovascular::Hemorrhage()
     supplyPath->GetNextResistance().SetValue(tResModifier * supplyBaseResistance, FlowResistanceUnit::mmHg_s_Per_mL);
     returnPath->GetNextResistance().SetValue(tResModifier * returnBaseResistance, FlowResistanceUnit::mmHg_s_Per_mL);
   }
-
 
   /*
   Stub to try to calculate a probability of survival based on the bleeding rate and approximate time to bleed out.
@@ -1481,8 +1475,10 @@ void Cardiovascular::HeartDriver()
     m_EnterCardiacArrest = true;
 
   if (!m_patient->IsEventActive(CDM::enumPatientEvent::CardiacArrest)) {
-    if (m_CurrentCardiacCycleTime_s >= m_CardiacCyclePeriod_s - m_dT_s)
+    if (m_CurrentCardiacCycleTime_s + m_dT_s > m_CardiacCyclePeriod_s) {
       m_StartSystole = true; // A new cardiac cycle will begin next time step
+      m_CurrentCardiacCycleDuration_s += (m_CardiacCyclePeriod_s - m_CurrentCardiacCycleTime_s);  //Add leftover time to current duration so Calc Heart Rate has an accuracte notion of how long this cycle lasted
+    }
 
     AdjustVascularTone();
     CalculateHeartElastance();
@@ -1495,7 +1491,10 @@ void Cardiovascular::HeartDriver()
   // Note that the cardiac cycle time (m_CurrentCardiacCycleTime_s) continues to increment until a cardiac cycle begins (a beat happens)
   // So for a normal sinus rhythm, the maximum cardiac cycle time is equal to the cardiac cycle period (m_CardiacCyclePeriod_s).
   // For any ineffective rhythm (no heart beat) the cardiac cycle time will be as long as it has been since the last time there was an effective beat.
+  // The variable m_CurrentCardiacCycleDuratoin_s tracks the time between beats and is used in CalculateHeartRate.  We use a separate counter
+  // for heart rate because the conditions that trigger CalcHeartRate are different than those that trigger BeginCardiacCycle
   m_CurrentCardiacCycleTime_s += m_dT_s;
+  m_CurrentCardiacCycleDuration_s += m_dT_s;		
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1534,8 +1533,8 @@ void Cardiovascular::BeginCardiacCycle()
     if (m_data.GetActions().GetPatientActions().GetOverride()->HasHeartRateOverride() && m_data.GetActions().GetPatientActions().GetOverride()->GetOverrideConformance() == CDM::enumOnOff::On) {
       HeartDriverFrequency_Per_Min = m_OverrideHR_Conformant_Per_min;
       const double HRoverride_Per_min = m_data.GetActions().GetPatientActions().GetOverride()->GetHeartRateOverride(FrequencyUnit::Per_min);
-      const double HeartDriverINcrease_Per_min = std::abs((HRoverride_Per_min - HeartDriverFrequency_Per_Min) / HeartDriverFrequency_Per_Min) * (HRoverride_Per_min - HeartDriverFrequency_Per_Min);
-      HeartDriverFrequency_Per_Min += HeartDriverINcrease_Per_min;
+      const double HeartDriverIncrease_Per_min = std::abs((HRoverride_Per_min - HeartDriverFrequency_Per_Min) / HeartDriverFrequency_Per_Min) * (HRoverride_Per_min - HeartDriverFrequency_Per_Min);
+      HeartDriverFrequency_Per_Min += HeartDriverIncrease_Per_min;
     }
   } else {
 
@@ -1560,15 +1559,22 @@ void Cardiovascular::BeginCardiacCycle()
     RecordAndResetCardiacCycle();
     GetHeartRate().SetValue(0.0, FrequencyUnit::Per_min);
   } else {
-    if (HeartDriverFrequency_Per_Min == 0)
+    if (HeartDriverFrequency_Per_Min == 0) {
       m_CardiacCyclePeriod_s = 1.0e9; // Cannot divide by zero so set the period to a large number (1.0e9 sec = 31.7 years)
-    else
+    } else {
       m_CardiacCyclePeriod_s = 60.0 / HeartDriverFrequency_Per_Min;
+         if ((m_CardiacCyclePeriod_s < (1.0 / m_patient->GetHeartRateBaseline(FrequencyUnit::Per_s)) + m_dT_s) && (m_data.GetState() <=EngineState::AtSecondaryStableState)) {
+		   // A deviation of < 1 time step in cycle period can introduce undamped oscillations in HR during stabilization.  Make sure that any changes to HeartDriverFrequency
+		   // are greater than 1 time step during stabilization -- this will still allow conditions to affect change
+           m_CardiacCyclePeriod_s = 1.0 / m_patient->GetHeartRateBaseline(FrequencyUnit::Per_s);
+		 }
+    }
   }
 
   // Reset the systole flag and the cardiac cycle time
   m_StartSystole = false;
   m_CurrentCardiacCycleTime_s = 0.0;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1870,6 +1876,10 @@ void Cardiovascular::TuneCircuit()
         continue;
       extra->Balance(BalanceLiquidBy::Concentration);
     }
+    m_patient->GetHeartRateBaseline().Set(GetHeartRate());
+    m_patient->GetDiastolicArterialPressureBaseline().Set(GetDiastolicArterialPressure());
+    m_patient->GetSystolicArterialPressureBaseline().Set(GetSystolicArterialPressure());
+    m_patient->GetMeanArterialPressureBaseline().Set(GetMeanArterialPressure());
   }
 }
 //--------------------------------------------------------------------------------------------------
@@ -1954,7 +1964,7 @@ void Cardiovascular::AdjustVascularTone()
   CDM::enumResistancePathType resistanceRegion;
   if (m_data.GetNervous().HasBaroreceptorResistanceScale()) {
     for (SEFluidCircuitPath* Path : m_systemicResistancePaths) {
-       //todo We are treating all systemic resistance paths equally, including the brain.
+      //todo We are treating all systemic resistance paths equally, including the brain.
       UpdatedResistance_mmHg_s_Per_mL = m_data.GetNervous().GetBaroreceptorResistanceScale().GetValue() * Path->GetResistanceBaseline(FlowResistanceUnit::mmHg_s_Per_mL);
       if (UpdatedResistance_mmHg_s_Per_mL < m_minIndividialSystemicResistance__mmHg_s_Per_mL) {
         UpdatedResistance_mmHg_s_Per_mL = m_minIndividialSystemicResistance__mmHg_s_Per_mL;
@@ -2093,7 +2103,7 @@ void Cardiovascular::CalculateHeartRate()
     HeartRate_Per_s = 1.0 / (m_CurrentCardiacCycleDuration_s - m_dT_s);
   }
   GetHeartRate().SetValue(HeartRate_Per_s * 60.0, FrequencyUnit::Per_min);
-  m_CurrentCardiacCycleDuration_s = 0;
+  m_CurrentCardiacCycleDuration_s = 0.0;   //Incremented each time step in HeartDriver		
 }
 
 //--------------------------------------------------------------------------------------------------
