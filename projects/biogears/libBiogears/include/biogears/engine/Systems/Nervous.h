@@ -73,6 +73,7 @@ protected:
   void CentralSignalProcess();
   void EfferentResponse();
   void CerebralAutoregulation();
+  void CerebralAutoregulation2();
 
    bool m_TestBaroreceptors; //For testing
 
@@ -81,10 +82,10 @@ protected:
   double m_AfferentPulmonaryStretchReceptor_Hz;
   double m_AfferentStrain;
   double m_AfferentStrainBaseline;
-  double m_ArterialOxygenSetPoint_mmHg; /// \todo Aaron these should be baselines.
-  double m_ArterialCarbonDioxideSetPoint_mmHg;
-  double m_BaroreceptorBaseline;
+  double m_ArterialOxygenBaseline_mmHg;
+  double m_ArterialCarbonDioxideBaseline_mmHg;
   double m_BaroreceptorFatigueScale;
+  double m_BaroreceptorOffset;
   double m_BaroreceptorOperatingPoint_mmHg;
   double m_CentralVentilationDelta_L_Per_min;
   double m_ChemoreceptorFiringRateSetPoint_Hz;
@@ -92,6 +93,8 @@ protected:
   double m_CerebralBloodFlowBaseline_mL_Per_s;
   double m_CerebralBloodFlowInput_mL_Per_s;
   double m_CerebralCarbonDioxideBaseline_mmHg;
+  double m_CerebralOxygenMolarityBaseline_mM;
+  double m_CerebralOxygenEffector;
   double m_ComplianceModifier;
   double m_HeartElastanceModifier;
   double m_HypoxiaThresholdHeart;
@@ -135,6 +138,14 @@ protected:
   double m_normalizedAlphaCompliance;
   double m_normalizedAlphaResistance;
   double m_normalizedBetaHeartRate;
+
+  //Test
+  std::vector<double> m_CerebralAutoEffectors;
+  std::vector<double> m_CerebralOxygenEffectors;
+  std::vector<double> m_CerebralCarbonDioxideEffectors;
+  double m_CerebralPerfusionPressureBaseline_mmHg;
+  double m_CerebralOxygenSaturationBaseline;
+
 
 };
 }

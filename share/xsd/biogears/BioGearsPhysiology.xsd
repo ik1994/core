@@ -135,8 +135,8 @@ specific language governing permissions and limitations under the License.
           <xs:element name="AfferentStrainBaseline" type="xs:double" minOccurs="1" maxOccurs="1"/>
           <xs:element name="ArterialOxygenSetPoint_mmHg" type="xs:double" minOccurs="1" maxOccurs="1"/>
           <xs:element name="ArterialCarbonDioxideSetPoint_mmHg" type="xs:double" minOccurs="1" maxOccurs="1"/>
-          <xs:element name="BaroreceptorBaseline" type="xs:double" minOccurs="1" maxOccurs="1"/>
           <xs:element name="BaroreceptorFatigueScale" type="xs:double" minOccurs="1" maxOccurs="1"/>
+          <xs:element name="BaroreceptorOffset" type="xs:double" minOccurs="1" maxOccurs="1"/>
           <xs:element name="BaroreceptorOperatingPoint_mmHg" type="xs:double" minOccurs="1" maxOccurs="1"/>
           <xs:element name="CerebralAutoregulator" type="xs:double" minOccurs="1" maxOccurs="1"/>
           <xs:element name="CerebralBloodFlowBaseline_mL_Per_s" type="xs:double" minOccurs="1" maxOccurs="1"/>
