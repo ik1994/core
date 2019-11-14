@@ -73,9 +73,6 @@ protected:
   void CentralSignalProcess();
   void EfferentResponse();
   void CerebralAutoregulation();
-  void CerebralAutoregulation2();
-
-   bool m_TestBaroreceptors; //For testing
 
   // Serializable member variables (Set in Initialize and in schema)
   double m_AfferentChemoreceptor_Hz;
@@ -88,15 +85,17 @@ protected:
   double m_BaroreceptorOffset;
   double m_BaroreceptorOperatingPoint_mmHg;
   double m_CentralVentilationDelta_L_Per_min;
+  std::vector<double> m_CerebralArteriesEffectors_Large;
+  std::vector<double> m_CerebralArteriesEffectors_Small;
+  double m_CerebralOxygenSaturationBaseline;
+  double m_CerebralPerfusionPressureBaseline_mmHg;
   double m_ChemoreceptorFiringRateSetPoint_Hz;
-  double m_CerebralAutoregulator;
   double m_CerebralBloodFlowBaseline_mL_Per_s;
   double m_CerebralBloodFlowInput_mL_Per_s;
-  double m_CerebralCarbonDioxideBaseline_mmHg;
-  double m_CerebralOxygenMolarityBaseline_mM;
-  double m_CerebralOxygenEffector;
   double m_ComplianceModifier;
   double m_HeartElastanceModifier;
+  double m_HypocapniaThresholdHeart;
+  double m_HypocapniaThresholdPeripheral;
   double m_HypoxiaThresholdHeart;
   double m_HypoxiaThresholdPeripheral;
   double m_IntrinsicHeartRate;
@@ -127,25 +126,6 @@ protected:
   double m_SympatheticHeartSignal_Hz;
   double m_SympatheticPeripheralSignal_Hz;
   double m_VagalSignal_Hz;
-
-  // Configuration fractions representing the amount by which each quantity can change due to baroreceptors;
-  double m_normalizedGammaHeartRate;
-  double m_normalizedGammaElastance;
-  double m_normalizedGammaCompliance;
-  double m_normalizedGammaResistance;
-  double m_normalizedAlphaHeartRate;
-  double m_normalizedAlphaElastance;
-  double m_normalizedAlphaCompliance;
-  double m_normalizedAlphaResistance;
-  double m_normalizedBetaHeartRate;
-
-  //Test
-  std::vector<double> m_CerebralAutoEffectors;
-  std::vector<double> m_CerebralOxygenEffectors;
-  std::vector<double> m_CerebralCarbonDioxideEffectors;
-  double m_CerebralPerfusionPressureBaseline_mmHg;
-  double m_CerebralOxygenSaturationBaseline;
-
 
 };
 }
