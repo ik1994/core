@@ -12,9 +12,9 @@ specific language governing permissions and limitations under the License.
 
 #pragma once
 #include <biogears/cdm/CommonDataModel.h>
-#include <biogears/exports.h>
 #include <biogears/cdm/system/physiology/SENervousSystem.h>
 #include <biogears/engine/Controller/BioGearsSystem.h>
+#include <biogears/exports.h>
 #include <biogears/schema/biogears/BioGearsPhysiology.hxx>
 
 namespace biogears {
@@ -36,8 +36,8 @@ protected:
 public:
   virtual ~Nervous() override;
 
-  static size_t TypeHash() { return reinterpret_cast<size_t>(&TypeHash); }  //! Hopefully this returns a unique ID for every type
-  static constexpr char const * const  TypeTag() { return "Nervous"; }
+  static size_t TypeHash() { return reinterpret_cast<size_t>(&TypeHash); } //! Hopefully this returns a unique ID for every type
+  static constexpr char const* const TypeTag() { return "Nervous"; }
   const char* classname() const override { return TypeTag(); }
   size_t hash_code() const override { return TypeHash(); }
 
@@ -81,7 +81,6 @@ protected:
   double m_AfferentStrainBaseline;
   double m_ArterialOxygenBaseline_mmHg;
   double m_ArterialCarbonDioxideBaseline_mmHg;
-  double m_BaroreceptorFatigueScale;
   double m_BaroreceptorOffset;
   double m_BaroreceptorOperatingPoint_mmHg;
   double m_CentralVentilationDelta_L_Per_min;
@@ -106,6 +105,7 @@ protected:
   double m_PulmonaryVenousPressureInput_mmHg;
   double m_SympatheticHeartSignalBaseline;
   double m_SympatheticPeripheralSignalBaseline;
+  double m_SympatheticPeripheralSignalFatigue;
   double m_VagalSignalBaseline;
 
   // Stateless member variable (Set in SetUp())
@@ -126,6 +126,5 @@ protected:
   double m_SympatheticHeartSignal_Hz;
   double m_SympatheticPeripheralSignal_Hz;
   double m_VagalSignal_Hz;
-
 };
 }
